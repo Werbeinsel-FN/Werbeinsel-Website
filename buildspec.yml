@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 16
+    commands:
+      - echo "Installiere ssh und aws-cli falls nötig"
+      - yum install -y openssh aws-cli
+
+  pre_build:
+    commands:
+      - echo "Lese privaten SSH-Schlüssel aus SSM"
+      - mkdir -p ~/.ssh
+      - aws ssm get-parameter --name "/werbeinsel/ssh_private_key" --with-decryption --query "Parameter.Value" --output text > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - echo -e "Host lightsail\n  HostName 3.126.252.21\n  User deploy\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking=no" > ~/.ssh/config
+
+  build:
+    commands:
+      - echo "Verbinde mit Lightsail und ziehe neues GitHub-Repo"
+      - ssh lightsail "cd /opt/bitnami/wordpress && git pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"
