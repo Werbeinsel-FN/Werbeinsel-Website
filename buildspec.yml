@@ -26,4 +26,4 @@ phases:
   build:
     commands:
       - echo "Verbinde mit Lightsail und ziehe neues GitHub-Repo"
-      - ssh lightsail "cd /opt/bitnami/wordpress && git pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"
+      - ssh lightsail "sudo -u bitnami git -C /opt/bitnami/wordpress pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"
