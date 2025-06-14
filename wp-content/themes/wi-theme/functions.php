@@ -325,7 +325,7 @@ function wi_theme_enqueue_contact_js() {
 
             wp_enqueue_script(
                 'wi-theme-js',
-                get_template_directory_uri() . 'js/contact.js',
+                get_template_directory_uri() . '/js/contact.js',
                 array(),
                 '1.0',
                 true
