@@ -1,19 +1,19 @@
-.menu-footermenu-container {
+.menu-footermenu-container, .menu-footermenue-container {
     display: flex;
     flex-direction: column;
     align-items: center;    
 }
 
-.menu-footermenu-container ul {
+.menu-footermenu-container ul, .menu-footermenue-container ul {
     list-style-type: none;
     display: inline-flex;
 }
 
-.menu-footermenu-container ul li {
+.menu-footermenu-container ul li, .menu-footermenue-container ul li {
         margin: 0px 20px;
 }
 
-.menu-footermenu-container ul li a {
+.menu-footermenu-container ul li a, .menu-footermenue-container ul li a {
         color: #000;
 		font-family: Poppins, sans-serif;
         text-decoration: none;
