@@ -18,6 +18,14 @@ function wi_theme_enqueue_styles() {
 
     // register footer stylesheet
     wp_enqueue_style('wi-footer-style', get_template_directory_uri() . '/css/footer.css', array(), filemtime(get_template_directory() . '/css/footer.css'));
+
+    // load foundation icons
+    wp_enqueue_style(
+        'foundation-icons',
+        'https://cdn.jsdelivr.net/npm/foundation-icons/foundation-icons.css',
+        array(), // no dependencies
+        null     // no fixed version no
+    );    
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
 
@@ -281,6 +289,16 @@ function wi_theme_enqueue_google_fonts() {
     }
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_google_fonts');
+
+function wi_theme_enqueue_roboto_font() {
+    wp_enqueue_style(
+        'roboto-font',
+        'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap',
+        [],
+        null
+    );
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
 
 /**
  * helper-function for color brightness adjustment
