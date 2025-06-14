@@ -1,0 +1,29 @@
+.menu-footermenu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+}
+
+.menu-footermenu-container ul {
+    list-style-type: none;
+    display: inline-flex;
+}
+
+.menu-footermenu-container ul li {
+        margin: 0px 20px;
+}
+
+.menu-footermenu-container ul li a {
+        color: #000;
+		font-family: Poppins, sans-serif;
+        text-decoration: none;
+        font-size: 1.5rem;
+}
+
+.footer-copyright {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-family: Poppins, sans-serif;
+    font-size: 1rem;
+}
