@@ -13,6 +13,9 @@ function wi_theme_enqueue_styles() {
     // register main stylesheet
     wp_enqueue_style('wi-style', get_stylesheet_uri());
 
+    // register header stylesheet
+    wp_enqueue_style('wi-header-style', get_template_directory_uri() . '/css/header.css', array(), filemtime(get_template_directory() . '/css/header.css'));    
+
     // register footer stylesheet
     wp_enqueue_style('wi-footer-style', get_template_directory_uri() . '/css/footer.css', array(), filemtime(get_template_directory() . '/css/footer.css'));
 }
