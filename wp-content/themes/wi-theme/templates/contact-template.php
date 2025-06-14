@@ -17,9 +17,9 @@ get_header(); ?>
         <h3 class="contact-main-container headline">Kontakt</h3>
         <div class="contact-main-container subline">Einfach das Formular ausfüllen - wir freuen uns auf Sie!</div>
         <!-- Live site -->
-        <!-- <?php echo do_shortcode('[contact-form-7 id="f2feafb" title="Kontaktformular"]'); ?> -->
+        <?php echo do_shortcode('[contact-form-7 id="f2feafb" title="Kontaktformular"]'); ?>
         <!-- Sam local site -->
-        <?php echo do_shortcode('[contact-form-7 id="c6acd7a" title="Contact form 1"]'); ?>
+        <!-- <?php echo do_shortcode('[contact-form-7 id="c6acd7a" title="Contact form 1"]'); ?> -->
     </div>
 </main>
 
