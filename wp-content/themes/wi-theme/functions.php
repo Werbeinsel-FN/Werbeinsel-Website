@@ -319,18 +319,14 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 
 // Register contact js
 function wi_theme_enqueue_contact_js() {
-    if (is_page()) {
-        $page_template = get_page_template_slug(get_queried_object_id());
-        if ($page_template == 'contact-template.php') {
-
-            wp_enqueue_script(
-                'wi-theme-js',
-                get_template_directory_uri() . '/js/contact.js',
-                array(),
-                '1.0',
-                true
-            );
-        }
+    if (is_page('kontakt')) {
+        wp_enqueue_script(
+            'wi-theme-js',
+            get_template_directory_uri() . '/js/contact.js',
+            array(),
+            '1.0',
+            true
+        );
     }
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_contact_js');
