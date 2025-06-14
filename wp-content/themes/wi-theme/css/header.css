@@ -1,9 +1,28 @@
     /* center logo */
     .logo-wrapper {
+        padding: 2rem 0;
         display: flex;
         justify-content: center;        
     }
     /* logo size */
     .logo-light {
         height: 200px;
+    }
+
+    /* center menu */
+    body header nav {
+        display: flex;
+        justify-content: center;
+    }
+    .main-menu {
+        list-style-type: none; 
+        display: inline-flex; /* items next to each other */
+    }
+    .main-menu li {
+        margin: 0px 20px;
+    }
+    .main-menu li a {
+        color: #000;
+		font-family: Poppins, sans-serif;
+        text-decoration: none;
     }
