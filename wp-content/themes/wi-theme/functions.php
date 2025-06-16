@@ -335,8 +335,8 @@ function wi_theme_admin_scripts($hook) {
 }
 add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 
-// Register contact js
-function wi_theme_enqueue_contact_js() {
+// Register js
+function wi_theme_enqueue_js() {
     if (is_page('kontakt')) {
         wp_enqueue_script(
             'wi-theme-js',
@@ -346,5 +346,14 @@ function wi_theme_enqueue_contact_js() {
             true
         );
     }
+    if (is_page('datenschutz')) {
+        wp_enqueue_script(
+            'wi-theme-js',
+            get_template_directory_uri() . '/js/datenschutz.js',
+            array(),
+            '1.0',
+            true
+        );
+    }    
 }
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_contact_js');
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
