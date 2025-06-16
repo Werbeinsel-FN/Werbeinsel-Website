@@ -133,19 +133,24 @@
 
 /* Hover-Effekt für die Menü-Items (erweitert den Bereich nach außen) */
 .mod-menu li:hover {
-    background-color: #FF1969;
+    background-color: #FFED00;
 }
 
 /* Menü-Links */
 .mod-menu li a {
     color: white;
     text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    line-height: .8rem;
     font-size: 18px;
     font-weight: bold;
 	display: block; /* Macht den Link blockfüllend */
     width: 100%; /* Dehnt ihn über die ganze Breite des li-Elements */
     height: 100%; /* Dehnt ihn über die ganze Höhe des li-Elements */
     text-align: center;
+}
+.mod-menu li a:hover {
+    color: black;
 }
 
 /* Button zum Öffnen des Menüs */
@@ -154,12 +159,13 @@
     border: none;
     color: white;
     font-size: 25px;
+    font-family: 'Unbounded', sans-serif;
     cursor: pointer;
     display: flex; /* Flexbox aktivieren */
     flex-direction: row; /* Elemente nebeneinander anordnen */
     align-items: center; /* Vertikal zentrieren */
     padding: 10px;
-    gap: 25px; /* Abstand zwischen den Elementen */
+    gap: 15px; /* Abstand zwischen den Elementen */
 }
 #toggle-main-menu .label {
     text-transform: uppercase;
@@ -177,9 +183,9 @@
     width: 50px; /* Größe des Kreises */
     height: 50px; /* Größe des Kreises */
     border-radius: 50%; /* Macht es rund */
-    background: #FF1969/*rgba(255, 255, 255, 0.2)*/; /* Leicht transparenter Hintergrund */
+    background: #FFED00/*rgba(255, 255, 255, 0.2)*/; /* Leicht transparenter Hintergrund */
     transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
-	margin-left: -30px;
+	margin-left: -15px;
 }
 
 /* Hover-Effekt für den Kreis */
@@ -194,7 +200,7 @@
 .menu-ball .line {
     width: 25px;
     height: 3px;
-    background: white;
+    background: black;
     transition: transform 0.3s ease-in-out;
 }
 #toggle-main-menu:hover .menu-ball .line:nth-child(3) {
