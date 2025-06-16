@@ -664,6 +664,16 @@ get_header(); ?>
     </div>
 
   </section>
+<section class="bereit-zum-section">
+  <h2>Bereit zum</h2>
+  <h2 class="upleveln">upleveln?</h2>
+</section>
+<section class="dugme-section">
+  <div class="dugme">
+        <div class="krug"></div>
+        <div class="tekst">Yes</div>
+    </div>
+</section>
 </main>
 
 <?php get_footer();
