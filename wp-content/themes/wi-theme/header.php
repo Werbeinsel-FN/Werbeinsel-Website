@@ -19,15 +19,7 @@
 				</a>
             <?php endif; ?>
         </div>
-        <nav>
-            <?php
-            wp_nav_menu(array(
-                'theme_location' => 'primary',
-                'container'      => 'ul',
-                'menu_class'     => 'main-menu',
-            ));
-            ?>
-        </nav>
+        <?php get_template_part('mainmenu'); ?>
     </header>
 </body>
 </html>
