@@ -56,7 +56,7 @@ get_header(); ?>
       Detaillierte Informationen zu diesen Analyseprogrammen finden Sie in der folgenden Datenschutzerklärung.
     </p>
   </div>
-<div class="content-wrapper">
+ <div class="content-wrapper">
   <h2>2. Hosting und Content Delivery Networks (CDN)</h2>
 
   <h3>Cloudflare</h3>
@@ -82,8 +82,8 @@ get_header(); ?>
   <p>
     Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.
   </p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>3. Allgemeine Hinweise und Pflicht­informationen</h2>
 
   <h3>Datenschutz</h3>
@@ -164,7 +164,7 @@ get_header(); ?>
 
   <h3>Widerspruch gegen Werbe-E-Mails</h3>
   <p>Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen, etwa durch Spam-E-Mails, vor.</p>
-</div>
+ </div>
  <div class="content-wrapper">
     <h2>4. Datenerfassung auf dieser Website</h2>
 
@@ -235,7 +235,7 @@ get_header(); ?>
     <h3>Auftragsverarbeitung</h3>
     <p>Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.</p>
   </div>
-<div class="content-wrapper">
+ <div class="content-wrapper">
   <h2>5. Soziale Medien</h2>
 
   <h3>Instagram</h3>
@@ -259,8 +259,8 @@ get_header(); ?>
 
   <h3>Flockler</h3>
   <p>Wir verwenden Flockler, ein Social-Media-Aggregator-Tool, um Social-Media-Feeds zu kuratieren und Social-Media-Inhalte zu präsentieren, von denen wir glauben, dass sie für Sie relevant und inspirierend sind. Flockler speichert keine Informationen über Ihren Besuch. Je nach Plattform können jedoch die Social-Media-Dienste Informationen über Sie speichern, wenn Sie sich entscheiden, mit den Inhalten zu interagieren (z. B. ein Video abspielen oder unsere Social-Media-Profilseite besuchen).</p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>6. Analyse-Tools und Werbung</h2>
 
   <h3>Google Tag Manager</h3>
@@ -305,8 +305,8 @@ get_header(); ?>
   <p>Mit Hilfe von Google-Conversion-Tracking können Google und wir erkennen, ob der Nutzer bestimmte Aktionen durchgeführt hat. So können wir beispielsweise auswerten, welche Buttons auf unserer Website wie häufig geklickt und welche Produkte besonders häufig angesehen oder gekauft wurden. Diese Informationen dienen dazu, Conversion-Statistiken zu erstellen. Wir erfahren die Gesamtanzahl der Nutzer, die auf unsere Anzeigen geklickt haben und welche Aktionen sie durchgeführt haben. Wir erhalten keine Informationen, mit denen wir den Nutzer persönlich identifizieren können. Google selbst nutzt zur Identifikation Cookies oder vergleichbare Wiedererkennungstechnologien.</p>
   <p>Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Die Einwilligung ist jederzeit widerrufbar.</p>
   <p>Mehr Informationen zu Google Conversion-Tracking finden Sie in den Datenschutzbestimmungen von Google: <a href="https://policies.google.com/privacy?hl=de" target="_blank">https://policies.google.com/privacy?hl=de</a>.</p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>7. Newsletter</h2>
 
   <h3>Newsletter­daten</h3>
@@ -333,8 +333,8 @@ get_header(); ?>
 
   <h3>Auftragsverarbeitung</h3>
   <p>Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.</p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>8. Plugins und Tools</h2>
 
   <h3>YouTube mit erweitertem Datenschutz</h3>
@@ -368,8 +368,8 @@ get_header(); ?>
 
   <h3>Auftragsverarbeitung</h3>
   <p>Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.</p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>9. Audio- und Videokonferenzen</h2>
 
   <h3>Datenverarbeitung</h3>
@@ -396,8 +396,8 @@ get_header(); ?>
 
   <h3>Auftragsverarbeitung</h3>
   <p>Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.</p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>10. Eigene Dienste</h2>
 
   <h3>Umgang mit Bewerberdaten</h3>
@@ -415,8 +415,8 @@ get_header(); ?>
   <p>Sofern wir Ihnen kein Stellenangebot machen, besteht ggf. die Möglichkeit, Sie in unseren Bewerber-Pool aufzunehmen. Im Falle der Aufnahme werden alle Dokumente und Angaben aus der Bewerbung in den Bewerber-Pool übernommen, um Sie im Falle von passenden Vakanzen zu kontaktieren.</p>
   <p>Die Aufnahme in den Bewerber-Pool geschieht ausschließlich auf Grundlage Ihrer ausdrücklichen Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Die Abgabe der Einwilligung ist freiwillig und steht in keinem Bezug zum laufenden Bewerbungsverfahren. Der Betroffene kann seine Einwilligung jederzeit widerrufen. In diesem Falle werden die Daten aus dem Bewerber-Pool unwiderruflich gelöscht, sofern keine gesetzlichen Aufbewahrungsgründe vorliegen.</p>
   <p>Die Daten aus dem Bewerber-Pool werden spätestens zwei Jahre nach Erteilung der Einwilligung unwiderruflich gelöscht.</p>
-</div>
-<div class="content-wrapper">
+ </div>
+ <div class="content-wrapper">
   <h2>11. Implementierte Technologien</h2>
 
   <p>Diese Webseite verwendet Cookies. Wir verwenden Cookies, um Inhalte und Anzeigen zu personalisieren, Funktionen für soziale Medien anbieten zu können und die Zugriffe auf unsere Website zu analysieren. Außerdem geben wir Informationen zu Ihrer Verwendung unserer Website an unsere Partner für soziale Medien, Werbung und Analysen weiter. Unsere Partner führen diese Informationen möglicherweise mit weiteren Daten zusammen, die Sie ihnen bereitgestellt haben oder die sie im Rahmen Ihrer Nutzung der Dienste gesammelt haben.</p>
@@ -442,11 +442,228 @@ get_header(); ?>
   <p><a href="#">Einwilligung ändern</a>  |  <a href="#">Einwilligung widerrufen</a></p>
 
   <p>Die Cookie-Erklärung wurde das letzte Mal am 30.5.25. von <a href="#">Cookiebot</a> aktualisiert:</p>
-</div>
-
-
-
+ </div>
 </section>
+<section class="table-section">
+
+    <!-- Notwendig -->
+    <div class="cookie-block">
+      <h2>Notwendig (6)</h2>
+      <p class="description">
+        Notwendige Cookies helfen dabei, eine Webseite nutzbar zu machen, indem sie Grundfunktionen wie Seitennavigation und Zugriff auf sichere Bereiche der Webseite ermöglichen. Die Webseite kann ohne diese Cookies nicht richtig funktionieren.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Anbieter</th>
+            <th>Zweck</th>
+            <th>Maximale Speicherdauer</th>
+            <th>Typ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>__cf_bm [x2]</td>
+            <td><a href="">Calendly<br>Vimeo</td></a>
+            <td>Dieser Cookie wird verwendet, um zwischen Menschen und Bots zu unterscheiden. Dies ist vorteilhaft für die Webseite, um gültige Berichte über die Nutzung ihrer Webseite zu erstellen.</td>
+            <td>1 Tag</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>_cfuvid [x2]</td>
+            <td><a href="">Calendly<br>Vimeo</td></a>
+            <td>Dieses Cookie ist ein Teil der Dienste von Cloudflare - einschließlich Lastverteilung, Bereitstellung von Website-Inhalten und Bereitstellung einer DNS-Verbindung für Website-Betreiber.</td>
+            <td>Sitzung</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>CookieConsent</td>
+            <td><a href="">Cookiebot</td></a>
+            <td>Speichert den Zustimmungsstatus des Benutzers für Cookies auf der aktuellen Domäne.</td>
+            <td>1 Jahr</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>hex (32)</td>
+            <td>www.zwetschke.de</td>
+            <td>Wird verwendet, um Server-Anfragen an das Webseitenbackend zu managen.</td>
+            <td>Sitzung</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Statistiken -->
+    <div class="cookie-block">
+      <h2>Statistiken (4)</h2>
+      <p class="description">
+        Statistik-Cookies helfen Webseiten-Besitzern zu verstehen, wie Besucher mit Webseiten interagieren, indem Informationen anonym gesammelt und gemeldet werden.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Anbieter</th>
+            <th>Zweck</th>
+            <th>Maximale Speicherdauer</th>
+            <th>Typ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>_ga</td>
+            <td><a href="">Google</a></td>
+            <td>Registriert eine eindeutige ID, die verwendet wird, um statistische Daten dazu, wie der Besucher die Website nutzt, zu generieren.</td>
+            <td>2 Jahre</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>_ga_#</td>
+            <td><a href="">Google</a></td>
+            <td>Sammelt Daten dazu, wie oft ein Benutzer eine Website besucht hat, sowie Daten für den ersten und letzten Besuch. Von Google Analytics verwendet.</td>
+            <td>2 Jahre</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>_gat</td>
+            <td><a href="">Google</a></td>
+            <td>Wird von Google Analytics verwendet, um die Anforderungsrate einzuschränken.</td>
+            <td>1 Tag</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>_gid</td>
+            <td><a href="">Google</a></td>
+            <td>Registriert eine eindeutige ID, die verwendet wird, um statistische Daten dazu, wie der Besucher die Website nutzt, zu generieren.</td>
+            <td>1 Tag</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Marketing -->
+    <div class="cookie-block">
+      <h2>Marketing (14)</h2>
+      <p class="description">
+        Marketing-Cookies werden verwendet, um Besuchern auf Webseiten zu folgen. Die Absicht ist, Anzeigen zu zeigen, die relevant und ansprechend für den einzelnen Benutzer sind und daher wertvoller für Publisher und werbetreibende Drittparteien sind.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Anbieter</th>
+            <th>Zweck</th>
+            <th>Maximale Speicherdauer</th>
+            <th>Typ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#-#</td>
+            <td><a href="">YouTube</a></td>
+            <td>Wird verwendet, um die Interaktion der Nutzer mit eingebetteten Inhalten zu verfolgen.</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>_gcl_au</td>
+            <td><a href="">Google</a></td>
+            <td>Wird von Google AdSense zum Experimentieren mit Werbungseffizienz auf Webseiten verwendet, die ihre Dienste nutzen.</td>
+            <td>3 Monate</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>_gcl_ls</td>
+            <td><a href="">Google</a></td>
+            <td>Verfolgt die Konversionsrate zwischen dem Nutzer und den Werbebannern auf der Website - Dies dient der Optimierung der Relevanz der Werbung auf der Website.</td>
+            <td>Beständig</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>iU5q-!O9@$</td>
+            <td><a href="">YouTube</a></td>
+            <td>Registriert eine eindeutige ID, um Statistiken der Videos von YouTube, die der Benutzer gesehen hat, zu behalten.</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>LAST_RESULT_ENTRY_KEY</td>
+            <td><a href="">YouTube</a></td>
+            <td>Wird verwendet, um die Interaktion der Nutzer mit eingebetteten Inhalten zu verfolgen.</td>
+            <td>Sitzung</td>
+            <td>HTTP-Cookie</td>
+          </tr>
+          <tr>
+            <td>ytidb::LAST_RESULT_ENTRY_KEY</td>
+            <td><a href="">YouTube</a></td>
+            <td>Wird verwendet, um die Interaktion der Nutzer mit eingebetteten Inhalten zu verfolgen.</td>
+            <td>Beständig</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>YtIdbMeta#databases</td>
+            <td><a href="">YouTube</a></td>
+            <td>Wird verwendet, um die Interaktion der Nutzer mit eingebetteten Inhalten zu verfolgen.</td>
+            <td>Beständig</td>
+            <td>IndexedDB</td>
+          </tr>
+          <tr>
+            <td>yt-remote-cast-available</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>yt-remote-cast-installed</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>yt-remote-connected-devices</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Beständig</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>yt-remote-device-id</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Beständig</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>yt-remote-fast-check-period</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>yt-remote-session-app</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+          <tr>
+            <td>yt-remote-session-name</td>
+            <td><a href="">YouTube</a></td>
+            <td>Speichert die Benutzereinstellungen beim Abruf eines auf anderen Webseiten integrierten Youtube-Videos</td>
+            <td>Sitzung</td>
+            <td>HTML Local Storage</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
 </main>
 
 <?php get_footer();
