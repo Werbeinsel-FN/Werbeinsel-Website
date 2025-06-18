@@ -117,6 +117,7 @@
   animation: jump 0.6s cubic-bezier(0.37, 0.08, 0.25, 1.29) forwards;
   opacity: 0; /* Startet unsichtbar */
   animation-delay: 0.1s; /* Kleiner Delay für sanftes Auftauchen */
+  margin-left: -1%;
 }
 
 .resp-menu:not(.open) .mod-menu li {
@@ -271,5 +272,42 @@
     opacity: 0;
     max-height: 13vh; /* zatvoreni meni */
     padding: 0;
+  }
+}
+@media (max-width: 767px) {
+  /* Smanji širinu i visinu menija kada je otvoren */
+  .resp-menu.open {
+    max-width: 300px;
+    max-height: 300px;
+    padding: 5px 15px 5px 0;
+    height: auto;
+  }
+
+  /* Smanji veličinu fonta i padding stavki menija */
+  .resp-menu.open .mod-menu li a {
+    font-size: 1.8rem;
+    padding: 8px 12px;
+    width: 100%;
+  }
+
+  /* Smanji širinu stavki menija */
+  .resp-menu.open .mod-menu li {
+    width: 280px;
+  }
+
+  /* Smanji dimenzije dugmeta za otvaranje menija */
+  #toggle-main-menu {
+    font-size: 18px;
+  }
+  #toggle-main-menu .menu-ball {
+    width: 65px;
+    height: 65px;
+  }
+  #toggle-main-menu .menu-ball .line {
+    width: 20px;
+    height: 4px;
+  }
+  .resp-menu.open .mod-menu li {
+    margin-left: -4%;
   }
 }
