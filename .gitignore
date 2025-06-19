@@ -3,6 +3,7 @@
 
 # ... außer diese Ordner und Dateien (mit ! erlauben)
 !.gitignore
+!buildspec.yml
 !wp-content/
 !wp-content/themes/
 !wp-content/themes/wi-theme/
