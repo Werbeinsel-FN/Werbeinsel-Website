@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php bloginfo('name'); ?> - <?php is_front_page() ? bloginfo('description') : wp_title(''); ?></title>
     <link rel="stylesheet" href="<?php bloginfo('stylesheet_url'); ?>">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
     <?php wp_head(); ?>
 </head>
 <body style="background-color: <?php echo esc_attr(get_option('wi_theme_background_color', '#ffffff')); ?>;">
@@ -19,15 +21,7 @@
 				</a>
             <?php endif; ?>
         </div>
-        <nav>
-            <?php
-            wp_nav_menu(array(
-                'theme_location' => 'primary',
-                'container'      => 'ul',
-                'menu_class'     => 'main-menu',
-            ));
-            ?>
-        </nav>
+        <?php get_template_part('mainmenu'); ?>
     </header>
 </body>
 </html>
