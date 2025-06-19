@@ -1,1 +1,12 @@
-wp-config.php
+# Alles ignorieren ...
+*
+
+# ... außer diese Ordner und Dateien (mit ! erlauben)
+!wp-content/
+!wp-content/themes/
+!wp-content/themes/wi-theme/
+!wp-content/themes/wi-theme/**
+
+!wp-content/plugins/
+!wp-content/plugins/wi-forms/
+!wp-content/plugins/wi-forms/**
