@@ -382,7 +382,6 @@ label {
   padding: .8em 0;
   text-align: center;
   width: calc(33.33% - 25px);
-  /* flex: 0 0 calc((100% - 2 * 25px) / 3); */
   font-family: 'Unbounded', sans-serif;
   text-transform: uppercase;
   letter-spacing: -0.02em;

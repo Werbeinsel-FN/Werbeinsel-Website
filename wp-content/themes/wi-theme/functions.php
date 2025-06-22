@@ -358,7 +358,7 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 
 // Register js
 function wi_theme_enqueue_js() {
-    if (is_page('kontakt')) {
+    if (is_page('kontakt-new')) {
         wp_enqueue_script(
             'wi-theme-js',
             get_template_directory_uri() . '/js/contact.js',

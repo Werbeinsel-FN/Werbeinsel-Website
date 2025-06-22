@@ -21,15 +21,20 @@ document.addEventListener('DOMContentLoaded', function () {
   // ===============================
   // CHECKBOXES: is-checked toggle bei Klick aufs Label
   // ===============================
-  const checkboxes = document.querySelectorAll('.wi-checkbox-group input[type="checkbox"]');
+  const labels = document.querySelectorAll('.wi-checkbox-group > label');
 
-  checkboxes.forEach(input => {
-    const label = document.querySelector(`label[for="${input.id}"]`);
-    if (!label) return;
+  labels.forEach(label => {
+    const input = label.querySelector('input[type="checkbox"]');
+    if (!input) return;
 
     const toggle = () => {
       label.classList.toggle('is-checked', input.checked);
     };
+
+    label.addEventListener('click', () => {
+      input.checked = !input.checked;
+      toggle();
+    });
 
     input.addEventListener('change', toggle);
     toggle(); // initial state
