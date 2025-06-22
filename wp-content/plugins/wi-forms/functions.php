@@ -33,7 +33,7 @@ function wi_forms_register_form_post_type() {
         'labels'             => $labels,
         'public'             => true,
         'has_archive'        => true,
-        'rewrite'            => array('slug' => 'forms'),
+        'rewrite'            => array('slug' => 'formulare  '),
         'supports'           => array('title', 'editor'),
         'menu_icon'          => 'dashicons-feedback',
         'show_in_rest'       => false,
@@ -155,9 +155,10 @@ add_action('wp_ajax_wi_get_form', 'wi_ajax_get_form');
 add_action('wp_ajax_nopriv_wi_get_form', 'tsg_ajax_wi_form');
 
 ///////////////////////////////////////////////////////////////////////
-//	Register Shortcodes
+//	Shortcodes
 ///////////////////////////////////////////////////////////////////////
 
+// [wi_form id="123"]
 function wi_forms_render_form($atts) {
     $atts = shortcode_atts([
         'id' => 0
@@ -174,6 +175,134 @@ function wi_forms_render_form($atts) {
     return do_shortcode($form_post->post_content);
 }
 add_shortcode('wi_form', 'wi_forms_render_form');
+
+// Helper function for attribute processment
+function wi_forms_parse_shortcode_atts($atts, $defaults = []) {
+    return shortcode_atts($defaults, $atts);
+}
+
+// [text] & [text*]
+function wi_forms_register_text_shortcode($atts, $content = null, $tag = '') {
+    $required = ($tag === 'text*') ? 'required' : '';
+    $atts = shortcode_atts([
+        'name' => '',
+        'id' => '',
+        'autocomplete' => '',
+        'placeholder' => '',
+    ], $atts);
+
+    return sprintf(
+        '<input type="text" name="%s" id="%s" autocomplete="%s" placeholder="%s" %s>',
+        esc_attr($atts['name']),
+        esc_attr($atts['id']),
+        esc_attr($atts['autocomplete']),
+        esc_attr($content ?: $atts['placeholder']),
+        $required
+    );
+}
+add_shortcode('text', 'wi_forms_register_text_shortcode');
+add_shortcode('text*', 'wi_forms_register_textshortcode');
+
+// [email*]
+function wi_forms_register_email_shortcode($atts, $content = null, $tag = '') {
+    $required = ($tag === 'email*') ? 'required' : '';
+    $atts = shortcode_atts([
+        'name' => '',
+        'id' => '',
+        'autocomplete' => '',
+        'placeholder' => '',
+    ], $atts);
+
+    return sprintf(
+        '<input type="email" name="%s" id="%s" autocomplete="%s" placeholder="%s" %s>',
+        esc_attr($atts['name']),
+        esc_attr($atts['id']),
+        esc_attr($atts['autocomplete']),
+        esc_attr($content ?: $atts['placeholder']),
+        $required
+    );
+}
+add_shortcode('email', 'wi_forms_register_email_shortcode');
+add_shortcode('email*', 'wi_forms_register_email_shortcode');
+
+// [tel]
+function wi_forms_register_tel_shortcode($atts, $content = null) {
+    $atts = shortcode_atts([
+        'name' => '',
+        'id' => '',
+        'autocomplete' => '',
+        'placeholder' => '',
+    ], $atts);
+
+    return sprintf(
+        '<input type="tel" name="%s" id="%s" autocomplete="%s" placeholder="%s">',
+        esc_attr($atts['name']),
+        esc_attr($atts['id']),
+        esc_attr($atts['autocomplete']),
+        esc_attr($content ?: $atts['placeholder'])
+    );
+}
+add_shortcode('tel', 'wi_forms_register_tel_shortcode');
+
+// [textarea*]
+function wi_forms_register_textarea_shortcode($atts, $content = null, $tag = '') {
+    $required = ($tag === 'textarea*') ? 'required' : '';
+    $atts = shortcode_atts([
+        'name' => '',
+        'id' => '',
+        'placeholder' => '',
+    ], $atts);
+
+    return sprintf(
+        '<textarea name="%s" id="%s" placeholder="%s" %s></textarea>',
+        esc_attr($atts['name']),
+        esc_attr($atts['id']),
+        esc_attr($content ?: $atts['placeholder']),
+        $required
+    );
+}
+add_shortcode('textarea', 'wi_forms_register_textarea_shortcode');
+add_shortcode('textarea*', 'wi_forms_register_textarea_shortcode');
+
+// [checkbox]
+function wi_forms_shortcode_checkbox($atts, $content = null) {
+    $atts = shortcode_atts([
+        'name' => '',
+    ], $atts);
+
+    $options = explode('" "', trim($content, '" '));
+    $output = '<div class="wi-checkbox-group">';
+    foreach ($options as $index => $option) {
+        $val = esc_attr($option);
+        $id = sanitize_title($atts['name'] . '-' . $index);
+        $output .= sprintf(
+            '<label for="%s"><input type="checkbox" name="%s[]" id="%s" value="%s"> %s</label><br>',
+            $id,
+            esc_attr($atts['name']),
+            $id,
+            $val,
+            esc_html($option)
+        );
+    }
+    $output .= '</div>';
+    return $output;
+}
+add_shortcode('checkbox', 'wi_forms_shortcode_checkbox');
+
+// [submit]
+function wi_forms_register_submit_shortcode($atts = [], $content = null) {
+    // read default class & label
+    $atts = shortcode_atts([
+        'class' => ''
+    ], $atts);
+
+    $class = esc_attr($atts['class']);
+    $label = esc_html($content);
+
+    return sprintf('<button type="submit" class="%s">%s</button>', $class, $label);
+}
+add_shortcode('submit', 'wi_forms_register_submit_shortcode');
+
 
 ///////////////////////////////////////////////////////////////////////
 //	Handler
