@@ -1,16 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
   // ===============================
-  // TEXT-, EMAIL-, TEXTAREA-Felder
+  // TEXT-, EMAIL-, TEXTAREA-Felder: Label verstecken bei Input oder Fokus
   // ===============================
-  const fields = document.querySelectorAll('.wpcf7 input[type="text"], .wpcf7 input[type="email"], .wpcf7 textarea');
+  const fields = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
 
   fields.forEach(field => {
-    const fieldWrapper = field.closest('.wpcf7-form-control-wrap')?.closest('div');
-    const label = fieldWrapper?.querySelector('.control-label');
+    const label = field.closest('.control-group')?.querySelector('.control-label');
 
     const toggleLabel = () => {
       if (!label) return;
-      label.style.opacity = (document.activeElement === field || field.value.trim() !== '') ? '0' : '1';
+      label.style.opacity = (field === document.activeElement || field.value.trim() !== '') ? '0' : '1';
     };
 
     field.addEventListener('input', toggleLabel);
@@ -20,43 +19,19 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // ===============================
-  // CHECKBOXEN: is-checked toggle auf .wpcf7-list-item
+  // CHECKBOXES: is-checked toggle bei Klick aufs Label
   // ===============================
-  // Labels selektieren
-  const labels = document.querySelectorAll('.wpcf7-list-item-label');
+  const checkboxes = document.querySelectorAll('.wi-checkbox-group input[type="checkbox"]');
 
-  labels.forEach(label => {
-    label.addEventListener('click', function (e) {
-      const listItem = label.closest('.wpcf7-list-item');
-      const checkbox = listItem.querySelector('input[type="checkbox"]');
+  checkboxes.forEach(input => {
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (!label) return;
 
-      if (!checkbox) return;
-
-      // Toggle checkbox
-      checkbox.checked = !checkbox.checked;
-
-      // Manuell change-Event auslösen, damit andere Listener reagieren
-      checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-    });
-  });
-
-  // Eventlistener für Änderung setzen
-  const checkboxes = document.querySelectorAll('.wpcf7 input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-    const listItem = checkbox.closest('.wpcf7-list-item');
-    const label = listItem.querySelector('.wpcf7-list-item-label');
-
-    const updateState = () => {
-      if (checkbox.checked) {
-        listItem.classList.add('is-checked');
-        label.classList.add('is-selected'); // optional
-      } else {
-        listItem.classList.remove('is-checked');
-        label.classList.remove('is-selected'); // optional
-      }
+    const toggle = () => {
+      label.classList.toggle('is-checked', input.checked);
     };
 
-    checkbox.addEventListener('change', updateState);
-    updateState(); // initial
+    input.addEventListener('change', toggle);
+    toggle(); // initial state
   });
 });

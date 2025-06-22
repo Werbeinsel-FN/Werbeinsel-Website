@@ -291,15 +291,15 @@ add_shortcode('textarea*', 'wi_forms_register_textarea_shortcode');
 
 // [checkbox]
 function wi_forms_register_checkbox_shortcode($atts, $content = null) {
-    $atts = shortcode_atts([
-        'name' => '',
-    ], $atts);
+    // name-Attribut holen und entfernen
+    $name = isset($atts['name']) ? $atts['name'] : (isset($atts[0]) ? $atts[0] : 'checkbox');
+    unset($atts['name']);
 
-    $name = $atts['name'] ?: 'checkbox';
-    $options = explode('" "', trim($content, '" '));
+    // alle anderen Attributwerte (also "1", "2", "3"...) als Optionen behandeln
+    $options = array_values(array_filter($atts, 'is_string'));
 
     $output = '<div class="wi-checkbox-group">';
-    foreach ($options as $index => $option) {
+    foreach ($options as $option) {
         $value = esc_attr($option);
         $id = 'wi_form_' . sanitize_title($name . '_' . $value);
         $output .= sprintf(
