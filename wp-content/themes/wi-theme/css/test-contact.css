@@ -222,7 +222,7 @@ input[type="tel"]:focus,
 textarea:focus, 
 input[type="text"]:not(:placeholder-shown), 
 input[type="email"]:not(:placeholder-shown) {
-  border-color: #000;
+  border: 8px solid #000;
   color: #000;
   transition: outline-color 0.5s,border-color 0.25s ease-in-out;
 }
