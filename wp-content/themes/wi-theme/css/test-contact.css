@@ -181,12 +181,10 @@ form {
 input[type='text'], input[type='email'], input[type='tel'], textarea {
     display: block;
     box-sizing: border-box;
-    /* width: 100%; */
     width: calc(100% - 2px);
     height: 100%;
     padding: 0.5em 1.17em 0.2em;
     line-height: 1em;
-    border: none;
     border: 8px solid #000;
     outline: none;
     margin: 0;
@@ -446,14 +444,18 @@ textarea {
     height: 195px;
     width: 100%;
     border-radius: 50px!important;
-    font-size: 1.266em;
-    font-weight: 500;
-    padding: 1.5em 2.3em;
+    font-size: 1.266em!important;
+    font-weight: 500!important;
+    padding: 1.5em 2.3em!important;
     margin-bottom: 1em;
     line-height: 1.25em;
     border: 7px solid #000!important;
     margin-left: 0;
     margin-right: 0;
+}
+
+textarea {
+
 }
 
 textarea {
