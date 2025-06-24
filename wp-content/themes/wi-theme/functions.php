@@ -9,6 +9,10 @@ function wi_theme_setup() {
 }
 add_action('after_setup_theme', 'wi_theme_setup');
 
+///////////////////////////////////////////////////////////////////////
+//	Register CSS
+///////////////////////////////////////////////////////////////////////
+
 function wi_theme_enqueue_styles() {
     // register main stylesheet
     wp_enqueue_style(
@@ -72,9 +76,42 @@ function wi_theme_widgets_init() {
 }
 add_action('widgets_init', 'wi_theme_widgets_init');
 
-/****************************************************************************************/
-/**************************           Theme Options           ************************* */
-/****************************************************************************************/
+///////////////////////////////////////////////////////////////////////
+//	Register JS
+///////////////////////////////////////////////////////////////////////
+
+function wi_theme_enqueue_js() {
+    if (is_page('kontakt-new')) {
+        wp_enqueue_script(
+            'wi-theme-js',
+            get_template_directory_uri() . '/js/contact.js',
+            array(),
+            '1.0',
+            true
+        );
+    }
+    if (is_page('datenschutz')) {
+        wp_enqueue_script(
+            'wi-theme-js',
+            get_template_directory_uri() . '/js/datenschutz.js',
+            array(),
+            '1.0',
+            true
+        );
+    }
+    wp_enqueue_script(
+        'holi-theme-admin-js', 
+        get_template_directory_uri() . '/js/mainmenu.js', 
+        array('jquery'), 
+        null, 
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
+
+///////////////////////////////////////////////////////////////////////
+//	Theme Options
+///////////////////////////////////////////////////////////////////////
 
 function wi_theme_add_admin_menu() {
     add_menu_page(
@@ -356,32 +393,14 @@ function wi_theme_admin_scripts($hook) {
 }
 add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 
-// Register js
-function wi_theme_enqueue_js() {
-    if (is_page('kontakt-new')) {
-        wp_enqueue_script(
-            'wi-theme-js',
-            get_template_directory_uri() . '/js/contact.js',
-            array(),
-            '1.0',
-            true
-        );
-    }
-    if (is_page('datenschutz')) {
-        wp_enqueue_script(
-            'wi-theme-js',
-            get_template_directory_uri() . '/js/datenschutz.js',
-            array(),
-            '1.0',
-            true
-        );
-    }
-    wp_enqueue_script(
-        'holi-theme-admin-js', 
-        get_template_directory_uri() . '/js/mainmenu.js', 
-        array('jquery'), 
-        null, 
-        true
-    );
-}
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
+///////////////////////////////////////////////////////////////////////
+//	Register Leaflet (free contact map)
+///////////////////////////////////////////////////////////////////////
+
+// function bsg_enqueue_leaflet_assets() {
+//     if (is_page_template('location-search.php')) {
+//         wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+//         wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], null, true);
+//     }
+// }
+// add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
