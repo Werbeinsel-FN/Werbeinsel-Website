@@ -1,0 +1,583 @@
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: sans-serif;
+    line-height: 1.15;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+html {
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+}
+
+div {
+    display: block;
+    unicode-bidi: isolate;
+}
+
+#contact-form {
+    background: #F2F2F5;
+    color: #000;
+    padding-top: 2.9em;
+    padding-bottom: 12.6em;
+    margin-top: 0;
+}
+
+.content-form {
+    margin-top: 2em;
+}
+
+.row, .row.big, .row.mid {
+    padding: 0 5%;
+    box-sizing: content-box;
+}
+
+.row {
+    max-width: 1476px;
+    margin-left: auto;
+    margin-right: auto;
+
+    font-family: 'Poppins', sans-serif;
+}
+
+.row::after {
+    clear: both;
+}
+
+.row::before, .row::after {
+    content: ' ';
+    display: table;
+}
+
+.font-poppins {
+    font-family: 'Poppins', sans-serif;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/**************************************/
+/* Headlines                          */
+/**************************************/
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 .5em;
+    color: inherit;
+    font-family: 'Unbounded', sans-serif!important;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1em;
+    font-weight: 800;
+}
+
+h3 {
+    font-size: 50px!important;
+    font-weight: 700!important;
+}
+
+h3 {
+    display: block;
+    font-size: 1.17em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+    unicode-bidi: isolate;
+}
+
+#contact-form .headline {
+    font-size: clamp(60px, calc(60px + ((40) * ((100vw - 430px) / (2000 - 430)))), 100px);
+    font-weight: 900;
+    margin-bottom: .25em;
+    letter-spacing: -0.05em;
+    word-break: break-word;   
+    margin: 0 0 .5em;
+    color: inherit;
+    font-family: 'Unbounded', sans-serif;
+    text-transform: uppercase;
+    line-height: 1em;   
+}
+
+#contact-form .subline {
+    font-size: clamp(25px, calc(25px + ((30) * ((100vw - 430px) / (2000 - 430)))), 55px);
+    margin-bottom: 1.05em;
+    letter-spacing: -0.035em;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    line-height: 1.15;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+/**************************************/
+/* Form                          */
+/**************************************/
+
+form {
+    display: block;
+    margin-top: 0em;
+    unicode-bidi: isolate;
+}
+
+.row .row {
+    padding-left: 0;
+    padding-right: 0;
+    max-width: none;
+    margin-left: -1.565rem;
+    margin-right: -1.565rem;
+}
+
+.clearfix {
+    display: block;
+}
+
+.clearfix:after {
+    display: block;
+    visibility: hidden;
+    clear: both;
+    width: 0;
+    height: 0;
+    content: ' ';
+    font-size: 0;
+    line-height: 0;
+}
+
+.small-12 {
+    width: 100%;
+}
+
+@media screen and (min-width: 41.25em) {
+    .medium-6 {
+        width: 50%!important;
+    }
+}
+
+.column, .columns {
+    box-sizing: border-box;
+    width: 100%;
+    float: left;
+    padding-left: 1.565rem;
+    padding-right: 1.565rem;
+}
+
+.content-form .control-group {
+    margin-bottom: 1.4em;
+}
+
+.content-form .control-group .controls {
+    position: relative;
+}
+
+/**************************************/
+/* Inputs                             */
+/**************************************/
+
+input[type='text'], input[type='email'], input[type='tel'], textarea {
+    display: block;
+    box-sizing: border-box;
+    /* width: 100%; */
+    width: calc(100% - 2px);
+    height: 100%;
+    padding: 0.5em 1.17em 0.2em;
+    line-height: 1em;
+    border: none;
+    border: 8px solid #000;
+    outline: none;
+    margin: 0;
+    font-family: inherit;
+    font-size: 1.739em;
+    font-weight: 700;
+    color: #000;
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 63px;
+    transition: outline-color 0.5s, border-color 0.25s ease-in-out;
+    /* max-width: 448px; */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder{
+  opacity: 0;
+  transition: opacity .4s;   
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 1;
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="tel"]:focus, 
+textarea:focus, 
+input[type="text"]:not(:placeholder-shown), 
+input[type="email"]:not(:placeholder-shown) {
+  border: 8px solid #000;
+  color: #000;
+  transition: outline-color 0.5s,border-color 0.25s ease-in-out;
+}
+
+input[type="text"]:not(:placeholder-shown) ~ .control-label, 
+input[type="email"]:not(:placeholder-shown) ~ .control-label, 
+textarea:not(:placeholder-shown) ~ .control-label {
+  opacity: 0!important;
+}
+
+button, input {
+    overflow: visible;
+}
+
+button, input, select, textarea {
+    font: inherit;
+    margin: 0;
+}
+
+input:not([type="image" i], [type="range" i], [type="checkbox" i], [type="radio" i]) {
+    overflow-clip-margin: 0px !important;
+    overflow: clip !important;
+}
+
+/* input[type="text" i] {
+    padding-block: 1px;
+    padding-inline: 2px;
+} */
+
+input {
+    text-rendering: auto;
+    color: fieldtext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    appearance: auto;
+    -webkit-rtl-ordering: logical;
+    cursor: text;
+    background-color: field;
+    margin: 0em;
+    padding: 1px 0px;
+    border-width: 2px;
+    border-style: inset;
+    border-color: light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+    border-image: initial;
+    padding-block: 1px;
+    padding-inline: 2px;
+}
+
+.content-form .control-group .control-label {
+    position: absolute;
+    bottom: 1.3em;
+    left: 2.7em;
+    opacity: 1;
+    transition: opacity .4s;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.04em;
+    z-index: 1;
+    color: #000;
+}
+
+label {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    line-height: inherit !important;
+    display: inherit !important;
+    margin: inherit !important;
+    color: inherit !important;
+}
+
+/**************************************/
+/* Mid-title                          */
+/**************************************/
+
+#contact-form .budget-titel {
+    margin-top: 1.7em;
+    letter-spacing: -0.03em;
+    text-align: center;
+}
+
+.column:last-child:not(:first-child), .columns:last-child:not(:first-child) {
+    float: right;
+}
+
+@media screen and (min-width: 41.25em) {
+    .medium-12 {
+        width: 100%;
+    }
+}
+
+.clear {
+    display: block;
+    visibility: hidden;
+    clear: both;
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}
+
+
+
+/**************************************/
+/* Select                             */
+/**************************************/
+
+.wi-checkbox-group {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  /* max-width: 1060px; */
+  margin: .5em auto;
+  /* gap: 0 25px;     */
+}
+
+@media (max-width: 659px) {
+  .wpcf7-checkbox {
+    gap: 0 15px;
+  }
+}
+
+@media (max-width: 400px) {
+  .wpcf7-list-item {
+    width: 100%;
+  }
+}
+
+.wi-checkbox-group input {
+  position: absolute;
+  opacity: 0;
+  height: 1px;
+  width: 1px;
+  bottom: 0;
+  overflow: hidden;
+  margin: 0 0 1rem; 
+  box-sizing: border-box;
+  padding: 0;  
+
+  left: 0;
+}
+
+.wi-checkbox-group > label.is-checked {
+  background: #FFED00 !important;
+  color: #000 !important;
+}
+
+.wi-checkbox-group > label {
+  box-sizing: border-box;    
+  font-size: clamp(20px, calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))), 30px)!important;
+  margin: 0;
+  background: #000;
+  padding: .8em 0;
+  text-align: center;
+  width: calc(33.33% - 25px);
+  font-family: 'Unbounded', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  border-radius: 90px;
+  color: #fff!important;
+  margin-bottom: .9em;
+  border: 6px solid #000;
+  transition: background .4s,color .4s;  
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: baseline;
+  
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;  
+}
+
+@media screen and (max-width: 768px) {
+  .wi-checkbox-group > label {
+    flex: 1 1 100%;
+  }
+}
+
+/* .wpcf7 .contact-form-wrapper3 .control-label {
+  position: absolute;
+  bottom: 1.75em;
+  left: 3.25em;
+  opacity: 1;
+  transition: opacity .4s;
+  font-family: 'Poppins',sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.04em;
+  z-index: 1;
+  color: #000;
+} */
+
+.no-label > div:nth-child(1) {
+    margin-bottom: 3rem;
+}
+
+/**************************************/
+/* Textarea                           */
+/**************************************/
+
+#contact-form textarea {
+    margin-top: 1em;
+    padding-bottom: 50px;
+}
+
+.content-form .control-group textarea {
+    height: 270px;
+}
+
+textarea[rows] {
+    height: 195px;
+}
+
+textarea {
+    max-width: 100%;
+    height: 195px;
+    width: 100%;
+    border-radius: 50px!important;
+    font-size: 1.266em;
+    font-weight: 500;
+    padding: 1.5em 2.3em;
+    margin-bottom: 1em;
+    line-height: 1.25em;
+    border: 7px solid #000!important;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+textarea {
+    overflow: auto;
+}
+
+textarea {
+    font-family: monospace;
+    text-rendering: auto;
+    color: fieldtext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    appearance: auto;
+    -webkit-rtl-ordering: logical;
+    resize: -internal-textarea-auto;
+    cursor: text;
+    overflow-wrap: break-word;
+    background-color: field;
+    column-count: initial !important;
+    margin: 0em;
+    border-width: 1px;
+    border-style: solid;
+    border-color: light-dark(rgb(118, 118, 118), rgb(133, 133, 133));
+    border-image: initial;
+    padding: 2px;
+    white-space: pre-wrap;
+}
+
+.content-form .control-group textarea+.control-label {
+    left: 2.3em;
+}
+
+/**************************************/
+/* Bottom area                        */
+/**************************************/
+
+.content-form .button-wrapper {
+    justify-content: space-between;
+}
+
+.flex-row {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.content-form .button-wrapper .privacy {
+    font-size: clamp(12px, calc(12px + ((4) * ((100vw - 430px) / (2000 - 430)))), 16px);
+    width: calc(100% - 360px);
+    max-width: 945px;
+    padding-top: 10px;
+    line-height: 1.5em;
+}
+
+p.readmore a, .button, .btn, input[type="submit"] {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.send-button-wrapper > button {
+    position: relative;
+    font-size: clamp(18px, calc(18px + ((11) * ((100vw - 430px) / (2000 - 430)))), 29px);
+    font-weight: 700;
+    background: #ffed00;
+    color: #000;
+    text-decoration: none;
+    display: block;
+    font-family: 'Unbounded', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    padding: 1em 2.07em 1.05em;
+    letter-spacing: -0.04em;
+    border-radius: 50px;
+    box-shadow: inset 0 -0.275em .1px 0 #000;
+    transform: translateY(0);
+    transition: box-shadow .2s ease-out, transform .2s ease-out;
+}
+
+input[type='submit'], input[type='button'] {
+    border-radius: 0px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+button {
+    appearance: auto;
+    text-rendering: auto;
+    color: buttontext;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: center;
+    cursor: default;
+    box-sizing: border-box;
+    background-color: buttonface;
+    margin: 0em;
+    padding-block: 1px;
+    padding-inline: 6px;
+    border-width: 2px;
+    border-style: outset;
+    border-color: buttonborder;
+    border-image: initial;
+}
+
+.border-box:before, .text-container .border-box:before, p.readmore a:before, .button:before, .btn:before, input[type="submit"]:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.content-form .fr-captcha-wrapper {
+    margin-top: 1em;
+    width: 100%;
+}
