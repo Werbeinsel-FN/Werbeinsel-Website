@@ -38,31 +38,49 @@ get_header(); ?>
     <div class="contact-bottom-wrapper">
         <div class="contact-address-wrapper">
             <div class="address">
-                <div class="icon-wrapper">
-                    <i class="fa fa-map-marker"></i>
+                <div class="icon-outer-wrapper">
+                    <div class="icon-wrapper">
+                        <i class="fa fa-map-marker"></i>
+                    </div>
                 </div>
                 <div class="data-wrapper">
-                    <h4>Adresse</h4>
-                    Am Flughafen 76/3<br />
-                    88045 Friedrichshafen
+                    <div class="data-head-wrapper">
+                        <h4>Adresse</h4>
+                    </div>
+                    <div class="data-content-wrapper">
+                        Am Flugplatz 76/3<br />
+                        88045 Friedrichshafen
+                    </div>
                 </div>
             </div>
             <div class="email">
-                <div class="icon-wrapper">
-                <i class="fas fa-map"></i>
-                </div>
-                    <div class="data-wrapper">
-                        <h4>E-Mail</h4>
-                        <a href="mailto:hallo@werbeinsel.de">hallo@werbeinsel.de</a>
+                <div class="icon-outer-wrapper">
+                    <div class="icon-wrapper">
+                    <i class="fas fa-map"></i>
                     </div>
-            </div>
-            <div class="phone">
-                <div class="icon-wrapper">
-                    <i class="fa-solid fa-phone"></i>
                 </div>
                 <div class="data-wrapper">
-                    <h4>Telefon</h4>
-                    <a href="phone:12345678">123456789</a>
+                    <div class="data-head-wrapper">
+                        <h4>E-Mail</h4>
+                    </div>
+                    <div class="data-content-wrapper">
+                        <a href="mailto:hallo@werbeinsel.de">hallo@werbeinsel.de</a>
+                    </div>
+                </div>
+            </div>
+            <div class="phone">
+                <div class="icon-outer-wrapper">
+                    <div class="icon-wrapper">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                </div>
+                <div class="data-wrapper">
+                    <div class="data-head-wrapper">
+                        <h4>Telefon</h4>
+                    </div>
+                    <div class="data-content-wrapper">
+                        <a href="tel:+4975417005744">+49 7541 700 57 44</a>
+                    </div>
                 </div>                
             </div>
         </div>
