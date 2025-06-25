@@ -203,7 +203,8 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
 
 input[type="text"]::placeholder,
 input[type="email"]::placeholder,
-input[type="tel"]::placeholder{
+input[type="tel"]::placeholder, 
+textarea::placeholder {
   opacity: 0;
   transition: opacity .4s;   
 }
@@ -218,7 +219,9 @@ input[type="email"]:focus,
 input[type="tel"]:focus, 
 textarea:focus, 
 input[type="text"]:not(:placeholder-shown), 
-input[type="email"]:not(:placeholder-shown) {
+input[type="email"]:not(:placeholder-shown)
+/* ,textarea:not(:placeholder-shown)  */
+{
   border: 8px solid #000;
   color: #000;
   transition: outline-color 0.5s,border-color 0.25s ease-in-out;
