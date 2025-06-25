@@ -15,6 +15,12 @@ html {
     -webkit-font-smoothing: antialiased;
 }
 
+@media (max-width: 1023px) {
+    body {
+        font-size: 17px;
+    }
+}
+
 div {
     display: block;
     unicode-bidi: isolate;
@@ -34,6 +40,12 @@ div {
 .row, .row.big, .row.mid {
     padding: 0 5%;
     box-sizing: content-box;
+}
+
+@media (max-width: 659px) {
+    .row, .row.big, .row.mid {
+        padding: 0 20px;
+    }
 }
 
 .row {
@@ -91,8 +103,15 @@ h3 {
     unicode-bidi: isolate;
 }
 
+@media only screen and (max-width: 960px) {
+    h3 {
+        font-size: 27px!important;
+    }
+}
+
 #contact-form .headline {
-    font-size: clamp(60px, calc(60px + ((40) * ((100vw - 430px) / (2000 - 430)))), 100px)!important;
+    /* font-size: clamp(60px, calc(60px + ((40) * ((100vw - 430px) / (2000 - 430)))), 100px)!important; */
+    font-size: clamp(50px, calc(50px + ((40) * ((100vw - 430px) / (2000 - 430)))), 100px)!important;    
     font-weight: 900;
     margin-bottom: .25em;
     letter-spacing: -0.05em;
@@ -133,6 +152,13 @@ form {
     margin-right: -1.565rem;
 }
 
+@media only screen and (max-width: 1024px) {
+    .row .row {
+        margin-left: -0.7825rem;
+        margin-right: -0.7825rem;
+    }
+}
+
 .clearfix {
     display: block;
 }
@@ -164,6 +190,13 @@ form {
     float: left;
     padding-left: 1.565rem;
     padding-right: 1.565rem;
+}
+
+@media only screen and (max-width: 1024px) {
+    .column, .columns {
+        padding-left: 0.7825rem;
+        padding-right: 0.7825rem;
+    }
 }
 
 .content-form .control-group {
@@ -201,12 +234,38 @@ input[type='text'], input[type='email'], input[type='tel'], textarea {
     -moz-appearance: none;
 }
 
+@media only screen and (max-width: 659px) {
+    input[type='text'], input[type='email'], input[type='tel'] {
+        font-size: 25px!important;
+        border-width: 4px!important;
+        text-align: center;
+
+        padding-bottom: 0.5rem;
+    }
+}
+
+@media only screen and (max-width: 1150px) {
+    input[type='text'], input[type='email'], input[type='tel'], textarea {
+        border-width: 6px;
+        font-size: 29px;
+    }
+}
+
 input[type="text"]::placeholder,
 input[type="email"]::placeholder,
 input[type="tel"]::placeholder, 
 textarea::placeholder {
   opacity: 0;
   transition: opacity .4s;   
+}
+
+@media (max-width: 659px) {
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="tel"]::placeholder, 
+    textarea::placeholder {
+        opacity: 1;
+    }
 }
 
 input:focus::placeholder,
@@ -290,6 +349,27 @@ input {
     color: #000;
 }
 
+@media (max-width: 659px) {
+    .content-form .control-group input[type=text]+.control-label, 
+    .content-form .control-group input[type=email]+.control-label, 
+    .content-form .control-group input[type=tel]+.control-label, 
+    .content-form .control-group textarea+.control-label {
+        display: none;
+    }
+}
+
+@media (max-width: 659px) {
+    .content-form .control-group .control-label {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 1150px) {
+    .content-form .control-group .control-label {
+        font-size: 15px;
+    }
+}
+
 label {
     font-size: inherit !important;
     font-weight: inherit !important;
@@ -307,6 +387,12 @@ label {
     margin-top: 1.7em;
     letter-spacing: -0.03em;
     text-align: center;
+}
+
+@media (max-width: 659px) {
+  #contact-form .budget-titel {
+    margin: 1.5rem 0;
+  }
 }
 
 .column:last-child:not(:first-child), .columns:last-child:not(:first-child) {
@@ -327,8 +413,6 @@ label {
     width: 0;
     height: 0;
 }
-
-
 
 /**************************************/
 /* Select                             */
@@ -434,12 +518,31 @@ label {
     padding-bottom: 50px;
 }
 
+@media (max-width: 659px) {
+    #contact-form textarea {
+        margin-top: 0;
+    }
+}
+
 .content-form .control-group textarea {
     height: 270px;
 }
 
+@media (max-width: 659px) {
+    .content-form .control-group textarea {
+        height: 315px;
+    }
+}
+
 textarea[rows] {
     height: 195px;
+}
+
+@media only screen and (max-width: 730px) {
+    textarea, textarea[rows] {
+        max-width: inherit;
+        height: 297px;
+    }
 }
 
 textarea {
@@ -455,10 +558,6 @@ textarea {
     border: 7px solid #000!important;
     margin-left: 0;
     margin-right: 0;
-}
-
-textarea {
-
 }
 
 textarea {
@@ -493,6 +592,15 @@ textarea {
     white-space: pre-wrap;
 }
 
+@media only screen and (max-width: 659px) {
+    textarea {
+        font-size: 25px!important;
+        border-width: 4px!important;
+        border-radius: 20px!important;
+        padding: 1em!important;
+    }
+}
+
 .content-form .control-group textarea+.control-label {
     left: 2.3em;
 }
@@ -503,6 +611,12 @@ textarea {
 
 .content-form .button-wrapper {
     justify-content: space-between;
+}
+
+@media (max-width: 1023px) {
+    .content-form .button-wrapper {
+        align-items: center;
+    }
 }
 
 .flex-row {
@@ -522,9 +636,33 @@ textarea {
     line-height: 1.5em;
 }
 
+@media (max-width: 1023px) {
+    .content-form .button-wrapper .privacy {
+        width: 100%;
+        padding-right: 0;
+        padding-top: 0;
+    }
+}
+
 /**************************************/
 /* Submit                             */
 /**************************************/
+
+@media (max-width: 659px) {
+    .content-form .button-wrapper .send-button-wrapper {
+        width: 100%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 1023px) {
+    .content-form .button-wrapper .send-button-wrapper {
+        order: 90;
+    }
+}
 
 .send-button-wrapper > button {
     position: relative;
@@ -613,6 +751,13 @@ button {
     background: #F2F2F5;
 }
 
+@media (max-width: 659px) {
+  .contact-bottom-wrapper {
+        height: auto; /* statt 500px fix */
+        display: flex;
+        flex-direction: column;    
+  }  
+}
 
 /**************************************/
 /* Address                            */
@@ -637,6 +782,19 @@ button {
 
     box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.08);
     transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
+}
+
+@media (max-width: 659px) {
+    .contact-address-wrapper {   
+        width: 100%;
+        flex-direction: column;
+
+        position: relative; /* bleibt so */
+        z-index: 1;
+        margin-top: 0;
+        border-radius: 40px;
+        padding: 2rem;
+    }
 }
 
 .contact-address-wrapper > div {
@@ -687,6 +845,12 @@ button {
     margin-bottom: 0.5rem;
 }
 
+@media (max-width: 659px) {
+    .data-wrapper h4 {
+        margin-bottom: 0;
+    }
+}
+
 .data-content-wrapper {
     display: flex;
     flex-direction: column;
@@ -718,6 +882,14 @@ width: 100%;
     overflow: hidden;
 }
 
+@media (max-width: 659px) {
+    .contact-map-outer-wrapper {
+        position: relative; /* statt absolute */
+        height: 300px; /* z. B. auf kleinerem Screen */
+        margin-top: 2rem;
+    }    
+}
+
 .contact-map-wrapper {
     position: absolute;
     top: 0;
@@ -728,4 +900,12 @@ width: 100%;
     overflow: hidden;
 
     margin-top: 6.5rem;
+}
+
+@media (max-width: 659px) {
+    .contact-map-wrapper {
+        position: relative; /* statt absolute */
+        margin-top: 0;
+        height: 300px; /* z. B. passend zur outer-wrapper */
+    }    
 }
