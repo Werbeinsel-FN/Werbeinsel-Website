@@ -12,7 +12,7 @@ get_header(); ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
 
 <main id="impressum-main" class="impressum-main">
-<header><h1>Impessum</h1></header>
+<header><h1>Impressum</h1></header>
 <section class="impressum-section">
   <div class="company-info">
     <h3>zwetschke GmbH &amp; Co. KG</h3>
@@ -58,7 +58,7 @@ get_header(); ?>
   </div>
 
   <div class="data-protection">
-    <h3>Name und Anschrift des Datenschutzbeauftragten</h3>
+    <h3>Name und Anschrift des Datenschutzbeauftragten:</h3>
     <p>SECUWING GmbH &amp; Co. KG | Datenschutz Agentur<br>
     Maximilian Hartung<br>
     Frauentorstraße 9<br>
@@ -66,16 +66,6 @@ get_header(); ?>
     Telefon: +49 821 90786458<br>
     E-Mail: <a href="mailto:epost@datenschutz-agentur.de">epost@datenschutz-agentur.de</a></p>
   </div>
-</section>
-<section class="bereit-zum-section">
-  <h2>Bereit zum</h2>
-  <h2 class="upleveln">upleveln?</h2>
-</section>
-<section class="dugme-section">
-  <div class="dugme">
-        <div class="krug"></div>
-        <div class="tekst">Yes</div>
-    </div>
 </section>
 </main>
 
