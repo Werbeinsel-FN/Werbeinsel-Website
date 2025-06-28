@@ -20,7 +20,6 @@ function wi_theme_enqueue_styles() {
         get_stylesheet_uri()
     );
 
-    // register header stylesheet
     wp_enqueue_style(
         'wi-header-style', 
         get_template_directory_uri() . '/css/header.css', 
@@ -28,7 +27,6 @@ function wi_theme_enqueue_styles() {
         filemtime(get_template_directory() . '/css/header.css')
     );    
 
-    // register footer stylesheet
     wp_enqueue_style(
         'wi-footer-style', 
         get_template_directory_uri() . '/css/footer.css', 
@@ -36,14 +34,20 @@ function wi_theme_enqueue_styles() {
         filemtime(get_template_directory() . '/css/footer.css')
     );
 
-    // register mainmenu stylesheet
-        wp_enqueue_style(
+    wp_enqueue_style(
         'wi-mainmenu-style',
         get_template_directory_uri() . '/css/mainmenu.css',
         array(),
         filemtime(get_template_directory() . '/css/mainmenu.css')
     );
 
+    wp_enqueue_style(
+        'wi-home-style',
+        get_template_directory_uri() . '/css/home.css',
+        array(),
+        filemtime(get_template_directory() . '/css/home.css')
+    );
+    
     // load foundation icons
     wp_enqueue_style(
         'foundation-icons',
@@ -54,33 +58,18 @@ function wi_theme_enqueue_styles() {
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
 
-function wi_theme_widgets_init() {
-	// register sidebar widget area
-    register_sidebar(array(
-        'name' => 'Sidebar',
-        'id' => 'sidebar-1',
-        'before_widget' => '<div class="widget">',
-        'after_widget' => '</div>',
-        'before_title' => '<h2 class="widget-title">',
-        'after_title' => '</h2>',
-    ));
-	// register footer widget area
-    register_sidebar(array(
-        'name' => 'Footer',
-        'id' => 'footer-widget',
-        'before_widget' => '<div class="footer-widget">',
-        'after_widget' => '</div>',
-        'before_title' => '<h3 class="footer-widget-title">',
-        'after_title' => '</h3>',
-    ));
-}
-add_action('widgets_init', 'wi_theme_widgets_init');
-
 ///////////////////////////////////////////////////////////////////////
 //	Register JS
 ///////////////////////////////////////////////////////////////////////
 
 function wi_theme_enqueue_js() {
+    wp_enqueue_script(
+        'wi-home-js',
+        get_template_directory_uri() . '/js/home.js',
+        array(),
+        '1.0',
+        true
+    );
     if (is_page('kontakt-new')) {
         wp_enqueue_script(
             'wi-theme-js',
@@ -110,18 +99,229 @@ function wi_theme_enqueue_js() {
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
 
 ///////////////////////////////////////////////////////////////////////
+//	Register Fonts
+///////////////////////////////////////////////////////////////////////
+
+function wi_theme_enqueue_google_fonts() {
+    $menu_font = get_option('wi_theme_menu_font', 'Arial');
+    $main_font = get_option('wi_theme_main_font', 'Arial');
+    $heading_font = get_option('wi_theme_heading_font', 'Arial');
+    
+    if ($heading_font && $heading_font !== 'Arial') {
+        wp_enqueue_style('wi-theme-heading-font', 'https://fonts.googleapis.com/css2?family=' . urlencode($heading_font) . ':wght@400;700&display=swap', false);
+    }
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_google_fonts');
+
+function wi_theme_enqueue_roboto_font() {
+    wp_enqueue_style(
+        'roboto-font',
+        'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap',
+        [],
+        null
+    );
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
+
+///////////////////////////////////////////////////////////////////////
+//	Register Shortcodes
+///////////////////////////////////////////////////////////////////////
+
+// [primary_menu]
+function wi_theme_register_primary_menu_shortcode() {
+    ob_start();
+	 wp_nav_menu(array(
+		'menu' => 'Hauptmenü', // Menü-Name, nicht Theme-Position
+		'container' => false,
+		'menu_class' => 'mod-menu'
+	));
+    return ob_get_clean();
+}
+add_shortcode('primary_menu', 'wi_theme_register_primary_menu_shortcode');
+
+///////////////////////////////////////////////////////////////////////
+//	Register Appearance > Widgets areas
+///////////////////////////////////////////////////////////////////////
+
+function wi_theme_widgets_init() {
+	// register sidebar widget area
+    register_sidebar(array(
+        'name' => 'Sidebar',
+        'id' => 'sidebar-1',
+        'before_widget' => '<div class="widget">',
+        'after_widget' => '</div>',
+        'before_title' => '<h2 class="widget-title">',
+        'after_title' => '</h2>',
+    ));
+	// register footer widget area
+    register_sidebar(array(
+        'name' => 'Footer',
+        'id' => 'footer-widget',
+        'before_widget' => '<div class="footer-widget">',
+        'after_widget' => '</div>',
+        'before_title' => '<h3 class="footer-widget-title">',
+        'after_title' => '</h3>',
+    ));
+}
+add_action('widgets_init', 'wi_theme_widgets_init');
+
+///////////////////////////////////////////////////////////////////////
+//	Register CPTs
+///////////////////////////////////////////////////////////////////////
+
+// Referenzen
+function wi_theme_register_references_post_type() {
+    $labels = array(
+        'name' => __('Referenzen'),
+        'singular_name' => __('Referenz'),
+        // … weitere Labels
+    );
+    $args = array(
+        'labels' => $labels,
+        'public' => true,
+        'has_archive' => true,
+        'menu_icon' => 'dashicons-networking',
+        'rewrite' => array('slug' => 'referenzen'),
+        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
+        'show_in_rest' => true,
+    );
+    register_post_type('references', $args);
+}
+add_action('init', 'wi_theme_register_references_post_type');
+
+function wi_theme_render_references($post) {
+
+    // Get total references amount
+    $total_query = new WP_Query([
+        'post_type' => 'references',
+        'posts_per_page' => -1,
+        'fields' => 'ids' // only IDs for better performance
+    ]);
+    $total_posts = count($total_query->posts);
+
+    if ($total_posts === 0) {
+        echo '<p>' . __('Keine Referenzen gefunden.', 'wi-theme') . '</p>';
+        return;
+    }
+
+    $posts_per_slider = ceil($total_posts / 3); // example: 20/3 = 7
+
+    echo '<div class="module-box  home-customer-logos ">';
+    echo '<div class="content">';
+    echo '<div class="partner-content">';
+    echo '<div class="content-list-wrapper partner-list-wrapper">';
+
+    for ($i = 0; $i < 3; $i++) {
+        $query = new WP_Query([
+            'post_type' => 'references',
+            'posts_per_page' => $posts_per_slider,
+            'offset' => $i * $posts_per_slider,
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ]);
+
+        if ($query->have_posts()) {
+            echo '<div class="content-list partner-list carousel" data-carousel-id="' . ($i + 1) . '">';
+            while ($query->have_posts()) {
+                $query->the_post(); ?>
+                <div class="carousel-cell">
+                    <figure class="customer-logo">
+                        <?php
+                        // Zwetschke demo logos (remove later)
+                        if (get_the_ID() == 50) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/74/3789b22de4a589df/zwetschke_kunde_waschwelt.png" alt="Waschwelt">';
+                        } 
+                        else if (get_the_ID() == 51) {
+                            echo '<img src="https://www.zwetschke.de/images/customerlogos/ab-in-den-urlaub/ab_in_den_urlaub_schwarz_neu.webp">';
+                        }
+                        else if (get_the_ID() == 52) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/51/cac6b30b1c3ad457/zwetschke_kunde_radio_fantasy.png">';
+                        }   
+                        else if (get_the_ID() == 53) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/93/6780d75f7d1ca13a/zwetschke_kunde_graefliche_kliniken.png">';
+                        } 
+                        else if (get_the_ID() == 54) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/45/021f68cf42bb6e9c/zwetschke_kunde_kesselhaus.png">';
+                        }     
+                        else if (get_the_ID() == 55) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/64/7563eeed48d61d11/zwetschke_kunde_thomsit.png">';
+                        } 
+                        else if (get_the_ID() == 56) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/100/55cf79380fce8ba6/zwetschke_kunde_blickfang.png">';
+                        } 
+                        else if (get_the_ID() == 57) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/77/f049d2082fe328da/zwetschke_kunde_roma.png">';
+                        } 
+                        else if (get_the_ID() == 58) {
+                            echo '<img src="https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp">';
+                        } 
+                        else if (get_the_ID() == 59) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/89/bc6256eefe3487b1/zwetschke_kunde_uli_und_du.png">';
+                        }
+                        else if (get_the_ID() == 60) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/87/8a9265668733aaae/zwetschke_kunde_wald_und_schrat.png">';
+                        }   
+                        else if (get_the_ID() == 61) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/97/a52683d1467c47f4/zwetschke_kunde_easybill.png">';
+                        }
+                        else if (get_the_ID() == 62) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/95/5979479bdc2df066/zwetschke_kunde_friedel.png">';
+                        }  
+                        else if (get_the_ID() == 63) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/98/9d28a7596020ab73/zwetschke_kunde_der_kuechenprofi.png">';
+                        }  
+                        else if (get_the_ID() == 64) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/47/c056208614ef5dce/zwetschke_kunde_landeswelle.png">';
+                        }  
+                        else if (get_the_ID() == 65) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/96/a20a6c9819d532ce/zwetschke_kunde_energie_specht.png">';
+                        }  
+                        else if (get_the_ID() == 66) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/76/78cbb120243f2256/zwetschke_kunde_safeboxx.png">';
+                        }  
+                        else if (get_the_ID() == 67) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/80/aaf33602df553859/zwetschke_kunde_mamia.png">';
+                        }  
+                        else if (get_the_ID() == 68) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/102/d316df6c497c35ff/zwetschke_kunde_beko.png">';
+                        }  
+                        else if (get_the_ID() == 69) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/104/38907221aa7f2137/zwetschke_kunde_auto_reichhardt.png">';
+                        }  
+                        else if (get_the_ID() == 70) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }                          
+                        else {
+                            the_post_thumbnail('full');
+                        }
+                        ?>
+                    </figure>
+                </div>
+                <?php
+            }
+            echo '</div>';
+        }
+
+        wp_reset_postdata();
+    } 
+    
+    echo '</div></div></div></div>';
+}
+// add_action('init', 'wi_theme_render_references');
+
+///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
 
 function wi_theme_add_admin_menu() {
     add_menu_page(
-        __('Theme Options', 'wi-theme'), // Seitenname
-        __('Theme Options', 'wi-theme'), // Menüname
-        'manage_options',                 // Berechtigung
-        'wi-theme-options',             // Slug
-        'wi_theme_options_page',        // Callback-Funktion
-        '',                               // Icon (leer = Standard)
-        61                                // Position im Menü
+        __('Theme Options', 'wi-theme'), // site name
+        __('Theme Options', 'wi-theme'), // menu name
+        'manage_options',                // permissions
+        'wi-theme-options',              // slug
+        'wi_theme_options_page',         // callback-function
+        '',                              // Icon (empty = default)
+        61                               // Position in menu
     );
 }
 add_action('admin_menu', 'wi_theme_add_admin_menu');
@@ -337,27 +537,6 @@ function wi_theme_custom_css() {
 }
 add_action('wp_head', 'wi_theme_custom_css');
 
-function wi_theme_enqueue_google_fonts() {
-    $menu_font = get_option('wi_theme_menu_font', 'Arial');
-    $main_font = get_option('wi_theme_main_font', 'Arial');
-    $heading_font = get_option('wi_theme_heading_font', 'Arial');
-    
-    if ($heading_font && $heading_font !== 'Arial') {
-        wp_enqueue_style('wi-theme-heading-font', 'https://fonts.googleapis.com/css2?family=' . urlencode($heading_font) . ':wght@400;700&display=swap', false);
-    }
-}
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_google_fonts');
-
-function wi_theme_enqueue_roboto_font() {
-    wp_enqueue_style(
-        'roboto-font',
-        'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap',
-        [],
-        null
-    );
-}
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
-
 /**
  * helper-function for color brightness adjustment
  *
@@ -393,6 +572,15 @@ function wi_theme_admin_scripts($hook) {
 }
 add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 
+//Allow (.js, ).svg & .ico upload to Mediathek
+function wi_theme_allowed_upload_types($mimes) {
+    //$mimes['js'] = 'application/javascript';
+    $mimes['svg'] = 'image/svg+xml';
+ 	$mimes['ico'] = 'image/vnd.microsoft.icon';		
+    return $mimes;
+}
+add_filter('upload_mimes', 'wi_theme_allowed_upload_types');
+
 ///////////////////////////////////////////////////////////////////////
 //	Register Leaflet (free contact map)
 ///////////////////////////////////////////////////////////////////////
@@ -404,3 +592,16 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 //     }
 // }
 // add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
+
+///////////////////////////////////////////////////////////////////////
+//	Register Flickity Slider
+///////////////////////////////////////////////////////////////////////
+
+function wi_theme_enqueue_flickity_assets() {
+    // Flickity CSS
+    wp_enqueue_style('flickity-css', get_template_directory_uri() . '/css/flickity.min.css', array(), '2.3.0');
+
+    // Flickity JS
+    wp_enqueue_script('flickity-js', get_template_directory_uri() . '/js/flickity.pkgd.min.js', array('jquery'), '2.3.0', true);
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_flickity_assets');

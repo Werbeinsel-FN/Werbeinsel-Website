@@ -6,12 +6,12 @@
 
 get_header(); ?>
 
-<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/home.css?v=<?php echo filemtime(get_template_directory() . '/css/home.css'); ?>">
+<!-- <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/home.css?v=<?php echo filemtime(get_template_directory() . '/css/home.css'); ?>"> -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <main id="home-main" class="home-main">
     <div class="home-main-container">
-        <section class="home-news-container">
+        <!-- <section class="home-news-container">
             <?php
             // Query for posts
             $blog_posts = new WP_Query(array(
@@ -58,9 +58,9 @@ get_header(); ?>
             // Reset Post Data
             wp_reset_postdata();
             ?>
-        </section>
+        </section> -->
         
-        <div class="content-list kundenlogo-list carousel">
+        <!-- <div class="content-list kundenlogo-list carousel">
             <div class="carousel-cell">
             <figure class="customer-logo">
                 <img src="https://www.zwetschke.de/content/cache/kundenlogo/83/77f2c94828514284/zwetschke_kunde_l_und_p.png" />             
@@ -114,8 +114,9 @@ get_header(); ?>
                 <img src="https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp" />      
             </figure>
             </div>                    
-        </div>  
+        </div>   -->
 
+        <?php wi_theme_render_references(null); ?>
 
     </div>
 </main>

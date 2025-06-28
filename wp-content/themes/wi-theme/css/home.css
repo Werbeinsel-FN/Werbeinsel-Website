@@ -1,16 +1,9 @@
-.home-main-container {
-    min-height: 100vh;
-}
-
 /**************************************/
 /* General                            */
 /**************************************/
 
-.page-id-22827 .digion-content-inner {
-    padding: 0;
-}
-
-.page-id-22827 .container {
+.home-main-container {
+    min-height: 100vh;  
     margin: 0;
     padding: 0;
     width: 100%;
@@ -116,12 +109,10 @@
 /* Logo                            */
 /**************************************/
 
-img {
+.home-customer-logos .customer-logo img {
+    max-height: 80%;
     border-style: none;
     max-width: 100%;
     width: auto;
-    height: auto;
-}
-.home-customer-logos .customer-logo img {
-    max-height: 80%;
+    height: auto;    
 }
