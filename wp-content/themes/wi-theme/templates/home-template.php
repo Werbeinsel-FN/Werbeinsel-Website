@@ -59,7 +59,62 @@ get_header(); ?>
             wp_reset_postdata();
             ?>
         </section>
+        
+        <div class="content-list kundenlogo-list carousel">
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/83/77f2c94828514284/zwetschke_kunde_l_und_p.png" />             
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/84/3714a587692de166/zwetschke_kunde_kuku.png" />      
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/45/021f68cf42bb6e9c/zwetschke_kunde_kesselhaus.png" />      
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/51/cac6b30b1c3ad457/zwetschke_kunde_radio_fantasy.png" />      
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/47/c056208614ef5dce/zwetschke_kunde_landeswelle.png" />      
+            </figure>
+            </div>                    
+        </div>                
 
+        <div class="content-list kundenlogo-list carousel">
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/96/a20a6c9819d532ce/zwetschke_kunde_energie_specht.png" />             
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/97/a52683d1467c47f4/zwetschke_kunde_easybill.png" />      
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/89/bc6256eefe3487b1/zwetschke_kunde_uli_und_du.png" />      
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/content/cache/kundenlogo/92/722da6bb4caa6557/zwetschke_kunde_hbw.png" />      
+            </figure>
+            </div>
+            <div class="carousel-cell">
+            <figure class="customer-logo">
+                <img src="https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp" />      
+            </figure>
+            </div>                    
+        </div>  
 
 
     </div>
