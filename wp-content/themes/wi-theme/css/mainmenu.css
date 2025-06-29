@@ -34,16 +34,17 @@
   position: fixed;
   bottom: 0;
   left: 50%;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, 100px);
   width: 100%;
   max-width: 250px;
-  height: 13vh;
+  height: 78px;
   transition: max-width 0.3s ease-in-out, transform 0.3s ease-in-out,
     opacity 0.3s ease-in-out;
 }
 .resp-menu.visible {
   opacity: 1;
   pointer-events: auto;
+  transform: translate(-50%, 0);
 }
 /* Wenn die Maus über das Menü fährt */
 .resp-menu:hover {
