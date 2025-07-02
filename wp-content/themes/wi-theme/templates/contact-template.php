@@ -17,10 +17,16 @@ get_header(); ?>
         <h3 class="contact-main-container headline">Kontakt</h3>
         <div class="contact-main-container subline">Einfach das Formular ausfüllen - wir freuen uns auf Sie!</div>
         <!-- Live site -->
-        <?php echo do_shortcode('[contact-form-7 id="f2feafb" title="Kontaktformular"]'); ?>
+        <?php echo do_shortcode('[wi_form id="22"]'); ?>
         <!-- Sam local site -->
-        <!-- <?php echo do_shortcode('[contact-form-7 id="c6acd7a" title="Contact form 1"]'); ?> -->
+        <!-- <?php echo do_shortcode('[wi_form id="22"]'); ?> -->
     </div>
 </main>
-
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
+<script>
+  jQuery(document).ready(function($){
+    $(document).foundation();
+  });
+</script>
 <?php get_footer();

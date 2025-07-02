@@ -14,6 +14,8 @@ add_action('after_setup_theme', 'wi_theme_setup');
 ///////////////////////////////////////////////////////////////////////
 
 function wi_theme_enqueue_styles() {
+
+
     // register main stylesheet
     wp_enqueue_style(
         'wi-style', 
@@ -43,7 +45,19 @@ function wi_theme_enqueue_styles() {
         array(),
         filemtime(get_template_directory() . '/css/mainmenu.css')
     );
-
+    wp_enqueue_style(
+    'wi-contact-style',
+    get_template_directory_uri() . '/css/contact.css',
+    array('wi-style'), // zavisi od glavnog stila
+    filemtime(get_template_directory() . '/css/contact.css')
+);
+  wp_enqueue_script(
+        'wi-contact-js',
+        get_template_directory_uri() . '/js/contact.js',
+        array('jquery'),
+        filemtime(get_template_directory() . '/js/contact.js'),
+        true
+    );
     // load foundation icons
     wp_enqueue_style(
         'foundation-icons',
