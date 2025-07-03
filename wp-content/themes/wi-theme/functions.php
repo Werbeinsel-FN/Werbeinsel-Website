@@ -228,69 +228,90 @@ function wi_theme_render_references($post) {
                     <figure class="customer-logo">
                         <?php
                         // Zwetschke demo logos (remove later)
-                        if (get_the_ID() == 50) {
+                        if (get_the_ID() == 7) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/74/3789b22de4a589df/zwetschke_kunde_waschwelt.png" alt="Waschwelt">';
                         } 
-                        else if (get_the_ID() == 51) {
+                        else if (get_the_ID() == 8) {
                             echo '<img src="https://www.zwetschke.de/images/customerlogos/ab-in-den-urlaub/ab_in_den_urlaub_schwarz_neu.webp">';
                         }
-                        else if (get_the_ID() == 52) {
+                        else if (get_the_ID() == 9) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/51/cac6b30b1c3ad457/zwetschke_kunde_radio_fantasy.png">';
                         }   
-                        else if (get_the_ID() == 53) {
+                        else if (get_the_ID() == 10) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/93/6780d75f7d1ca13a/zwetschke_kunde_graefliche_kliniken.png">';
                         } 
-                        else if (get_the_ID() == 54) {
+                        else if (get_the_ID() == 11) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/45/021f68cf42bb6e9c/zwetschke_kunde_kesselhaus.png">';
                         }     
-                        else if (get_the_ID() == 55) {
+                        else if (get_the_ID() == 12) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/64/7563eeed48d61d11/zwetschke_kunde_thomsit.png">';
                         } 
-                        else if (get_the_ID() == 56) {
+                        else if (get_the_ID() == 13) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/100/55cf79380fce8ba6/zwetschke_kunde_blickfang.png">';
                         } 
-                        else if (get_the_ID() == 57) {
+                        else if (get_the_ID() == 14) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/77/f049d2082fe328da/zwetschke_kunde_roma.png">';
                         } 
-                        else if (get_the_ID() == 58) {
+                        else if (get_the_ID() == 15) {
                             echo '<img src="https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp">';
                         } 
-                        else if (get_the_ID() == 59) {
+                        else if (get_the_ID() == 16) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/89/bc6256eefe3487b1/zwetschke_kunde_uli_und_du.png">';
                         }
-                        else if (get_the_ID() == 60) {
+                        else if (get_the_ID() == 17) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/87/8a9265668733aaae/zwetschke_kunde_wald_und_schrat.png">';
                         }   
-                        else if (get_the_ID() == 61) {
+                        else if (get_the_ID() == 18) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/97/a52683d1467c47f4/zwetschke_kunde_easybill.png">';
                         }
-                        else if (get_the_ID() == 62) {
+                        else if (get_the_ID() == 19) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/95/5979479bdc2df066/zwetschke_kunde_friedel.png">';
                         }  
-                        else if (get_the_ID() == 63) {
+                        else if (get_the_ID() == 20) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/98/9d28a7596020ab73/zwetschke_kunde_der_kuechenprofi.png">';
                         }  
-                        else if (get_the_ID() == 64) {
+                        else if (get_the_ID() == 21) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/47/c056208614ef5dce/zwetschke_kunde_landeswelle.png">';
                         }  
-                        else if (get_the_ID() == 65) {
+                        else if (get_the_ID() == 22) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/96/a20a6c9819d532ce/zwetschke_kunde_energie_specht.png">';
                         }  
-                        else if (get_the_ID() == 66) {
+                        else if (get_the_ID() == 23) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/76/78cbb120243f2256/zwetschke_kunde_safeboxx.png">';
                         }  
-                        else if (get_the_ID() == 67) {
+                        else if (get_the_ID() == 24) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/80/aaf33602df553859/zwetschke_kunde_mamia.png">';
                         }  
-                        else if (get_the_ID() == 68) {
+                        else if (get_the_ID() == 25) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/102/d316df6c497c35ff/zwetschke_kunde_beko.png">';
                         }  
-                        else if (get_the_ID() == 69) {
+                        else if (get_the_ID() == 26) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/104/38907221aa7f2137/zwetschke_kunde_auto_reichhardt.png">';
                         }  
-                        else if (get_the_ID() == 70) {
+                        else if (get_the_ID() == 27) {
                             echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
-                        }                          
+                        }    
+                        else if (get_the_ID() == 28) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }   
+                        else if (get_the_ID() == 29) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }   
+                        else if (get_the_ID() == 30) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }   
+                        else if (get_the_ID() == 31) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }   
+                        else if (get_the_ID() == 32) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }   
+                        else if (get_the_ID() == 33) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }   
+                        else if (get_the_ID() == 34) {
+                            echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
+                        }                         
                         else {
                             the_post_thumbnail('full');
                         }
