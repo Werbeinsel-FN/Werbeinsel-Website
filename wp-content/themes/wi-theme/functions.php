@@ -10,6 +10,36 @@ function wi_theme_setup() {
 add_action('after_setup_theme', 'wi_theme_setup');
 
 ///////////////////////////////////////////////////////////////////////
+//	Register Templates
+///////////////////////////////////////////////////////////////////////
+
+function wi_theme_register_services_single_template($template) {
+    global $post;
+	
+    if ($post->post_type === 'services') { 
+        $single_template = locate_template(['templates/services-single-template.php']);
+        if ($single_template) {
+            return $single_template;
+        }
+    }
+
+    // Fallback to default template if not found
+    return $template;
+}
+add_filter('single_template', 'wi_theme_register_services_single_template');
+
+function wi_theme_register_services_archive_template($template) {
+    if (is_post_type_archive('services')) {
+        $archive_template = locate_template('templates/services-archive-template.php');
+        if ($archive_template) {
+            return $archive_template;
+        }
+    }
+    return $template;
+}
+add_filter('archive_template', 'wi_theme_register_services_archive_template');
+
+///////////////////////////////////////////////////////////////////////
 //	Register CSS
 ///////////////////////////////////////////////////////////////////////
 
@@ -131,7 +161,7 @@ add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
 function wi_theme_register_primary_menu_shortcode() {
     ob_start();
 	 wp_nav_menu(array(
-		'menu' => 'Hauptmenü', // Menü-Name, nicht Theme-Position
+		'menu' => 'Hauptmenü', // menu name, not theme position
 		'container' => false,
 		'menu_class' => 'mod-menu'
 	));
@@ -308,6 +338,26 @@ function wi_theme_render_references($post) {
     echo '</div></div></div></div>';
 }
 // add_action('init', 'wi_theme_render_references');
+
+// Services
+function wi_theme_register_services_post_type() {
+    $labels = array(
+        'name' => __('Services'),
+        'singular_name' => __('Service'),
+        // … weitere Labels
+    );
+    $args = array(
+        'labels' => $labels,
+        'public' => true,
+        'has_archive' => true,
+        'menu_icon' => 'dashicons-portfolio',
+        'rewrite' => array('slug' => 'services'),
+        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
+        'show_in_rest' => true,
+    );
+    register_post_type('services', $args);
+}
+add_action('init', 'wi_theme_register_services_post_type');
 
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
