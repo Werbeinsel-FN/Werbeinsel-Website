@@ -635,13 +635,13 @@ add_filter('upload_mimes', 'wi_theme_allowed_upload_types');
 //	Register Leaflet (free contact map)
 ///////////////////////////////////////////////////////////////////////
 
-// function bsg_enqueue_leaflet_assets() {
-//     if (is_page_template('location-search.php')) {
-//         wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-//         wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], null, true);
-//     }
+// function wi_theme_enqueue_leaflet_assets() {
+//
+//     wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+//     wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], null, true);
+//
 // }
-// add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
+// add_action('wp_enqueue_scripts', 'wi_theme_enqueue_leaflet_assets');
 
 ///////////////////////////////////////////////////////////////////////
 //	Register Flickity Slider
