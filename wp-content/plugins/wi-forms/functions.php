@@ -127,7 +127,6 @@ add_action('wp_enqueue_scripts', function() {
         '1.0',
         true
     );
-
     wp_localize_script('wi-forms-js', 'WIForms', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce'   => wp_create_nonce('wi_forms_nonce')
