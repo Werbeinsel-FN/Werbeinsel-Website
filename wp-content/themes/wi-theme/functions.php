@@ -340,25 +340,93 @@ function wi_theme_render_references($post) {
 // add_action('init', 'wi_theme_render_references');
 
 // Services
+// Registracija post type-a Services
 function wi_theme_register_services_post_type() {
     $labels = array(
-        'name' => __('Services'),
-        'singular_name' => __('Service'),
-        // … weitere Labels
+        'name'                  => __('Leistungen', 'wi-theme'),
+        'singular_name'         => __('Leistung', 'wi-theme'),
+        'menu_name'             => __('Leistungen', 'wi-theme'),
+        'name_admin_bar'        => __('Leistung', 'wi-theme'),
+        'add_new'               => __('Neue Leistung hinzufügen', 'wi-theme'),
+        'add_new_item'          => __('Neue Leistung hinzufügen', 'wi-theme'),
+        'new_item'              => __('Neue Leistung', 'wi-theme'),
+        'edit_item'             => __('Leistung bearbeiten', 'wi-theme'),
+        'view_item'             => __('Leistung ansehen', 'wi-theme'),
+        'all_items'             => __('Alle Leistungen', 'wi-theme'),
+        'search_items'          => __('Leistungen durchsuchen', 'wi-theme'),
+        'parent_item_colon'     => __('Übergeordnete Leistung:', 'wi-theme'),
+        'not_found'             => __('Keine Leistungen gefunden.', 'wi-theme'),
+        'not_found_in_trash'    => __('Keine Leistungen im Papierkorb.', 'wi-theme'),
+        'featured_image'        => __('Leistungsbild', 'wi-theme'),
+        'set_featured_image'    => __('Leistungsbild festlegen', 'wi-theme'),
+        'remove_featured_image' => __('Leistungsbild entfernen', 'wi-theme'),
+        'use_featured_image'    => __('Als Leistungsbild verwenden', 'wi-theme'),
+        'archives'              => __('Leistungsarchiv', 'wi-theme'),
+        'insert_into_item'      => __('In Leistung einfügen', 'wi-theme'),
+        'uploaded_to_this_item' => __('Zu dieser Leistung hochgeladen', 'wi-theme'),
+        'filter_items_list'     => __('Leistungen filtern', 'wi-theme'),
+        'items_list_navigation' => __('Leistungen Navigation', 'wi-theme'),
+        'items_list'            => __('Leistungen Liste', 'wi-theme'),
     );
+
     $args = array(
-        'labels' => $labels,
-        'public' => true,
-        'has_archive' => true,
-        'menu_icon' => 'dashicons-portfolio',
-        'rewrite' => array('slug' => 'services'),
-        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
-        'show_in_rest' => true,
+        'labels'             => $labels,
+        'public'             => true,
+        'has_archive'        => true,
+        'menu_icon'          => 'dashicons-portfolio',
+        'rewrite'            => array('slug' => 'leistungen'),
+        'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),
+        'show_in_rest'       => true,
     );
+
     register_post_type('services', $args);
 }
 add_action('init', 'wi_theme_register_services_post_type');
 
+// Registracija taksonomije za Services
+function wi_theme_register_service_categories() {
+    $labels = array(
+        'name'              => __('Leistungskategorien', 'wi-theme'),
+        'singular_name'     => __('Leistungskategorie', 'wi-theme'),
+        'search_items'      => __('Kategorien durchsuchen', 'wi-theme'),
+        'all_items'         => __('Alle Kategorien', 'wi-theme'),
+        'parent_item'       => __('Übergeordnete Kategorie', 'wi-theme'),
+        'parent_item_colon' => __('Übergeordnete Kategorie:', 'wi-theme'),
+        'edit_item'         => __('Kategorie bearbeiten', 'wi-theme'),
+        'update_item'       => __('Kategorie aktualisieren', 'wi-theme'),
+        'add_new_item'      => __('Neue Kategorie hinzufügen', 'wi-theme'),
+        'new_item_name'     => __('Neuer Kategoriename', 'wi-theme'),
+        'menu_name'         => __('Leistungskategorien', 'wi-theme'),
+    );
+
+    $args = array(
+        'hierarchical'      => true, // hijerarhijska (kao klasične kategorije)
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite'           => array('slug' => 'leistungskategorie'),
+    );
+
+    register_taxonomy('service_category', array('services'), $args);
+}
+add_action('init', 'wi_theme_register_service_categories');
+
+function wi_theme_create_default_service_categories() {
+    if (!term_exists('Webdesign', 'service_category')) {
+        wp_insert_term('Webdesign', 'service_category');
+    }
+    if (!term_exists('SEO', 'service_category')) {
+        wp_insert_term('SEO', 'service_category');
+    }
+    if (!term_exists('Online-Marketing', 'service_category')) {
+        wp_insert_term('Online-Marketing', 'service_category');
+    }
+    if (!term_exists('Beratung', 'service_category')) {
+        wp_insert_term('Beratung', 'service_category');
+    }
+}
+add_action('after_switch_theme', 'wi_theme_create_default_service_categories');
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
@@ -655,3 +723,5 @@ function wi_theme_enqueue_flickity_assets() {
     wp_enqueue_script('flickity-js', get_template_directory_uri() . '/js/flickity.pkgd.min.js', array('jquery'), '2.3.0', true);
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_flickity_assets');
+
+
