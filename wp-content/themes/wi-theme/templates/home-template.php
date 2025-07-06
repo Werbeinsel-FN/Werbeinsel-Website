@@ -59,62 +59,64 @@ get_header(); ?>
             wp_reset_postdata();
             ?>
         </section> -->
-        
-        <!-- <div class="content-list kundenlogo-list carousel">
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/83/77f2c94828514284/zwetschke_kunde_l_und_p.png" />             
-            </figure>
-            </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/84/3714a587692de166/zwetschke_kunde_kuku.png" />      
-            </figure>
-            </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/45/021f68cf42bb6e9c/zwetschke_kunde_kesselhaus.png" />      
-            </figure>
-            </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/51/cac6b30b1c3ad457/zwetschke_kunde_radio_fantasy.png" />      
-            </figure>
-            </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/47/c056208614ef5dce/zwetschke_kunde_landeswelle.png" />      
-            </figure>
-            </div>                    
-        </div>                
 
-        <div class="content-list kundenlogo-list carousel">
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/96/a20a6c9819d532ce/zwetschke_kunde_energie_specht.png" />             
-            </figure>
+        <section class="home-services-container">
+            <div class="home-services-head-container">
+                <h1>Unsere Leistungen:</h1>
             </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/97/a52683d1467c47f4/zwetschke_kunde_easybill.png" />      
-            </figure>
+            <div class="home-services-content-container">
+            <?php 
+                // Query for services
+                $services = new WP_Query(array(
+                    'post_type'      => 'services',
+                    'posts_per_page' => -1, // amount of services shown
+                    'order' => 'ASC'           
+                ));
+
+                if ($services->have_posts()) :
+                    while ($services->have_posts()) : $services->the_post(); ?>
+                        <article id="service-<?php the_ID(); ?>" <?php post_class(); ?>>
+                            <header class="service-header">
+                                <div class="service-header-top-wrapper">
+                                    <div class="service-category-wrapper">
+                                        <?php
+                                        $terms = get_the_terms(get_the_ID(), 'service_category');
+                                        if (!empty($terms) && !is_wp_error($terms)) {
+                                            foreach ($terms as $term) {                                               
+                                                echo '<span class="service-category">' . esc_html($term->name) . '</span> ';
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                    <div class="service-thumbnail-wrapper">								
+                                        <?php the_post_thumbnail('full', ['class' => 'service-thumbnail', 'alt' => get_the_title()]); ?> 
+                                    </div>
+                                </div>
+                            </header>
+                            <div class="service-content">
+                                <div class="service-title-wrapper">
+                                    <?php 
+                                        $full_title = get_the_title();
+                                        $short_title = mb_strlen($full_title) > 25 ? mb_substr($full_title, 0, 16) . ' […]' : $full_title;
+                                    ?>
+                                    <h2 class="service-title" title="<?php echo esc_attr($full_title); ?>">
+                                        <a href="<?php the_permalink(); ?>">
+                                            <?php echo esc_html($short_title); ?>
+                                        </a>
+                                    </h2>							
+                                </div>
+                            </div>                      
+                        </article>                       
+                    <?php endwhile;
+                else :
+                    echo '<p>' . __('Keine Services gefunden.', 'wi-theme') . '</p>';
+                endif;
+
+                // Reset Post Data
+                wp_reset_postdata();
+                ?>                    
             </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/89/bc6256eefe3487b1/zwetschke_kunde_uli_und_du.png" />      
-            </figure>
-            </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/content/cache/kundenlogo/92/722da6bb4caa6557/zwetschke_kunde_hbw.png" />      
-            </figure>
-            </div>
-            <div class="carousel-cell">
-            <figure class="customer-logo">
-                <img src="https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp" />      
-            </figure>
-            </div>                    
-        </div>   -->
+        </section>        
 
         <?php wi_theme_render_references(null); ?>
 

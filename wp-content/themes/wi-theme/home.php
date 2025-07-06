@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Blog
- * Description: Template für die Anzeige der Blog-Posts.
+ * Description: Template for normal post display
  */
 
 get_header(); ?>
@@ -19,7 +19,7 @@ get_header(); ?>
         // Query für die Beiträge
         $blog_posts = new WP_Query(array(
             'post_type'      => 'post',
-            'posts_per_page' => 10, // Anzahl der angezeigten Beiträge
+            'posts_per_page' => 10, // amount of posts
             'paged'          => get_query_var('paged') ? get_query_var('paged') : 1,
         ));
 
