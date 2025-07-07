@@ -1,6 +1,115 @@
-.service-content img {
-  width: 200px;
-  height: 200px;
+.services-main-wrapper {
+  background-color: #ffed00;
+  padding: 5% 0;
+  color: black;
+}
+
+.services-title-wrapper,
+.service-category-section {
+  text-align: center;
+  font-family: "Unbounded", sans-serif;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.service-thumbnail {
+  position: relative;
+  width: 100%;
+  height: 250px; /* visina slike */
+  overflow: hidden;
+  border-radius: 40px;
+  background-color: #000; /* dok se slika ne učita */
+}
+
+.service-thumbnail img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 40px;
+}
+
+.service-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0; /* zamena za width: 100% */
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    /* najtamnije na dnu */ rgba(0, 0, 0, 0.6) 50%,
+    /* srednje tamno na sredini overlaya */ rgba(0, 0, 0, 0) 100%
+      /* providno na vrhu overlaya */
+  );
+
+  padding: 5px;
+  box-sizing: border-box;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  max-width: 100%; /* osigurava da ne prelazi roditelja */
+  margin: 0 auto; /* centriranje ako treba */
+}
+
+.service-overlay-content {
+  padding-left: 1vw;
+  padding-bottom: 2vh;
+  text-align: left;
+  color: #fff;
+}
+
+.service-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.service-excerpt {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+.service-item {
+  position: relative;
+  display: flex;
+  justify-content: center; /* centriraj sadržaj */
+}
+.service-category-section.is-dark {
+  background-color: #000;
+  color: #fff;
+  padding: 20px;
+}
+
+.service-category-section.is-dark .service-category-title {
+  color: #fff;
+}
+
+.service-category-section.is-dark .service-overlay-content {
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .service-thumbnail img {
+    max-height: 50vh; /* smanji max visinu na manjim ekranima */
+    width: 100%; /* i dalje puni širinu roditelja */
+    object-fit: cover; /* da se ne iseče */
+  }
+  .service-title {
+    font-size: 0.8rem; /* manji naslov ispod slike */
+  }
+  .service-excerpt {
+    font-size: 0.6rem;
+  }
+  .services-title-wrapper,
+  .service-category-section {
+    font-size: 1rem; /* manji naslov kategorije */
+  }
 }
