@@ -21,11 +21,12 @@
 
 .service-thumbnail {
   position: relative;
-  width: 100%;
-  height: 250px; /* visina slike */
+  width: 300px; /* Fiksna širina */
+  height: 250px; /* Fiksna visina */
   overflow: hidden;
   border-radius: 40px;
-  background-color: #000; /* dok se slika ne učita */
+  background-color: #000;
+  margin: 0 auto; /* centriranje */
 }
 
 .service-thumbnail img {
