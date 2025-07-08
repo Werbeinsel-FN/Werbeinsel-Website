@@ -1,218 +1,314 @@
 /* Grundlayout für das Menü */
 #mainmenu {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 600px;
-    z-index: 1000;
-    text-align: center;
-	margin-bottom: 70px;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  z-index: 1000;
+  text-align: center;
+  margin-bottom: 50px;
 }
 @media (max-width: 768px) {
-	#mainmenu {
-		margin-bottom: 50px;
-	}
+  #mainmenu {
+    margin-bottom: 50px;
+  }
 }
 @media (max-width: 480px) {
-	#mainmenu {
-		margin-bottom: 70px;
-	}
+  #mainmenu {
+    margin-bottom: 70px;
+  }
 }
 /* Menü-Container */
 .resp-menu {
-    background-color: rgba(0, 0, 0, 0.8);
-    border-radius: 45px;
-    /*padding: 15px 20px;*/
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; 
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-	transform: translate(-50%, 0); /* Start außerhalb des sichtbaren Bereichs */
-    width: 100%;
-    max-width: 200px; /* Standardgröße */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  background-color: #ffed00;
+  border-radius: 45px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 100px);
+  width: 100%;
+  max-width: 250px;
+  height: 78px;
+  transition: max-width 0.3s ease-in-out, transform 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
 }
-
+.resp-menu.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
 /* Wenn die Maus über das Menü fährt */
 .resp-menu:hover {
-    max-width: 215px; /* Menü wird breiter */
+  max-width: 300px; /* Menü wird breiter */
 }
 
 /* Menü wird angezeigt */
 .resp-menu.open {
-    transform: translate(-50%, 0); /* Menü fährt bündig hoch */
-	padding-bottom: 25px;
-	max-width: 215px;
-	opacity: 1; 
+  transform: translate(-50%, 0); /* Menü fährt bündig hoch */
+  max-width: 400px;
+  opacity: 1;
+  height: auto;
+  padding: 5px 35px 5px 0;
+  max-height: 500px;
 }
 
 /* Menü-Items */
 .mod-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: none;
-    flex-direction: column;
-    gap: 5px;
+  list-style: none;
+  padding: 0;
+  margin-left: 0;
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  margin-top: -7px;
+  margin-bottom: 5px;
 }
 
 .resp-menu.open .mod-menu {
-    display: flex;
+  display: flex;
 }
 
 @keyframes jump {
-    0% { transform: translateY(20px); opacity: 0; } /* Startet weiter unten */
-    50% { transform: translateY(-5px); opacity: 1; } /* Springt leicht nach oben */
-    100% { transform: translateY(0); opacity: 1; } /* Setzt sich sanft auf die Endposition */
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  } /* Startet weiter unten */
+  50% {
+    transform: translateY(-5px);
+    opacity: 1;
+  } /* Springt leicht nach oben */
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  } /* Setzt sich sanft auf die Endposition */
 }
 @keyframes jump-reverse {
-    0% { transform: translateY(0); opacity: 1; } /* Startposition */
-    50% { transform: translateY(-5px); opacity: 1; } /* Springt leicht nach oben */
-    100% { transform: translateY(20px); opacity: 0; } /* Fällt nach unten & wird unsichtbar */
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  } /* Startposition */
+  50% {
+    transform: translateY(-5px);
+    opacity: 1;
+  } /* Springt leicht nach oben */
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  } /* Fällt nach unten & wird unsichtbar */
 }
 
 .resp-menu.open .mod-menu::before {
-    content: ""; /* Stellt sicher, dass das Pseudo-Element existiert */
-    display: block;
-    height: 10px; /* Platzhalter für den Sprungeffekt */
-    animation: jump 0.5s cubic-bezier(.37, .08, .25, 1.29) forwards;
+  content: ""; /* Stellt sicher, dass das Pseudo-Element existiert */
+  display: block;
+  height: 10px; /* Platzhalter für den Sprungeffekt */
+  animation: jump 0.5s cubic-bezier(0.37, 0.08, 0.25, 1.29) forwards;
 }
 
 .resp-menu.open .mod-menu li {
-    animation: jump 0.6s cubic-bezier(.37, .08, .25, 1.29) forwards;
-    opacity: 0; /* Startet unsichtbar */
-    animation-delay: 0.1s; /* Kleiner Delay für sanftes Auftauchen */
+  animation: jump 0.6s cubic-bezier(0.37, 0.08, 0.25, 1.29) forwards;
+  opacity: 0; /* Startet unsichtbar */
+  animation-delay: 0.1s; /* Kleiner Delay für sanftes Auftauchen */
+  margin-left: -1%;
 }
 
 .resp-menu:not(.open) .mod-menu li {
-    animation: jump-reverse 0.4s cubic-bezier(.37, .08, .25, 1.29) forwards;
-    opacity: 1; /* Startet sichtbar */
+  animation: jump-reverse 0.4s cubic-bezier(0.37, 0.08, 0.25, 1.29) forwards;
+  opacity: 1; /* Startet sichtbar */
 }
 
 /* Verzögerung pro Menü-Item für einen Stufen-Effekt */
 .resp-menu.open .mod-menu li:nth-child(2) {
-    animation-delay: 0.2s;
+  animation-delay: 0.2s;
 }
 .resp-menu.open .mod-menu li:nth-child(3) {
-    animation-delay: 0.3s;
+  animation-delay: 0.3s;
 }
 .resp-menu.open .mod-menu li:nth-child(4) {
-    animation-delay: 0.4s;
+  animation-delay: 0.4s;
 }
 .resp-menu.open .mod-menu li:nth-child(5) {
-    animation-delay: 0.5s;
+  animation-delay: 0.5s;
 }
 .resp-menu:not(.open) .mod-menu li:nth-child(2) {
-    animation-delay: 0.1s;
+  animation-delay: 0.1s;
 }
 .resp-menu:not(.open) .mod-menu li:nth-child(3) {
-    animation-delay: 0.2s;
+  animation-delay: 0.2s;
 }
 .resp-menu:not(.open) .mod-menu li:nth-child(4) {
-    animation-delay: 0.3s;
+  animation-delay: 0.3s;
 }
 .resp-menu:not(.open) .mod-menu li:nth-child(5) {
-    animation-delay: 0.4s;
+  animation-delay: 0.4s;
 }
 
 /* Standard-Styling für die Menü-Items */
 .mod-menu li {
-    list-style: none;
-    padding: 10px 0px;
-    border-radius: 45px;
-    transition: background-color 0.3s ease-in-out, padding 0.3s ease-in-out; /* Sanfte Animation */
-	text-align: center;
-    width: 175px; /* Menü-Items werden breiter */
-    max-width: 100%; /* Falls das Menü schmaler wird */
-	position: relative; /* Stellt sicher, dass das Kind-Element sich ausdehnen kann */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  padding: 0px;
+  border-radius: 45px;
+  transition: background-color 0.3s ease-in-out, padding 0.3s ease-in-out; /* Sanfte Animation */
+  text-align: center;
+  width: 400px; /* Menü-Items werden breiter */
+  max-width: 100%; /* Falls das Menü schmaler wird */
+  position: relative; /* Stellt sicher, dass das Kind-Element sich ausdehnen kann */
 }
 
 /* Hover-Effekt für die Menü-Items (erweitert den Bereich nach außen) */
-.mod-menu li:hover {
-    background-color: #FFED00;
-}
 
 /* Menü-Links */
 .mod-menu li a {
-    color: white;
-    text-decoration: none;
-    font-family: 'Poppins', sans-serif;
-    line-height: .8rem;
-    font-size: 18px;
-    font-weight: bold;
-	display: block; /* Macht den Link blockfüllend */
-    width: 100%; /* Dehnt ihn über die ganze Breite des li-Elements */
-    height: 100%; /* Dehnt ihn über die ganze Höhe des li-Elements */
-    text-align: center;
+  color: black;
+  text-decoration: none;
+  font-family: "Poppins", sans-serif;
+  line-height: 1.2;
+  font-size: 3rem;
+  font-weight: bold;
+  width: 100%; /* Dehnt ihn über die ganze Breite des li-Elements */
+  height: 100%; /* Dehnt ihn über die ganze Höhe des li-Elements */
+  text-align: center;
+  display: block;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  padding: 10px 20px; /* stalni padding, ne menja se */
+  border-radius: 45px; /* stalni border-radius */
 }
-.mod-menu li a:hover {
-    color: black;
+.mod-menu li a:hover,
+.resp-menu a.active {
+  background-color: black;
+  color: #ffed00;
+  display: inline-block; /* da može da ima padding i border-radius lepo */
 }
 
 /* Button zum Öffnen des Menüs */
 #toggle-main-menu {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 25px;
-    font-family: 'Unbounded', sans-serif;
-    cursor: pointer;
-    display: flex; /* Flexbox aktivieren */
-    flex-direction: row; /* Elemente nebeneinander anordnen */
-    align-items: center; /* Vertikal zentrieren */
-    padding: 10px;
-    gap: 15px; /* Abstand zwischen den Elementen */
+  background: none;
+  border: none;
+  color: rgb(0, 0, 0);
+  font-size: 25px;
+  font-family: "Unbounded", sans-serif;
+  cursor: pointer;
+  display: flex; /* Flexbox aktivieren */
+  flex-direction: row; /* Elemente nebeneinander anordnen */
+  align-items: center; /* Vertikal zentrieren */
+  justify-content: center;
+  padding: 7px;
+  gap: 32px; /* Abstand zwischen den Elementen */
 }
 #toggle-main-menu .label {
-    text-transform: uppercase;
-	font-weight: bold;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 1.8rem;
 }
 
 /* Menü-Button Animation */
 /* Menü-Icon mit Kreis-Hintergrund */
 .menu-ball {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    align-items: center;
-    justify-content: center;
-    width: 50px; /* Größe des Kreises */
-    height: 50px; /* Größe des Kreises */
-    border-radius: 50%; /* Macht es rund */
-    background: #FFED00/*rgba(255, 255, 255, 0.2)*/; /* Leicht transparenter Hintergrund */
-    transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
-	margin-left: -15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  width: 63px; /* Größe des Kreises */
+  height: 63px; /* Größe des Kreises */
+  border-radius: 50%; /* Macht es rund */
+  background: black; /*rgba(255, 255, 255, 0.2)*/ /* Leicht transparenter Hintergrund */
+  transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
+  margin-left: -22px;
 }
 
 /* Hover-Effekt für den Kreis */
-#toggle-main-menu:hover .menu-ball {
-    /*background: rgba(255, 255, 255, 0.4);*/ /* Hintergrund wird heller */
-    transform: translateX(-8px); /* Verschiebt das Icon um 10px nach links */
-    transition: transform 0.3s ease-in-out; /* Sanfte Animation */
-	gap: 6px; /* Erhöht den Abstand zwischen den Linien */
+.resp-menu:hover .menu-ball {
+  transform: translateX(-25px);
+  gap: 7px;
 }
 
 /* Linien innerhalb des Kreises */
 .menu-ball .line {
-    width: 25px;
-    height: 3px;
-    background: black;
-    transition: transform 0.3s ease-in-out;
+  width: 24px;
+  height: 4px;
+  background: #ffed00;
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  margin-bottom: 2%;
 }
 #toggle-main-menu:hover .menu-ball .line:nth-child(3) {
-    transform: translateY(0px); 
+  transform: translateY(0px);
 }
 /* Animation für Button */
 #toggle-main-menu.open .menu-ball .line:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
+  transform: rotate(45deg) translate(5px, 5px);
 }
 #toggle-main-menu.open .menu-ball .line:nth-child(2) {
-    opacity: 0;
+  opacity: 0;
 }
 #toggle-main-menu.open .menu-ball .line:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+.resp-menu.closing {
+  overflow: hidden;
+  animation: collapseMenu 0.5s ease-in-out forwards;
+  max-height: var(--menu-max-height, 500px);
+}
+
+@keyframes collapseMenu {
+  0% {
+    opacity: 1;
+    /* umesto fiksnog max-height, koristi varijablu */
+    max-height: var(--menu-max-height, 500px);
+    padding: 5px 35px 5px 0;
+  }
+  100% {
+    opacity: 0;
+    max-height: 13vh; /* zatvoreni meni */
+    padding: 0;
+  }
+}
+@media (max-width: 767px) {
+  /* Smanji širinu i visinu menija kada je otvoren */
+  .resp-menu.open {
+    max-width: 300px;
+    max-height: 300px;
+    padding: 5px 15px 5px 0;
+    height: auto;
+  }
+
+  /* Smanji veličinu fonta i padding stavki menija */
+  .resp-menu.open .mod-menu li a {
+    font-size: 1.8rem;
+    padding: 8px 12px;
+    width: 100%;
+  }
+
+  /* Smanji širinu stavki menija */
+  .resp-menu.open .mod-menu li {
+    width: 280px;
+  }
+
+  /* Smanji dimenzije dugmeta za otvaranje menija */
+  #toggle-main-menu {
+    font-size: 18px;
+  }
+  #toggle-main-menu .menu-ball {
+    width: 65px;
+    height: 65px;
+  }
+  #toggle-main-menu .menu-ball .line {
+    width: 20px;
+    height: 4px;
+  }
+  .resp-menu.open .mod-menu li {
+    margin-left: -4%;
+  }
 }
