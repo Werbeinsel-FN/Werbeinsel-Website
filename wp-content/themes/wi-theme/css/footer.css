@@ -1,29 +1,124 @@
-.menu-footermenu-container, .menu-footermenue-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;    
+.site-footer {
+  background-color: #000;
+  color: white;
+  padding: 3rem 1rem;
+  font-family: "Poppins", sans-serif;
 }
 
-.menu-footermenu-container ul, .menu-footermenue-container ul {
-    list-style-type: none;
-    display: inline-flex;
+.footer-top {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
-.menu-footermenu-container ul li, .menu-footermenue-container ul li {
-        margin: 0px 20px;
+.footer-kreative-social {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 600px;
 }
 
-.menu-footermenu-container ul li a, .menu-footermenue-container ul li a {
-        color: #000;
-		font-family: Poppins, sans-serif;
-        text-decoration: none;
-        font-size: 1.5rem;
+.footer-hashtag {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.social-icons {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-icons a {
+  background-color: white;
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.social-icons a:hover {
+  transform: scale(1.1);
+}
+
+.social-icons i {
+  color: black;
+  font-size: 20px;
+}
+
+.footer-menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  flex-direction: row;
+}
+.footer-menu-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  list-style: none; /* ← uklanja tačkice */
+  padding: 0;
+  margin: 0;
+}
+.footer-links ul {
+  display: flex;
+  gap: 1.5rem;
+}
+.footer-links li {
+  list-style: none; /* ← dodatna sigurnost */
+  margin: 0;
+  padding: 0;
+}
+
+.footer-links li a {
+  color: white;
+  text-decoration: none;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.footer-links li a:hover {
+  text-decoration: underline;
+}
+
+.scroll-top-btn {
+  background-color: white;
+  color: black;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 3px 3px 0 black;
+  transition: all 0.2s ease;
+}
+
+.scroll-top-btn:hover {
+  transform: translateY(3px);
+  box-shadow: 5px 5px 0 black;
 }
 
 .footer-copyright {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    font-family: Poppins, sans-serif;
-    font-size: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  border-top: 1px solid #fff;
+  padding-top: 1rem;
 }
