@@ -21,6 +21,7 @@ function wi_theme_enqueue_styles() {
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
 
+
 function wi_theme_widgets_init() {
 	// register sidebar widget area
     register_sidebar(array(
