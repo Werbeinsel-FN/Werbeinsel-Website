@@ -6,6 +6,7 @@
 
 get_header(); ?>
 
+
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/contact.css?v=<?php echo filemtime(get_template_directory() . '/css/contact.css'); ?>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
