@@ -1,7 +1,14 @@
 <footer class="site-footer">
   <div class="footer-top">
     <div class="footer-kreative-social">
-      <p class="footer-hashtag">#kreativemeute</p>
+      <a 
+  class="footer-hashtag" 
+  href="https://www.instagram.com/explore/tags/werbeinsel/" 
+  target="_blank" 
+  rel="noopener noreferrer"
+>
+  #werbeinsel
+</a>
       <div class="social-icons">
         <a href="https://www.tiktok.com" target="_blank" aria-label="TikTok">
           <i class="fab fa-tiktok"></i>
@@ -9,7 +16,7 @@
         <a href="https://www.linkedin.com" target="_blank" aria-label="LinkedIn">
           <i class="fab fa-linkedin-in"></i>
         </a>
-        <a href="https://www.instagram.com" target="_blank" aria-label="Instagram">
+        <a href="https://www.instagram.com/werbeinsel" target="_blank" aria-label="Instagram">
           <i class="fab fa-instagram"></i>
         </a>
       </div>
