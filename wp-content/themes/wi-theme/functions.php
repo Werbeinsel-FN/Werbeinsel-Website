@@ -100,7 +100,7 @@ function wi_theme_enqueue_js() {
         '1.0',
         true
     );
-    if (is_page('contact')) {
+    if (is_page('kontakt')) {
         wp_enqueue_script(
             'wi-theme-js',
             get_template_directory_uri() . '/js/contact.js',
@@ -119,7 +119,7 @@ function wi_theme_enqueue_js() {
         );
     }
     wp_enqueue_script(
-        'holi-theme-admin-js', 
+        'wi-theme-admin-js', 
         get_template_directory_uri() . '/js/mainmenu.js', 
         array('jquery'), 
         null, 

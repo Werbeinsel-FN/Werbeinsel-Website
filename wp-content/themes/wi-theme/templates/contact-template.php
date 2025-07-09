@@ -33,7 +33,7 @@ get_header(); ?>
                 Einfach das Formular ausfüllen - wir freuen uns auf Sie!
             </div>
 
-            <?php echo do_shortcode('[wi_form id="39"]'); ?> 
+            <?php echo do_shortcode('[wi_form id="30"]'); ?> 
         </div>
     </div>
     <div class="contact-bottom-wrapper">
