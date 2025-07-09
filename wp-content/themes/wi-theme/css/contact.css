@@ -17,10 +17,10 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 .contact-form {
-  background-color: yellow;
+  background-color: #ffed00;
 }
 .contact-bottom-wrapper {
-  background-color: yellow;
+  background-color: #ffed00;
 }
 #contactForm input[type="text"],
 #contactForm input[type="email"],
