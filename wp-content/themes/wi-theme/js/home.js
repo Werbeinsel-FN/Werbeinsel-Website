@@ -48,10 +48,10 @@ function adjustCellWidth() {
 
     if (carouselWidth >= 1024) {
       itemsToShow = 4;
-      increaseFactor = 1.4; // +40% za desktop
+      increaseFactor = 1.4;
     } else {
       itemsToShow = 2.5;
-      increaseFactor = 1.2; // +20% za tablet i mobilni
+      increaseFactor = 1.2;
     }
 
     const newWidthPercent = (100 / itemsToShow) * increaseFactor;
