@@ -231,112 +231,57 @@ function wi_theme_render_references() {
     echo '<div class="partner-content">';
     echo '<div class="content-list-wrapper partner-list-wrapper">';
 
-   for ($i = 0; $i < 3; $i++) {
-    $query = new WP_Query([
-        'post_type' => 'references',
-        'posts_per_page' => $posts_per_slider,
-        'offset' => $i * $posts_per_slider,
-        'orderby' => 'date',
-        'order' => 'DESC',
-    ]);
+    for ($row = 0; $row < $rows; $row++) {
+        echo '<div class="content-list partner-list carousel" data-carousel-id="' . ($row + 1) . '">';
 
-    if ($query->have_posts()) {
-        echo '<div class="content-list partner-list carousel" data-carousel-id="' . ($i + 1) . '">';
-        $post_count = 0;
-
-        while ($query->have_posts()) {
-            $query->the_post();
-            $post_count++;
+        for ($i = 0; $i < $items_per_row; $i++) {
+            $index = $row * $items_per_row + $i;
 
             echo '<div class="carousel-cell">';
             echo '<figure class="customer-logo">';
 
-            $id = get_the_ID();
-            switch ($id) {
-                case 7:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/74/3789b22de4a589df/zwetschke_kunde_waschwelt.png" alt="Waschwelt">';
-                    break;
-                case 8:
-                    echo '<img src="https://www.zwetschke.de/images/customerlogos/ab-in-den-urlaub/ab_in_den_urlaub_schwarz_neu.webp">';
-                    break;
-                case 9:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/51/cac6b30b1c3ad457/zwetschke_kunde_radio_fantasy.png">';
-                    break;
-                case 10:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/93/6780d75f7d1ca13a/zwetschke_kunde_graefliche_kliniken.png">';
-                    break;
-                case 11:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/45/021f68cf42bb6e9c/zwetschke_kunde_kesselhaus.png">';
-                    break;
-                case 12:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/64/7563eeed48d61d11/zwetschke_kunde_thomsit.png">';
-                    break;
-                case 13:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/100/55cf79380fce8ba6/zwetschke_kunde_blickfang.png">';
-                    break;
-                case 14:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/77/f049d2082fe328da/zwetschke_kunde_roma.png">';
-                    break;
-                case 15:
-                    echo '<img src="https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp">';
-                    break;
-                case 16:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/89/bc6256eefe3487b1/zwetschke_kunde_uli_und_du.png">';
-                    break;
-                case 17:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/87/8a9265668733aaae/zwetschke_kunde_wald_und_schrat.png">';
-                    break;
-                case 18:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/97/a52683d1467c47f4/zwetschke_kunde_easybill.png">';
-                    break;
-                case 19:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/95/5979479bdc2df066/zwetschke_kunde_friedel.png">';
-                    break;
-                case 20:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/98/9d28a7596020ab73/zwetschke_kunde_der_kuechenprofi.png">';
-                    break;
-                case 21:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/47/c056208614ef5dce/zwetschke_kunde_landeswelle.png">';
-                    break;
-                case 22:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/96/a20a6c9819d532ce/zwetschke_kunde_energie_specht.png">';
-                    break;
-                case 23:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/76/78cbb120243f2256/zwetschke_kunde_safeboxx.png">';
-                    break;
-                case 24:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/80/aaf33602df553859/zwetschke_kunde_mamia.png">';
-                    break;
-                case 25:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/102/d316df6c497c35ff/zwetschke_kunde_beko.png">';
-                    break;
-                case 26:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/104/38907221aa7f2137/zwetschke_kunde_auto_reichhardt.png">';
-                    break;
-                case 27:
-                case 28:
-                case 29:
-                case 30:
-                case 31:
-                case 32:
-                case 33:
-                case 34:
-                    echo '<img src="https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png">';
-                    break;
-                default:
-                    the_post_thumbnail('full');
-                    break;
+            if (isset($posts[$index])) {
+                $post = $posts[$index];
+                $id = $post->ID;
+
+                $special_logos = [
+                    24 => 'https://www.zwetschke.de/content/cache/kundenlogo/74/3789b22de4a589df/zwetschke_kunde_waschwelt.png',
+                    51 => 'https://www.zwetschke.de/images/customerlogos/ab-in-den-urlaub/ab_in_den_urlaub_schwarz_neu.webp',
+                    52 => 'https://www.zwetschke.de/content/cache/kundenlogo/51/cac6b30b1c3ad457/zwetschke_kunde_radio_fantasy.png',
+                    53 => 'https://www.zwetschke.de/content/cache/kundenlogo/93/6780d75f7d1ca13a/zwetschke_kunde_graefliche_kliniken.png',
+                    54 => 'https://www.zwetschke.de/content/cache/kundenlogo/45/021f68cf42bb6e9c/zwetschke_kunde_kesselhaus.png',
+                    55 => 'https://www.zwetschke.de/content/cache/kundenlogo/64/7563eeed48d61d11/zwetschke_kunde_thomsit.png',
+                    56 => 'https://www.zwetschke.de/content/cache/kundenlogo/100/55cf79380fce8ba6/zwetschke_kunde_blickfang.png',
+                    57 => 'https://www.zwetschke.de/content/cache/kundenlogo/77/f049d2082fe328da/zwetschke_kunde_roma.png',
+                    58 => 'https://www.zwetschke.de/images/kundenlogos/xentral/xentral-e-mail-signatur-300px-x.webp',
+                    59 => 'https://www.zwetschke.de/content/cache/kundenlogo/89/bc6256eefe3487b1/zwetschke_kunde_uli_und_du.png',
+                    60 => 'https://www.zwetschke.de/content/cache/kundenlogo/87/8a9265668733aaae/zwetschke_kunde_wald_und_schrat.png',
+                    61 => 'https://www.zwetschke.de/content/cache/kundenlogo/97/a52683d1467c47f4/zwetschke_kunde_easybill.png',
+                    62 => 'https://www.zwetschke.de/content/cache/kundenlogo/95/5979479bdc2df066/zwetschke_kunde_friedel.png',
+                    63 => 'https://www.zwetschke.de/content/cache/kundenlogo/98/9d28a7596020ab73/zwetschke_kunde_der_kuechenprofi.png',
+                    64 => 'https://www.zwetschke.de/content/cache/kundenlogo/47/c056208614ef5dce/zwetschke_kunde_landeswelle.png',
+                    65 => 'https://www.zwetschke.de/content/cache/kundenlogo/96/a20a6c9819d532ce/zwetschke_kunde_energie_specht.png',
+                    66 => 'https://www.zwetschke.de/content/cache/kundenlogo/76/78cbb120243f2256/zwetschke_kunde_safeboxx.png',
+                    67 => 'https://www.zwetschke.de/content/cache/kundenlogo/80/aaf33602df553859/zwetschke_kunde_mamia.png',
+                    68 => 'https://www.zwetschke.de/content/cache/kundenlogo/102/d316df6c497c35ff/zwetschke_kunde_beko.png',
+                    69 => 'https://www.zwetschke.de/content/cache/kundenlogo/104/38907221aa7f2137/zwetschke_kunde_auto_reichhardt.png',
+                    70 => 'https://www.zwetschke.de/content/cache/kundenlogo/60/490631f491e99577/zwetschke_kunde_schneider.png',
+                ];
+
+                if (isset($special_logos[$id])) {
+                    echo '<img src="' . esc_url($special_logos[$id]) . '" alt="Special Logo">';
+                } else {
+                    if (has_post_thumbnail($post->ID)) {
+                        echo get_the_post_thumbnail($post->ID, 'full');
+                    } else {
+                        echo '<img src="' . esc_url($default_logo) . '" alt="Default Logo">';
+                    }
+                }
+            } else {
+                // No post, show default logo
+                echo '<img src="' . esc_url($default_logo) . '" alt="Default Logo">';
             }
 
-            echo '</figure>';
-            echo '</div>';
-        }
-
-        // Dodaj default ćelije ako nema dovoljno postova
-        for ($j = $post_count; $j < $posts_per_slider; $j++) {
-            echo '<div class="carousel-cell">';
-            echo '<figure class="customer-logo">';
-            echo '<img src="https://via.placeholder.com/150x100?text=Placeholder" alt="Placeholder logo">';
             echo '</figure>';
             echo '</div>';
         }
@@ -344,10 +289,6 @@ function wi_theme_render_references() {
         echo '</div>';
     }
 
-    wp_reset_postdata();
-}
-
-    
     echo '</div></div></div></div>';
 }
 
