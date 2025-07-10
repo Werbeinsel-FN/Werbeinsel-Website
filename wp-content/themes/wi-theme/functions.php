@@ -200,43 +200,33 @@ add_action('widgets_init', 'wi_theme_widgets_init');
 ///////////////////////////////////////////////////////////////////////
 
 // Referenzen
-function wi_theme_register_references_post_type() {
-    $labels = array(
-        'name' => __('Referenzen'),
-        'singular_name' => __('Referenz'),
-        // … weitere Labels
-    );
-    $args = array(
-        'labels' => $labels,
-        'public' => true,
-        'has_archive' => true,
-        'menu_icon' => 'dashicons-networking',
-        'rewrite' => array('slug' => 'referenzen'),
-        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
-        'show_in_rest' => true,
-    );
-    register_post_type('references', $args);
-}
-add_action('init', 'wi_theme_register_references_post_type');
 
-function wi_theme_render_references($post) {
+function wi_theme_render_references() {
+    $total_items = 12;
+    $items_per_row = 4;
+    $rows = 3;
 
-    // Get total references amount
-    $total_query = new WP_Query([
+    // Query up to 12 posts
+    $query = new WP_Query([
         'post_type' => 'references',
-        'posts_per_page' => -1,
-        'fields' => 'ids' // only IDs for better performance
+        'posts_per_page' => $total_items,
+        'orderby' => 'date',
+        'order' => 'DESC',
     ]);
-    $total_posts = count($total_query->posts);
 
-    if ($total_posts === 0) {
-        echo '<p>' . __('Keine Referenzen gefunden.', 'wi-theme') . '</p>';
-        return;
+    $posts = [];
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            $posts[] = get_post();
+        }
+        wp_reset_postdata();
     }
 
-    $posts_per_slider = ceil($total_posts / 3); // example: 20/3 = 7
+    // Real default logo URL - WordPress logo SVG from jsDelivr (always available)
+    $default_logo = 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/wordpress.svg';
 
-    echo '<div class="module-box  home-customer-logos ">';
+    echo '<div class="module-box home-customer-logos">';
     echo '<div class="content">';
     echo '<div class="partner-content">';
     echo '<div class="content-list-wrapper partner-list-wrapper">';
@@ -360,6 +350,10 @@ function wi_theme_render_references($post) {
     
     echo '</div></div></div></div>';
 }
+
+
+
+
 // add_action('init', 'wi_theme_render_references');
 
 // Services
