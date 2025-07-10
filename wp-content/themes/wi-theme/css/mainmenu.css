@@ -38,6 +38,7 @@
   width: 100%;
   max-width: 250px;
   height: 78px;
+  border: 3px solid black;
   transition: max-width 0.3s ease-in-out, transform 0.3s ease-in-out,
     opacity 0.3s ease-in-out;
 }
@@ -57,7 +58,7 @@
   max-width: 400px;
   opacity: 1;
   height: auto;
-  padding: 5px 35px 5px 0;
+  padding: 5px;
   max-height: 500px;
 }
 
@@ -119,6 +120,7 @@
   opacity: 0; /* Startet unsichtbar */
   animation-delay: 0.1s; /* Kleiner Delay für sanftes Auftauchen */
   margin-left: -1%;
+  margin-bottom: 20px;
 }
 
 .resp-menu:not(.open) .mod-menu li {
@@ -196,7 +198,7 @@
 #toggle-main-menu {
   background: none;
   border: none;
-  color: rgb(0, 0, 0);
+  color: black;
   font-size: 25px;
   font-family: "Unbounded", sans-serif;
   cursor: pointer;
@@ -260,6 +262,7 @@
   overflow: hidden;
   animation: collapseMenu 0.5s ease-in-out forwards;
   max-height: var(--menu-max-height, 500px);
+  border: 3px solid black;
 }
 
 @keyframes collapseMenu {
@@ -267,48 +270,57 @@
     opacity: 1;
     /* umesto fiksnog max-height, koristi varijablu */
     max-height: var(--menu-max-height, 500px);
-    padding: 5px 35px 5px 0;
+    padding: 5px;
+    border: 3px solid black;
   }
   100% {
     opacity: 0;
     max-height: 13vh; /* zatvoreni meni */
     padding: 0;
+    border: 3px solid black;
   }
 }
 @media (max-width: 767px) {
-  /* Smanji širinu i visinu menija kada je otvoren */
   .resp-menu.open {
-    max-width: 300px;
+    max-width: 280px; /* ~30% manje od 400px */
     max-height: 300px;
-    padding: 5px 15px 5px 0;
+    padding: 5px 10px 5px 0;
     height: auto;
   }
 
-  /* Smanji veličinu fonta i padding stavki menija */
   .resp-menu.open .mod-menu li a {
-    font-size: 1.8rem;
-    padding: 8px 12px;
+    font-size: 2.1rem; /* ~30% manje od 3rem */
+    padding: 7px 14px; /* smanjen padding */
     width: 100%;
   }
 
-  /* Smanji širinu stavki menija */
   .resp-menu.open .mod-menu li {
-    width: 280px;
+    width: 280px; /* smanjen sa 400px */
+    margin-left: -4%;
+    margin-bottom: 14px; /* dodat razmak, 30% više od originalnog */
   }
 
-  /* Smanji dimenzije dugmeta za otvaranje menija */
+  .resp-menu.open .mod-menu li:last-child {
+    margin-bottom: 0;
+  }
+
   #toggle-main-menu {
-    font-size: 18px;
+    font-size: 18px; /* smanjeno sa 25px */
+    gap: 40px; /* proporcionalno smanjeno sa 32px */
   }
+
   #toggle-main-menu .menu-ball {
-    width: 65px;
-    height: 65px;
+    width: 60px; /* smanjeno sa 63px */
+    height: 60px;
+    margin-left: -35px;
   }
+
   #toggle-main-menu .menu-ball .line {
-    width: 20px;
-    height: 4px;
+    width: 17px;
+    height: 3px;
   }
-  .resp-menu.open .mod-menu li {
-    margin-left: -4%;
+
+  #toggle-main-menu .label {
+    font-size: 1.5rem; /* smanjeno sa 1.8rem */
   }
 }
