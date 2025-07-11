@@ -1,3 +1,17 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const scrollBtn = document.querySelector('.scroll-top-btn');
+    if (scrollBtn) {
+      scrollBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+  });
+</script>
 <footer class="site-footer">
   <div class="footer-top">
     <div class="footer-kreative-social">
