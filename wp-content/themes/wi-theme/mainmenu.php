@@ -1,5 +1,5 @@
 <nav id="mainmenu">
-    <div class="resp-menu">
+    <div class="resp-menu visible">
         <ul class="mod-menu">
             <?php
             wp_nav_menu(array(
