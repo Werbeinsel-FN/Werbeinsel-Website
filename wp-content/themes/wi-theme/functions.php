@@ -340,7 +340,6 @@ function wi_theme_render_references($post) {
 // add_action('init', 'wi_theme_render_references');
 
 // Services
-// Registracija post type-a Services
 function wi_theme_register_services_post_type() {
     $labels = array(
         'name'                  => __('Leistungen', 'wi-theme'),
@@ -374,7 +373,7 @@ function wi_theme_register_services_post_type() {
         'public'             => true,
         'has_archive'        => true,
         'menu_icon'          => 'dashicons-portfolio',
-        'rewrite'            => array('slug' => 'leistungen'),
+        'rewrite'            => array('slug' => 'services'),
         'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),
         'show_in_rest'       => true,
     );
@@ -383,7 +382,6 @@ function wi_theme_register_services_post_type() {
 }
 add_action('init', 'wi_theme_register_services_post_type');
 
-// Registracija taksonomije za Services
 function wi_theme_register_service_categories() {
     $labels = array(
         'name'              => __('Leistungskategorien', 'wi-theme'),
@@ -400,33 +398,43 @@ function wi_theme_register_service_categories() {
     );
 
     $args = array(
-        'hierarchical'      => true, // hijerarhijska (kao klasične kategorije)
+        'hierarchical'      => true,
         'labels'            => $labels,
         'show_ui'           => true,
         'show_admin_column' => true,
         'query_var'         => true,
-        'rewrite'           => array('slug' => 'leistungskategorie'),
+        'show_in_rest' => true,
+        'rewrite'           => array('slug' => 'servicekategorie'),
     );
 
     register_taxonomy('service_category', array('services'), $args);
 }
 add_action('init', 'wi_theme_register_service_categories');
 
-function wi_theme_create_default_service_categories() {
-    if (!term_exists('Webdesign', 'service_category')) {
-        wp_insert_term('Webdesign', 'service_category');
+// Disable fucking Gutenberg editor
+add_filter( 'use_block_editor_for_post_type', function( $use_block_editor, $post_type ) {
+    if ( 'services' === $post_type ) {
+        return false; // force classic editor
     }
-    if (!term_exists('SEO', 'service_category')) {
-        wp_insert_term('SEO', 'service_category');
-    }
-    if (!term_exists('Online-Marketing', 'service_category')) {
-        wp_insert_term('Online-Marketing', 'service_category');
-    }
-    if (!term_exists('Beratung', 'service_category')) {
-        wp_insert_term('Beratung', 'service_category');
-    }
-}
-add_action('after_switch_theme', 'wi_theme_create_default_service_categories');
+    return $use_block_editor;
+}, 10, 2 );
+
+// function wi_theme_create_default_service_categories() {
+//     if (!term_exists('Webdesign', 'service_category')) {
+//         wp_insert_term('Webdesign', 'service_category');
+//     }
+//     if (!term_exists('SEO', 'service_category')) {
+//         wp_insert_term('SEO', 'service_category');
+//     }
+//     if (!term_exists('Online-Marketing', 'service_category')) {
+//         wp_insert_term('Online-Marketing', 'service_category');
+//     }
+//     if (!term_exists('Beratung', 'service_category')) {
+//         wp_insert_term('Beratung', 'service_category');
+//     }
+// }
+// add_action('after_switch_theme', 'wi_theme_create_default_service_categories');
+
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
