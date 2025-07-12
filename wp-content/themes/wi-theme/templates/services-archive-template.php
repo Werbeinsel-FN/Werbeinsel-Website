@@ -16,9 +16,15 @@ get_header(); ?>
         $service_categories = get_terms(array(
             'taxonomy' => 'service_category',
             'hide_empty' => true,
-            'orderby'    => 'term_order',
-            'order'      => 'ASC',
+            // 'orderby'    => 'term_order',
+            // 'order'      => 'ASC',
         ));
+
+        usort($service_categories, function($a, $b) {
+            $order_a = intval(get_term_meta($a->term_id, 'term_order', true));
+            $order_b = intval(get_term_meta($b->term_id, 'term_order', true));
+            return $order_a <=> $order_b;
+        } );
 
         $section_index = 0;
 
