@@ -11,16 +11,16 @@ body {
 .site-footer {
   background-color: #000;
   color: white;
-  padding: 3rem 1rem;
+  padding: 250px 1rem 200px 1rem;
   font-family: "Poppins", sans-serif;
   overflow-x: hidden;
 }
 
 .footer-top {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   margin-bottom: 2rem;
-  padding-left: 2rem;
+  padding-right: 2rem;
 }
 .footer-hashtag {
   font-size: 2rem;
@@ -38,14 +38,15 @@ body {
 }
 .footer-kreative-social {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 2rem;
   width: 100%;
   max-width: 600px;
 }
 
 .footer-hashtag {
-  font-size: 2rem;
+  font-size: 1.2rem;
   font-weight: 800;
   margin: 0;
 }
@@ -66,6 +67,8 @@ body {
   height: 44px;
   text-decoration: none;
   transition: transform 0.2s;
+  border: 2px black solid;
+  border-radius: 50%;
 }
 
 .social-icons a:hover {
@@ -80,15 +83,16 @@ body {
 .footer-menu {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 2rem;
-  margin-bottom: 2rem;
   flex-direction: row;
+  padding: 0 2rem;
 }
 .footer-menu-wrapper {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-end;
   width: 100%;
 }
 
@@ -97,7 +101,7 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1.5rem;
-  list-style: none; /* ← uklanja tačkice */
+  list-style: none;
   padding: 0;
   margin: 0;
 }
@@ -106,7 +110,7 @@ body {
   gap: 1.5rem;
 }
 .footer-links li {
-  list-style: none; /* ← dodatna sigurnost */
+  list-style: none;
   margin: 0;
   padding: 0;
 }
@@ -115,7 +119,6 @@ body {
   color: white;
   text-decoration: none;
   font-family: "Poppins", sans-serif;
-  font-weight: 600;
   font-size: 1.1rem;
   transition: color 0.3s ease;
 }
@@ -126,6 +129,7 @@ body {
 
 .scroll-top-btn {
   background-color: white;
+  text-transform: uppercase;
   color: black;
   font-weight: 800;
   font-size: 1rem;
