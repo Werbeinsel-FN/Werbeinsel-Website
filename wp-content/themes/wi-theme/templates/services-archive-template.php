@@ -2,30 +2,81 @@
 /* Template Name: Services */
 
 get_header(); ?>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/services.css?v=<?php echo filemtime(get_template_directory() . '/css/services.css'); ?>">
 
 <div class="services-main-wrapper">
-	<div class="services-inner-wrapper">
-		<div class="services-title-wrapper">
-			<h1 class="services-title">Unsere Leistungen:</h1>		
-		</div>
-		<?php if (have_posts()) : ?>
-			<div class="services-grid">
-				<?php while (have_posts()) : the_post(); ?>
-					<div class="service-item">						
-							<?php if (has_post_thumbnail()) : ?>
-								<div class="service-thumbnail">
-									<a href="<?php the_permalink(); ?>">
-									<?php the_post_thumbnail('full'); ?>
-									</a>
-								</div>
-							<?php endif; ?>
-					</div>
-				<?php endwhile; ?>
-			</div>
-		<?php else : ?>
-			<p>Keine Services gefunden.</p>
-		<?php endif; ?>		
-	</div>
+    <div class="services-inner-wrapper">
+        <div class="services-title-wrapper">
+            <h1 class="services-title">Unsere Leistungen:</h1>		
+        </div>
+
+        <?php
+        // Učitaj sve kategorije iz taksonomije 'service_category' koje imaju bar jedan post
+        $service_categories = get_terms(array(
+            'taxonomy' => 'service_category',
+            'hide_empty' => true,
+        ));
+
+        $section_index = 0;
+
+        foreach ($service_categories as $cat) :
+
+            $query = new WP_Query(array(
+                'post_type' => 'services',
+                'posts_per_page' => -1,
+                'tax_query' => array(
+                    array(
+                        'taxonomy' => 'service_category',
+                        'field'    => 'slug',
+                        'terms'    => $cat->slug,
+                    ),
+                ),
+            ));
+
+            if ($query->have_posts()) :
+
+                $section_class = ($section_index % 2 === 1) ? 'service-category-section is-dark' : 'service-category-section';
+                ?>
+
+                <div class="<?php echo $section_class; ?>">
+                    <h2 class="service-category-title"><?php echo esc_html($cat->name); ?></h2>
+
+                    <div class="services-grid">
+                        <?php while ($query->have_posts()) : $query->the_post(); ?>
+                            <div class="service-item">
+                                <div class="service-thumbnail">
+                                    <a href="<?php the_permalink(); ?>">
+                                        <?php
+                                        $content = get_the_content();
+                                        preg_match('/<img.+src=[\'"](?P<src>.+?)[\'"].*>/i', $content, $image);
+                                        if (!empty($image['src'])) {
+                                            echo '<img src="' . esc_url($image['src']) . '" alt="' . esc_attr(get_the_title()) . '">';
+                                        } else {
+                                            echo '<img src="https://via.placeholder.com/600x400?text=No+Image" alt="Placeholder">';
+                                        }
+                                        ?>
+                                        <div class="service-overlay">
+                                            <div class="service-overlay-content">
+                                                <div class="service-excerpt"><?php echo wp_trim_words(get_the_content(), 10, '...'); ?></div>
+                                                <div class="service-title"><?php the_title(); ?></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endwhile; ?>
+                    </div>
+                </div>
+
+            <?php
+                wp_reset_postdata();
+                $section_index++;
+            endif;
+
+        endforeach; ?>
+
+    </div>
 </div>
 
-<?php get_footer();
+<?php get_footer(); ?>

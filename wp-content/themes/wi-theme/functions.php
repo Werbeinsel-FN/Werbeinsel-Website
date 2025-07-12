@@ -359,6 +359,35 @@ function wi_theme_register_services_post_type() {
 }
 add_action('init', 'wi_theme_register_services_post_type');
 
+// Registracija taksonomije za Services
+function wi_theme_register_service_categories() {
+    $labels = array(
+        'name'              => __('Leistungskategorien', 'wi-theme'),
+        'singular_name'     => __('Leistungskategorie', 'wi-theme'),
+        'search_items'      => __('Kategorien durchsuchen', 'wi-theme'),
+        'all_items'         => __('Alle Kategorien', 'wi-theme'),
+        'parent_item'       => __('Übergeordnete Kategorie', 'wi-theme'),
+        'parent_item_colon' => __('Übergeordnete Kategorie:', 'wi-theme'),
+        'edit_item'         => __('Kategorie bearbeiten', 'wi-theme'),
+        'update_item'       => __('Kategorie aktualisieren', 'wi-theme'),
+        'add_new_item'      => __('Neue Kategorie hinzufügen', 'wi-theme'),
+        'new_item_name'     => __('Neuer Kategoriename', 'wi-theme'),
+        'menu_name'         => __('Leistungskategorien', 'wi-theme'),
+    );
+
+    $args = array(
+        'hierarchical'      => true, // hijerarhijska (kao klasične kategorije)
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite'           => array('slug' => 'service-category'),
+    );
+
+    register_taxonomy('service_category', array('services'), $args);
+}
+add_action('init', 'wi_theme_register_service_categories');
+
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
