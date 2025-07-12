@@ -1,3 +1,7 @@
+body {
+  margin: 0;
+}
+
 .services-main-wrapper {
   background-color: #ffed00;
   padding: 5% 0;
@@ -12,27 +16,49 @@
   font-weight: 800;
 }
 
+/* Section Headlines */
+.service-category-section h1 {
+  font-size: 175px;
+  font-weight: 800;
+  line-height: 90%;
+  letter-spacing: -10px;
+  margin: 5rem;
+}
+
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
   padding: 20px;
 }
 
-.service-thumbnail {
+/* Standard Grid (Kategorie 5 bleibt so) */
+.services-grid:not(.category-4):not(.category-6) {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.service-item {
   position: relative;
-  width: 300px; /* Fiksna širina */
-  height: 250px; /* Fiksna visina */
+  display: flex;
+  justify-content: center;
+}
+
+.service-thumbnail {
+  /* position: relative;
+  width: 300px;
+  height: 250px; */
   overflow: hidden;
   border-radius: 40px;
-  background-color: #000;
-  margin: 0 auto; /* centriranje */
+  /* background-color: #000; */
+  margin: 0 auto;
+
+  border: 5px solid black;
+  width: 100%;
 }
 
 .service-thumbnail img {
-  position: absolute;
+  /* position: absolute;
   top: 0;
-  left: 0;
+  left: 0; */
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -44,21 +70,19 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  right: 0; /* zamena za width: 100% */
+  right: 0;
   background: linear-gradient(
     to top,
     rgba(0, 0, 0, 1) 0%,
-    /* najtamnije na dnu */ rgba(0, 0, 0, 0.6) 50%,
-    /* srednje tamno na sredini overlaya */ rgba(0, 0, 0, 0) 100%
-      /* providno na vrhu overlaya */
+    rgba(0, 0, 0, 0.6) 50%,
+    rgba(0, 0, 0, 0) 100%
   );
-
   padding: 5px;
   box-sizing: border-box;
   border-bottom-left-radius: 40px;
   border-bottom-right-radius: 40px;
-  max-width: 100%; /* osigurava da ne prelazi roditelja */
-  margin: 0 auto; /* centriranje ako treba */
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .service-overlay-content {
@@ -79,11 +103,7 @@
   font-weight: 500;
   margin-bottom: 5px;
 }
-.service-item {
-  position: relative;
-  display: flex;
-  justify-content: center; /* centriraj sadržaj */
-}
+
 .service-category-section.is-dark {
   background-color: #000;
   color: #fff;
@@ -97,20 +117,140 @@
 .service-category-section.is-dark .service-overlay-content {
   color: #fff;
 }
+
+/* =============================== */
+/* Speziell für Kategorie 4        */
+/* =============================== */
+
+.services-grid.category-4 {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 5rem;
+}
+
+/* obere Zeile */
+.category-4-top {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.category-4-top .service-item {
+  height: 30rem;
+}
+
+/* untere Zeile */
+.category-4-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.category-4-bottom .service-item {
+  height: auto;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .category-4-top,
+  .category-4-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .category-4-top .service-item,
+  .category-4-bottom .service-item {
+    height: auto;
+  }
+}
+
+/* =============================== */
+/* Speziell für Kategorie 5        */
+/* =============================== */
+
+.services-grid.category-5 .service-thumbnail {
+  border: 5px solid #ffed00;
+}
+
+.services-grid.category-5 .service-overlay {
+  background: linear-gradient( 
+                to top, 
+                rgb(255, 237, 0) 0%, 
+                rgba(255, 237, 0, 0.6) 50%, 
+                rgba(255, 237, 0, 0) 100% 
+              );
+  height: 30%;
+  bottom: 0;
+  top: auto; /* falls top vorher gesetzt war */
+  overflow: hidden;
+}
+
+.services-grid.category-5 .service-overlay-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding-left: 2vw;
+}
+
+.services-grid.category-5 .service-title {
+  margin: 0;
+  margin-top: 1.5vw;
+}
+
+/* =============================== */
+/* Speziell für Kategorie 6        */
+/* =============================== */
+
+.services-grid.category-6 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 5rem;
+
+  height: 60rem;
+  max-width: 1200px;
+  padding: 5rem;  
+}
+
+.category-6 .service-item {
+  /* height: 300px; */
+  height: 100%;
+  width: 100%;
+}
+
+/* =============================== */
+/* Responsive Anpassung            */
+/* =============================== */
+
 @media (max-width: 600px) {
   .service-thumbnail img {
-    max-height: 50vh; /* smanji max visinu na manjim ekranima */
-    width: 100%; /* i dalje puni širinu roditelja */
-    object-fit: cover; /* da se ne iseče */
+    max-height: 50vh;
+    width: 100%;
+    object-fit: cover;
   }
+
   .service-title {
-    font-size: 0.8rem; /* manji naslov ispod slike */
+    font-size: 0.8rem;
   }
+
   .service-excerpt {
     font-size: 0.6rem;
   }
+
   .services-title-wrapper,
   .service-category-section {
-    font-size: 1rem; /* manji naslov kategorije */
+    font-size: 1rem;
+  }
+
+  .services-grid.category-4,
+  .services-grid.category-6 {
+    grid-template-columns: 1fr;
+    grid-template-areas: none;
+  }
+
+  .category-4 .service-item,
+  .category-6 .service-item {
+    height: auto;
   }
 }

@@ -52,37 +52,94 @@ get_header(); ?>
                 <div class="<?php echo $section_class; ?>">
                     <?php if ( $cat->term_id === 4 ) : ?>
                         <h1>Auf die Straße</h1>
-                    <?php else : ?>
+                    <?php elseif ( $cat->term_id === 5 ) : ?>
+                        <h1>Lass kleben</h1>     
+                    <?php elseif ( $cat->term_id === 6 ) : ?>
+                        <h1>Design & Design</h1>                                           
+                    <?php /*else : ?>
 
                         <h2 class="service-category-title"><?php echo esc_html($cat->name); ?></h2>
 
+                    <?php*/ endif; ?>
+
+                    <?php if ( $cat->term_id === 4 ) : ?>
+                        <div class="services-grid category-4">
+                            <div class="category-4-top">
+                                <?php 
+                                $i = 0;
+                                while ($query->have_posts()) : $query->the_post(); 
+                                $i++;
+                                if ($i <= 2) : ?>
+                                    <div class="service-item service-item-<?php echo $i; ?>">
+                                        <div class="service-thumbnail">
+                                            <a href="<?php the_permalink(); ?>">
+                                                <?php the_post_thumbnail(); ?>
+                                                <div class="service-overlay">
+                                                    <div class="service-overlay-content">
+                                                        <div class="service-excerpt"><?php echo wp_trim_words(get_the_content(), 10, '...'); ?></div>
+                                                        <div class="service-title"><?php the_title(); ?></div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endwhile; ?>
+                            </div>
+
+                            <div class="category-4-bottom">
+                                <?php 
+                                // Query zurücksetzen, um wieder bei Post 3 anzufangen:
+                                $query->rewind_posts();
+                                $i = 0;
+
+                                while ($query->have_posts()) : $query->the_post(); 
+                                $i++;
+                                if ($i > 2) : ?>
+                                    <div class="service-item service-item-<?php echo $i; ?>">
+                                        <div class="service-thumbnail">
+                                            <a href="<?php the_permalink(); ?>">
+                                                <?php the_post_thumbnail(); ?>
+                                                <div class="service-overlay">
+                                                    <div class="service-overlay-content">
+                                                        <div class="service-excerpt"><?php echo wp_trim_words(get_the_content(), 10, '...'); ?></div>
+                                                        <div class="service-title"><?php the_title(); ?></div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                                <?php endwhile; ?>
+                            </div>
+                        </div>
+                    <?php else: ?>
+
+
+                        <div class="services-grid category-<?php echo $cat->term_id; ?>">
+                            <?php 
+                            $i = 0;
+                            while ($query->have_posts()) : $query->the_post(); 
+                            $i++;
+                            ?>
+                                <div class="service-item service-item-<?php echo $i; ?>">
+                                    <div class="service-thumbnail">
+                                        <a href="<?php the_permalink(); ?>">
+                                            <?php the_post_thumbnail(); ?>
+                                            <div class="service-overlay">
+                                                <div class="service-overlay-content">
+                                                    <!-- <div class="service-excerpt"><?php echo wp_trim_words(get_the_content(), 10, '...'); ?></div> -->
+                                                    <div class="service-title"><?php the_title(); ?></div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
+
                     <?php endif; ?>
 
-                    <div class="services-grid">
-                        <?php while ($query->have_posts()) : $query->the_post(); ?>
-                            <div class="service-item">
-                                <div class="service-thumbnail">
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php
-                                        $content = get_the_content();
-                                        preg_match('/<img.+src=[\'"](?P<src>.+?)[\'"].*>/i', $content, $image);
-                                        if (!empty($image['src'])) {
-                                            echo '<img src="' . esc_url($image['src']) . '" alt="' . esc_attr(get_the_title()) . '">';
-                                        } else {
-                                            echo '<img src="https://via.placeholder.com/600x400?text=No+Image" alt="Placeholder">';
-                                        }
-                                        ?>
-                                        <div class="service-overlay">
-                                            <div class="service-overlay-content">
-                                                <div class="service-excerpt"><?php echo wp_trim_words(get_the_content(), 10, '...'); ?></div>
-                                                <div class="service-title"><?php the_title(); ?></div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        <?php endwhile; ?>
-                    </div>
                 </div>
 
             <?php
