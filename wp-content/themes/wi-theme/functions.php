@@ -417,7 +417,7 @@ add_filter( 'use_block_editor_for_post_type', function( $use_block_editor, $post
         return false; // force classic editor
     }
     return $use_block_editor;
-});
+}, 10, 2 );
 
 // show order when editing category in wp backend
 function wi_theme_add_category_order_field($taxonomy) {
