@@ -298,7 +298,6 @@ function wi_theme_render_references() {
 // add_action('init', 'wi_theme_render_references');
 
 // Services
-// Registracija post type-a Services
 function wi_theme_register_services_post_type() {
     $labels = array(
         'name'                  => __('Leistungen', 'wi-theme'),
@@ -332,8 +331,8 @@ function wi_theme_register_services_post_type() {
         'public'             => true,
         'has_archive'        => true,
         'menu_icon'          => 'dashicons-portfolio',
-        'rewrite'            => array('slug' => 'leistungen'),
-        'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields'),
+        'rewrite'            => array('slug' => 'services'),
+        'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes'),
         'show_in_rest'       => true,
     );
 
@@ -341,7 +340,6 @@ function wi_theme_register_services_post_type() {
 }
 add_action('init', 'wi_theme_register_services_post_type');
 
-// Registracija taksonomije za Services
 function wi_theme_register_service_categories() {
     $labels = array(
         'name'              => __('Leistungskategorien', 'wi-theme'),
@@ -358,33 +356,211 @@ function wi_theme_register_service_categories() {
     );
 
     $args = array(
-        'hierarchical'      => true, // hijerarhijska (kao klasične kategorije)
+        'hierarchical'      => true,
         'labels'            => $labels,
         'show_ui'           => true,
         'show_admin_column' => true,
         'query_var'         => true,
-        'rewrite'           => array('slug' => 'leistungskategorie'),
+        'show_in_rest' => true,
+        'rewrite'           => array('slug' => 'servicekategorie'),
     );
 
     register_taxonomy('service_category', array('services'), $args);
 }
 add_action('init', 'wi_theme_register_service_categories');
 
-function wi_theme_create_default_service_categories() {
-    if (!term_exists('Webdesign', 'service_category')) {
-        wp_insert_term('Webdesign', 'service_category');
+// disable fucking Gutenberg editor
+add_filter( 'use_block_editor_for_post_type', function( $use_block_editor, $post_type ) {
+    if ( 'services' === $post_type ) {
+        return false; // force classic editor
     }
-    if (!term_exists('SEO', 'service_category')) {
-        wp_insert_term('SEO', 'service_category');
-    }
-    if (!term_exists('Online-Marketing', 'service_category')) {
-        wp_insert_term('Online-Marketing', 'service_category');
-    }
-    if (!term_exists('Beratung', 'service_category')) {
-        wp_insert_term('Beratung', 'service_category');
+    return $use_block_editor;
+}, 10, 2 );
+
+// service order
+function wi_theme_add_service_order_column($columns) {
+    $columns['menu_order'] = 'Reihenfolge';
+    return $columns;
+}
+add_filter('manage_services_posts_columns', 'wi_theme_add_service_order_column');
+
+function wi_theme_fill_service_order_column($column, $post_id) {
+    if ($column === 'menu_order') {
+        echo get_post_field('menu_order', $post_id);
     }
 }
-add_action('after_switch_theme', 'wi_theme_create_default_service_categories');
+add_action('manage_services_posts_custom_column', 'wi_theme_fill_service_order_column', 10, 2);
+
+function wi_theme_make_service_order_column_sortable($columns) {
+    $columns['menu_order'] = 'menu_order';
+    return $columns;
+}
+add_filter('manage_edit-services_sortable_columns', 'wi_theme_make_service_order_column_sortable');
+
+function wi_theme_orderby_menu_order($query) {
+    if (! is_admin() || ! $query->is_main_query()) {
+        return;
+    }
+
+    $orderby = $query->get('orderby');
+    if ($orderby === 'menu_order') {
+        $query->set('orderby', 'menu_order');
+        $query->set('order', 'asc');
+    }
+}
+add_action('pre_get_posts', 'wi_theme_orderby_menu_order');
+
+function wi_theme_reorder_services_columns($columns) {
+
+    $new_columns = [
+        'cb'                        => $columns['cb'],
+        'title'                     => $columns['title'],
+        'taxonomy-service_category' => $columns['taxonomy-service_category'] ?? 'Leistungskategorien',
+        'menu_order'                => 'Reihenfolge',
+        'date'                      => $columns['date'],
+    ];
+
+    return $new_columns;
+}
+add_filter('manage_edit-services_columns', 'wi_theme_reorder_services_columns');
+
+// service category order
+function wi_theme_add_category_order_field($taxonomy) {
+    ?>
+    <div class="form-field">
+        <label for="term_order">Reihenfolge</label>
+        <input name="term_order" id="term_order" type="number" value="0" size="5">
+        <p class="description">Zahl für die Sortierung (kleinste zuerst).</p>
+    </div>
+    <?php
+}
+add_action('service_category_add_form_fields', 'wi_theme_add_category_order_field');
+
+function wi_theme_edit_category_order_field($term, $taxonomy) {
+    $order = get_term_meta($term->term_id, 'term_order', true);
+    ?>
+
+    <tr class="form-field">
+        <th scope="row"><label for="term_order">Reihenfolge</label></th>
+        <td>
+            <input name="term_order" id="term_order" type="number" value="<?php echo esc_attr($order); ?>" size="5">
+
+            <p class="description">Zahl für die Sortierung (kleinste zuerst).</p>
+        </td>
+    </tr>
+    <?php
+}
+add_action( 'service_category_edit_form_fields', 'wi_theme_edit_category_order_field', 10, 2 );
+
+function wi_theme_save_category_order($term_id, $tt_id) {
+    if (isset( $_POST['term_order'])) {
+        update_term_meta($term_id, 'term_order', intval($_POST['term_order']));
+    }
+}
+add_action('created_service_category', 'wi_theme_save_category_order', 10, 2 );
+add_action('edited_service_category', 'wi_theme_save_category_order', 10, 2 );
+
+function wi_theme_add_order_column($columns) {
+    $columns['term_order'] = 'Reihenfolge';
+    return $columns;
+}
+add_filter('manage_edit-service_category_columns', 'wi_theme_add_order_column');
+
+function wi_theme_reorder_category_columns($columns) {
+
+    $new_columns = [
+        'cb'          => $columns['cb'],
+        'name'        => $columns['name'],
+        'description' => $columns['description'],
+        'slug'        => $columns['slug'],
+        'term_order'  => 'Reihenfolge',
+        'posts'       => $columns['posts'], // „Count“ is 'posts' internally
+    ];
+
+    return $new_columns;
+}
+add_filter('manage_edit-service_category_columns', 'wi_theme_reorder_category_columns');
+
+function wi_theme_show_order_column($output, $column_name, $term_id) {
+    if ('term_order' === $column_name) {
+        $output = intval(get_term_meta($term_id, 'term_order', true));
+    }
+    return $output;
+}
+add_filter('manage_service_category_custom_column', 'wi_theme_show_order_column', 10, 3);
+
+function wi_theme_make_order_column_sortable($columns) {
+    $columns['term_order'] = 'term_order';
+    return $columns;
+}
+add_filter('manage_edit-service_category_sortable_columns', 'wi_theme_make_order_column_sortable');
+
+function wi_theme_orderby_term_order($query) {
+    if ( is_admin()
+         && ! empty($query->query_vars['taxonomy'])
+         && $query->query_vars['taxonomy'] === 'service_category'
+         && ! empty($query->query_vars['orderby'])
+         && $query->query_vars['orderby'] === 'term_order') {
+
+        $query->query_vars['orderby'] = 'term_order';
+    }
+}
+add_action('pre_get_terms', 'wi_theme_orderby_term_order');
+
+function wi_theme_quickedit_term_order($column_name, $screen, $taxonomy) {
+    if ($taxonomy !== 'service_category' || $column_name !== 'term_order') {
+        return;
+    }
+    ?>
+    <fieldset>
+        <div class="inline-edit-col">
+            <label>
+                <span class="title">Reihenfolge</span>
+                <span class="input-text-wrap">
+                    <input type="number" name="term_order" class="term-order-field" value="" />
+                </span>
+            </label>
+        </div>
+    </fieldset>
+    <?php
+}
+add_action('quick_edit_custom_box', 'wi_theme_quickedit_term_order', 10, 3);
+
+function wi_theme_quickedit_js() {
+    $screen = get_current_screen();
+    if ($screen->taxonomy !== 'service_category') {
+        return;
+    }
+    ?>
+    <script>
+    jQuery(document).ready(function($){
+        $('body').on('click', '.editinline', function(){
+            var tr = $(this).closest('tr');
+            var termOrder = tr.find('td.column-term_order').text().trim();
+            $('input[name="term_order"]', '.inline-edit-row').val(termOrder);
+        });
+    });
+    </script>
+    <?php
+}
+add_action('admin_footer-edit-tags.php', 'wi_theme_quickedit_js');
+
+// function wi_theme_create_default_service_categories() {
+//     if (!term_exists('Webdesign', 'service_category')) {
+//         wp_insert_term('Webdesign', 'service_category');
+//     }
+//     if (!term_exists('SEO', 'service_category')) {
+//         wp_insert_term('SEO', 'service_category');
+//     }
+//     if (!term_exists('Online-Marketing', 'service_category')) {
+//         wp_insert_term('Online-Marketing', 'service_category');
+//     }
+//     if (!term_exists('Beratung', 'service_category')) {
+//         wp_insert_term('Beratung', 'service_category');
+//     }
+// }
+// add_action('after_switch_theme', 'wi_theme_create_default_service_categories');
+
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
