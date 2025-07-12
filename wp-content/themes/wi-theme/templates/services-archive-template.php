@@ -12,7 +12,7 @@ get_header(); ?>
         </div>
 
         <?php
-        // Učitaj sve kategorije iz taksonomije 'service_category' koje imaju bar jedan post
+        // load categories, but only those which have min 1 service assigned (?) 
         $service_categories = get_terms(array(
             'taxonomy' => 'service_category',
             'hide_empty' => true,
@@ -40,7 +40,13 @@ get_header(); ?>
                 ?>
 
                 <div class="<?php echo $section_class; ?>">
-                    <h2 class="service-category-title"><?php echo esc_html($cat->name); ?></h2>
+                    <?php if ( $cat->term_id === 4 ) : ?>
+                        <h1>Auf die Straße</h1>
+                    <?php else : ?>
+
+                        <h2 class="service-category-title"><?php echo esc_html($cat->name); ?></h2>
+
+                    <?php endif; ?>
 
                     <div class="services-grid">
                         <?php while ($query->have_posts()) : $query->the_post(); ?>
