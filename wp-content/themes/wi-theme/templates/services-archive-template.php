@@ -7,9 +7,9 @@ get_header(); ?>
 
 <div class="services-main-wrapper">
     <div class="services-inner-wrapper">
-        <div class="services-title-wrapper">
+        <!-- <div class="services-title-wrapper">
             <h1 class="services-title">Unsere Leistungen:</h1>		
-        </div>
+        </div> -->
 
         <?php
         // load categories, but only those which have min 1 service assigned (?) 
