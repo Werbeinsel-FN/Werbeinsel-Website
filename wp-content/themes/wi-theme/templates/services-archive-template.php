@@ -16,6 +16,8 @@ get_header(); ?>
         $service_categories = get_terms(array(
             'taxonomy' => 'service_category',
             'hide_empty' => true,
+            'orderby'    => 'term_order',
+            'order'      => 'ASC',
         ));
 
         $section_index = 0;
