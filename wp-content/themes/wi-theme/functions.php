@@ -466,7 +466,6 @@ function wi_theme_reorder_services_columns($columns) {
 }
 add_filter('manage_edit-services_columns', 'wi_theme_reorder_services_columns');
 
-
 // service category order
 function wi_theme_add_category_order_field($taxonomy) {
     ?>
@@ -486,7 +485,6 @@ function wi_theme_edit_category_order_field($term, $taxonomy) {
     <tr class="form-field">
         <th scope="row"><label for="term_order">Reihenfolge</label></th>
         <td>
-            <!-- <input name="term_order" id="term_order" type="number" value="<?php echo esc_attr($term->term_order); ?>" size="5"> -->
             <input name="term_order" id="term_order" type="number" value="<?php echo esc_attr($order); ?>" size="5">
 
             <p class="description">Zahl für die Sortierung (kleinste zuerst).</p>
@@ -498,23 +496,12 @@ add_action( 'service_category_edit_form_fields', 'wi_theme_edit_category_order_f
 
 function wi_theme_save_category_order($term_id, $tt_id) {
     if (isset( $_POST['term_order'])) {
-        // global $wpdb;
-
-        // $wpdb->update(
-        //     $wpdb->terms,
-        //     array('term_order' => intval($_POST['term_order'])),
-        //     array('term_id' => $term_id)
-        // );
-
-        // clean_term_cache($term_id, 'service_category');
-
         update_term_meta($term_id, 'term_order', intval($_POST['term_order']));
     }
 }
 add_action('created_service_category', 'wi_theme_save_category_order', 10, 2 );
 add_action('edited_service_category', 'wi_theme_save_category_order', 10, 2 );
 
-// Add column to backend category overview
 function wi_theme_add_order_column($columns) {
     $columns['term_order'] = 'Reihenfolge';
     return $columns;
@@ -538,11 +525,6 @@ add_filter('manage_edit-service_category_columns', 'wi_theme_reorder_category_co
 
 function wi_theme_show_order_column($output, $column_name, $term_id) {
     if ('term_order' === $column_name) {
-        // $term = get_term($term_id, 'service_category');
-        // if ( $term && ! is_wp_error($term) ) {
-        //     $output = intval($term->term_order);
-        // }
-
         $output = intval(get_term_meta($term_id, 'term_order', true));
     }
     return $output;
