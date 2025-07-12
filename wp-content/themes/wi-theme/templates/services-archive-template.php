@@ -40,6 +40,8 @@ get_header(); ?>
                         'terms'    => $cat->slug,
                     ),
                 ),
+                'orderby' => 'menu_order',
+                'order'   => 'ASC',
             ));
 
             if ($query->have_posts()) :
