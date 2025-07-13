@@ -5,6 +5,7 @@ function wi_theme_setup() {
     add_theme_support('post-thumbnails');
     register_nav_menus(array(
         'primary' => __('Hauptmenü', 'wi-theme'),
+        'footermenu' => __('Footer Menu', 'wi-theme'),
     ));
 }
 add_action('after_setup_theme', 'wi_theme_setup');
