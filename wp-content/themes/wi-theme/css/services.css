@@ -6,6 +6,10 @@ body {
   background-color: #ffed00;
   padding: 5% 0;
   color: black;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .services-title-wrapper,
@@ -29,6 +33,7 @@ body {
   display: grid;
   gap: 7.5vh;
   padding: 7.5vh;
+  max-width: 1200px;;
 }
 
 /* Default Grid (middle category stays same) */
@@ -91,7 +96,7 @@ body {
 }
 
 .service-title {
-  font-size: 3vh;
+  font-size: 2.25vh;
   font-weight: bold;
   /* margin-bottom: 5px; */
 }
@@ -119,6 +124,7 @@ body {
   flex-direction: column;
   gap: 7.5vh;
   padding: 7.5vh;
+  max-width: 1200px;
 }
 
 /* top */
@@ -170,6 +176,7 @@ body {
 .service-category-section.is-dark h1 {
   padding: 10vh;
   padding-bottom: 0;
+  max-width: 1200px;
 }
 
 .services-grid.category-5 .service-thumbnail {
