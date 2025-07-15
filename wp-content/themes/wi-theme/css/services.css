@@ -9,7 +9,7 @@ body {
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 }
 
 .service-category-section {
@@ -174,7 +174,7 @@ body {
 } */
 
 /* responsive */
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   .category-4-top,
   .category-4-bottom {
     grid-template-columns: 1fr;
@@ -184,7 +184,7 @@ body {
   .category-4-bottom .service-item {
     height: auto;
   }
-}
+} */
 
 /* =============================== */
 /* Middle category                 */
@@ -209,7 +209,7 @@ body {
   width: 100%;
 } */
 
-.services-grid.category-5 .service-thumbnail {
+/* .services-grid.category-5 .service-thumbnail {
   border: 5px solid #ffed00;
 }
 
@@ -222,7 +222,7 @@ body {
   );
   height: 30%;
   bottom: 0;
-  top: auto; /* if was set before */
+  top: auto;
   overflow: hidden;
 }
 
@@ -238,7 +238,7 @@ body {
 .services-grid.category-5 .service-title {
   margin: 0;
   margin-top: 1.5vh;
-}
+} */
 
 /* =============================== */
 /* Bottom Category                 */
@@ -380,7 +380,7 @@ div.service-category-section:nth-child(3) > h1:nth-child(1) {
 /* responsive                      */
 /* =============================== */
 
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
   .service-thumbnail img {
     max-height: 50vh;
     width: 100%;
@@ -398,9 +398,9 @@ div.service-category-section:nth-child(3) > h1:nth-child(1) {
   .services-title-wrapper,
   .service-category-section {
     font-size: 1rem;
-  }
+  } */
 
-  .services-grid.category-4,
+/* .services-grid.category-4,
   .services-grid.category-6 {
     grid-template-columns: 1fr;
     grid-template-areas: none;
@@ -409,5 +409,143 @@ div.service-category-section:nth-child(3) > h1:nth-child(1) {
   .category-4 .service-item,
   .category-6 .service-item {
     height: auto;
+  } */
+/* } */
+/* @media (min-width: 601px) and (max-width: 1024px) {
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2vh;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .service-item {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .service-thumbnail {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border: 5px solid black;
+    border-radius: 40px;
+  }
+
+  .service-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 25px;
+    display: block;
+  }
+
+  .service-overlay {
+    height: 30%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .service-title {
+    font-size: 1.5vh;
+    margin: 0;
+  }
+  .service-category-section h1 {
+    font-size: 7vh;
+    letter-spacing: -4px;
+  }
+  .services-grid:has(> .service-item:only-child) .service-title {
+    font-size: 1.5vh;
+  }
+} */
+
+@media (max-width: 1024px) {
+  .services-grid.two-columns-row,
+  .services-grid.three-columns-row,
+  .services-grid.even-grid,
+  .services-grid.odd-grid {
+    grid-template-columns: 1fr;
+    gap: 5vh;
+    grid-auto-rows: 400px;
+  }
+
+  .services-grid:has(> .service-item:only-child) .service-item {
+    width: 80%;
+    max-width: 400px;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    margin: 0 auto;
+  }
+  .service-item {
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 1 / 1;
+    width: 80%;
+    max-width: 400px;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  .service-thumbnail {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    border: 5px solid black;
+    border-radius: 40px;
+    overflow: hidden;
+  }
+
+  .service-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 25px;
+  }
+
+  .service-overlay {
+    height: 35%;
+  }
+
+  .service-title {
+    font-size: 1rem;
+  }
+
+  .service-excerpt {
+    font-size: 0.7rem;
+  }
+
+  .services-title-wrapper,
+  .service-category-section {
+    font-size: 1rem;
+  }
+
+  .service-category-section h1 {
+    font-size: 4vh;
+    letter-spacing: -2px;
+  }
+  .services-grid + .services-grid {
+    margin-top: 0;
+    padding-top: 5vh;
+  }
+
+  .services-grid:not(:last-child) {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .services-grid:has(> .service-item:only-child) .service-title {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .services-main-wrapper {
+    align-items: center;
   }
 }
