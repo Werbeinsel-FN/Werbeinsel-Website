@@ -1,7 +1,9 @@
 body {
   margin: 0;
 }
-
+.services-grid-mobile {
+  display: none;
+}
 .services-main-wrapper {
   background-color: #ffed00;
   padding: 5% 0;
@@ -466,6 +468,28 @@ div.service-category-section:nth-child(3) > h1:nth-child(1) {
 } */
 
 @media (max-width: 1024px) {
+  .services-grid-desktop {
+    display: none;
+  }
+
+  .services-grid-mobile {
+    display: block;
+  }
+
+  .services-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 5vw;
+    padding: 5vh 5vw;
+  }
+
+  .services-carousel .service-item {
+    flex: 0 0 80%;
+    scroll-snap-align: center;
+    max-width: 80%;
+  }
+
   .services-grid.two-columns-row,
   .services-grid.three-columns-row,
   .services-grid.even-grid,
