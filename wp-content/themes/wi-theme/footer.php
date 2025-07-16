@@ -50,6 +50,7 @@
           'fallback_cb' => false
         ));
       ?>
+      <a href="#" class="scroll-top-btn">aufwärts</a>
     </div>
   </div>
 
