@@ -33,7 +33,17 @@ get_header(); ?>
                 Einfach das Formular ausfüllen - wir freuen uns auf Sie!
             </div>
 
-            <?php echo do_shortcode('[wi_form id="30"]'); ?> 
+            <!-- <?php echo do_shortcode('[wi_form id="30"]'); ?>  -->
+        <?php 
+        if ($current_url === 'https://werbeinsel.de/kontakt') {
+            echo do_shortcode('[wi_form id="24793"]');
+        } 
+        else if ($current_url === 'http://werbeinsel.local/kontakt') {
+            echo do_shortcode('[wi_form id="30"]');
+        } else {
+            echo do_shortcode('[wi_form id="39"]');
+        }
+        ?>             
         </div>
     </div>
     <div class="contact-bottom-wrapper">
