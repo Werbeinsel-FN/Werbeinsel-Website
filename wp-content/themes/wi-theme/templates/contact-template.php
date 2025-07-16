@@ -4,6 +4,8 @@
  * Description: Template for the contact page
  */
 
+global $wp;
+
 get_header(); ?>
 
 
@@ -35,6 +37,8 @@ get_header(); ?>
 
             <!-- <?php echo do_shortcode('[wi_form id="30"]'); ?>  -->
         <?php 
+        $current_url = home_url( add_query_arg( array(), $wp->request ) );
+
         if ($current_url === 'https://werbeinsel.de/kontakt') {
             echo do_shortcode('[wi_form id="24793"]');
         } 
