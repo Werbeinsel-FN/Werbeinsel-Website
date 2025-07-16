@@ -112,7 +112,7 @@ get_header();
 </div>
 <div class="services-grid-mobile">
     <div class="services-carousel">
-        <?php foreach ($posts as $post): setup_postdata($post); ?>
+        <?php foreach ($posts as $post): ?>
             <div class="service-item">
                 <div class="service-thumbnail">
                     <a href="<?php the_permalink(); ?>">
@@ -125,7 +125,7 @@ get_header();
                     </a>
                 </div>
             </div>
-        <?php endforeach; wp_reset_postdata(); ?>
+        <?php endforeach; ?>
     </div>
 </div>
                 </div>
