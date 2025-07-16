@@ -87,29 +87,47 @@ get_header();
                 <div class="<?php echo $section_class; ?>">
                     <h1><?php echo $section_title; ?></h1>
 
-                    <?php foreach ($rows as $row_posts): ?>
-                        <?php
-                        // Assign grid class based on number of posts in row (2 or 3 columns)
-                        $class = (count($row_posts) === 3) ? 'services-grid three-columns-row' : 'services-grid two-columns-row';
-                        ?>
-                        <div class="<?php echo $class; ?>">
-                            <?php foreach ($row_posts as $post): setup_postdata($post); ?>
-                                <div class="service-item">
-                                    <div class="service-thumbnail">
-                                        <a href="<?php the_permalink(); ?>">
-                                            <?php the_post_thumbnail(); ?>
-                                            <div class="service-overlay">
-                                                <div class="service-overlay-content">
-                                                    <div class="service-title"><?php the_title(); ?></div>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    </div>
+                    <div class="services-grid-desktop">
+    <?php foreach ($rows as $row_posts): ?>
+        <?php
+        $class = (count($row_posts) === 3) ? 'services-grid three-columns-row' : 'services-grid two-columns-row';
+        ?>
+        <div class="<?php echo $class; ?>">
+            <?php foreach ($row_posts as $post): setup_postdata($post); ?>
+                <div class="service-item">
+                    <div class="service-thumbnail">
+                        <a href="<?php the_permalink(); ?>">
+                            <?php the_post_thumbnail(); ?>
+                            <div class="service-overlay">
+                                <div class="service-overlay-content">
+                                    <div class="service-title"><?php the_title(); ?></div>
                                 </div>
-                            <?php endforeach; wp_reset_postdata(); ?>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            <?php endforeach; wp_reset_postdata(); ?>
+        </div>
+    <?php endforeach; ?>
+</div>
+<div class="services-grid-mobile">
+    <div class="services-carousel">
+        <?php foreach ($posts as $post): setup_postdata($post); ?>
+            <div class="service-item">
+                <div class="service-thumbnail">
+                    <a href="<?php the_permalink(); ?>">
+                        <?php the_post_thumbnail(); ?>
+                        <div class="service-overlay">
+                            <div class="service-overlay-content">
+                                <div class="service-title"><?php the_title(); ?></div>
+                            </div>
                         </div>
-                    <?php endforeach; ?>
-
+                    </a>
+                </div>
+            </div>
+        <?php endforeach; wp_reset_postdata(); ?>
+    </div>
+</div>
                 </div>
 
         <?php
