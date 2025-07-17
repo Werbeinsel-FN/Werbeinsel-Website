@@ -107,7 +107,7 @@ body {
 .services-grid-desktop {
 /* maximum width & padding same as Zwetschke */  
   max-width: 1780px;
-  padding: 5% 2.5%;
+  padding: 5%;
 
   /* excludes padding from width calculation */
   box-sizing: content-box;
@@ -127,7 +127,7 @@ body {
   display: grid;
 
   /* horizontal gap between services */
-  gap: 5%;
+  gap: 2.5%;
 }
 
 /* =============================== */
@@ -166,7 +166,7 @@ body {
   grid-template-columns: repeat(2, 1fr);
 
   /* some spacing below the row */
-  padding-bottom: 5%;
+  padding-bottom: 2.5%;
 }
 
 .services-grid.two-columns-row:nth-child(2) {
