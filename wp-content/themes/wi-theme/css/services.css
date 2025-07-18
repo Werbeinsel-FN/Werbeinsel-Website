@@ -16,7 +16,7 @@ html {
 
   /* isolate text direction from surrounding context */
   /* -> prevents bidirectional text from being influenced by surrounding text direction */
-  /* Example: <p>text<span>1234/span>text</p> then stays and is not rendered <p>text<span>4321/span>text</p> */
+  /* Example: <p>text<span>1234</span>text</p> then stays and is not rendered <p>text<span>4321</span>text</p> */
   unicode-bidi: isolate;      
 }
 
@@ -204,7 +204,7 @@ body {
 }
 
 /* =============================== */
-/* Post Image                      */
+/* Service Image                   */
 /* =============================== */
 
 .service-thumbnail {
@@ -223,7 +223,6 @@ body {
 
   /* rounded corners size same as Zwetschke */
   border-radius: 40px;
-
 }
 
 /* larger radius if 2 services in a row cause they are bigger (Zwetschke does same) */
@@ -243,9 +242,9 @@ body {
   display: block;
 }
 
-/* =============================== */
-/* Overlay at Bottom of Thumbnail  */
-/* =============================== */
+/* ================================== */
+/* Overlay at Bottom of Service Item  */
+/* ================================== */
 
 .service-overlay {
   /* positions the overlay at the bottom of an service item */
