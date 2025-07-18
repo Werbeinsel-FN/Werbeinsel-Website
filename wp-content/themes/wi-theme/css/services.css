@@ -223,7 +223,6 @@ body {
 
   /* rounded corners size same as Zwetschke */
   border-radius: 40px;
-
 }
 
 /* larger radius if 2 services in a row cause they are bigger (Zwetschke does same) */
