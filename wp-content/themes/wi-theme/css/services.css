@@ -127,7 +127,7 @@ body {
   display: grid;
 
   /* horizontal gap between services */
-  gap: 2.5%;
+  gap: 3%;
 }
 
 /* =============================== */
@@ -166,7 +166,7 @@ body {
   grid-template-columns: repeat(2, 1fr);
 
   /* some spacing below the row */
-  padding-bottom: 2.5%;
+  padding-bottom: 3%;
 }
 
 .services-grid.two-columns-row:nth-child(2) {
@@ -202,13 +202,6 @@ body {
   /* establish a new positioning context for child elements */
   position: relative;
 }
-
-/* Didn't do mobile so far but Zwetschke somehow does this? */
-/* @media screen and (min-width: 41.25em) {
-    .medium-6 {
-        width: 50%;
-    }
-} */
 
 /* =============================== */
 /* Post Image                      */
@@ -367,6 +360,14 @@ body {
 }
 
 
+
+
+/* Didn't do mobile so far but Zwetschke somehow does this? */
+/* @media screen and (min-width: 41.25em) {
+    .medium-6 {
+        width: 50%;
+    }
+} */
 
 /* =============================== */
 /* responsive                      */
