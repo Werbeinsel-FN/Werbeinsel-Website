@@ -1,38 +1,10 @@
 /* =============================== */
-/* Globals                         */
-/* =============================== */
-
-html {
-  /* enables ligatures & better kerning for readability */
-  text-rendering: optimizeLegibility;    
-
-  /* smoother font rendering on macOS and Windows */
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-
-  /* prevent automatic text size adjustment on iOS, Android, IE */
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;           
-
-  /* isolate text direction from surrounding context */
-  /* -> prevents bidirectional text from being influenced by surrounding text direction */
-  /* Example: <p>text<span>1234</span>text</p> then stays and is not rendered <p>text<span>4321</span>text</p> */
-  unicode-bidi: isolate;      
-}
-
-body {
-  /* remove default body margin to avoid unintended spacing */ 
-  margin: 0;
-}
-
-/* =============================== */
 /* Outer Wrapper                   */
 /* =============================== */
 
 .services-main-wrapper {
   /* colors as Kris selected */
-  background-color: #ffed00;
-  color: black;
+  background-color: var(--main-color);
 
   /* stack following sections vertically */
   display: flex;
@@ -70,20 +42,6 @@ body {
 /* =============================== */
 
 .service-category-section h1 {
-  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp(97px, calc(97px + 174 * ((100vw - 660px) / (2000 - 660))), 271px);
-
-  /* typography same as Zwetschke */
-  font-family: "Unbounded", sans-serif;
-  text-transform: uppercase;
-  font-weight: 800; 
-  line-height: 0.88em;       /* tighter line height */
-  text-align: center;        /* center text horizontally */
-  letter-spacing: -0.035em;  /* slightly tighter letter spacing */
-
-  /* reset margin as h1 always has some default margin */
-  margin: 0;
-
   /* logical margins: writing-direction agnostic spacing */
   margin-block-start: 5%;     /* spacing above the element */
   margin-inline-end: 0px;      /* spacing at the end (right or left, depending on direction) */
@@ -92,7 +50,7 @@ body {
   display: block;    
 
   /* ensures that the headline is in 2 rows and design stays same for bigger screen sizes */
-  max-width: 1780px;
+  max-width: var(--max-content-size);
 }
 
 /* Change font color in middle section */
@@ -106,7 +64,7 @@ body {
 
 .services-grid-desktop {
 /* maximum width & padding same as Zwetschke */  
-  max-width: 1780px;
+  max-width: var(--max-content-size);
   padding: 5%;
 
   /* excludes padding from width calculation */
@@ -301,65 +259,20 @@ body {
 }
 
 /* =============================== */
-/* Subtitle                        */
+/* Service Subtitle                */
 /* =============================== */
-
-.service-overlay h3 {
-  /* typography same as Zwetschke */
-  font-family: 'Poppins', sans-serif; 
-
-  /* ensure text is displayed normally if default headline have uppercase */
-  text-transform: none;
-}
 
 /* if 2 services in a row */
 .services-grid.two-columns-row h3 {
-  /* flexible, responsive font size between 20px (1024px screen size) and 30px (2000px screen size) */
-  font-size: clamp(20px, calc(20px + ((10) * ((100vw - 1024px) / (2000 - 1024)))), 30px);
-
   /* some spacing below the row */
   margin: 0 0 3%;
 } 
 
 /* if 3 services in a row */
 .services-grid.three-columns-row h3 {
-  /* flexible, responsive font size between 16px (430px screen size) and 17px (2000px screen size) (?) */
-  font-size: clamp(16px, calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 17px);
-
   /* some less spacing as they are smaller */
   margin: 0 0 0.5vh;
 }
-
-/* =============================== */
-/* Main Title                      */
-/* =============================== */
-
-.service-overlay h2 {
-  /* typography same as Zwetschke */
-  font-family: "Unbounded", sans-serif;
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  line-height: 1.2em;
-  font-weight: 800;
-
-  /* reset margin as h1 always has some default margin */
-  margin: 0;  
-}
-
-/* if 2 services in a row */
-.services-grid.two-columns-row h2 {
-  /* flexible, responsive font size between 20px (430px screen size) and 60px (2000px screen size) */
-  font-size: clamp(20px, calc(20px + ((40) * ((100vw - 430px) / (2000 - 430)))), 60px);
-}
-
-/* if 3 services in a row */
-.services-grid.three-columns-row h2 {
-  /* flexible, responsive font size between 20px (1024px screen size) and 27px (2000px screen size) */
-  font-size: clamp(20px, calc(20px + ((7) * ((100vw - 1024px) / (2000 - 1024)))), 27px);  
-}
-
-
-
 
 /* Didn't do mobile so far but Zwetschke somehow does this? */
 /* @media screen and (min-width: 41.25em) {

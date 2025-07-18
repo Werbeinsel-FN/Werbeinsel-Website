@@ -127,6 +127,49 @@ function wi_theme_enqueue_styles() {
         );
     }
 
+    if (is_page_template('templates/contact-template.php')) {
+
+        wp_enqueue_style(
+            'wi-forms-style',
+            get_template_directory_uri() . '/css/layout/form.css',
+            [],
+            filemtime(get_template_directory() . '/css/layout/form.css')
+        );
+
+        wp_enqueue_style(
+            'wi-input-fields-style',
+            get_template_directory_uri() . '/css/components/input-fields.css',
+            ['wi-forms-style'],
+            filemtime(get_template_directory() . '/css/components/input-fields.css')
+        );
+
+        wp_enqueue_style(
+            'wi-select-fields-style',
+            get_template_directory_uri() . '/css/components/select-fields.css',
+            ['wi-forms-style'],
+            filemtime(get_template_directory() . '/css/components/select-fields.css')
+        );   
+
+        wp_enqueue_style(
+            'wi-buttons-style',
+            get_template_directory_uri() . '/css/components/buttons.css',
+            ['wi-forms-style'],
+            filemtime(get_template_directory() . '/css/components/buttons.css')
+        );        
+
+        wp_enqueue_style(
+            'wi-contact-style',
+            get_template_directory_uri() . '/css/pages/contact.css',
+            [
+                'wi-forms-style',
+                'wi-input-fields-style',
+                'wi-select-fields-style',
+                'wi-buttons-style'
+            ],
+            filemtime(get_template_directory() . '/css/pages/contact.css')
+        );
+    }     
+
     if (is_page_template('templates/impressum-template.php')) {
         wp_enqueue_style(
             'wi-imprint-style',
@@ -144,15 +187,6 @@ function wi_theme_enqueue_styles() {
             filemtime(get_template_directory() . '/css/pages/datenschutz.css')
         );
     } 
-    
-    if (is_page_template('templates/contact-template.php')) {
-        wp_enqueue_style(
-            'wi-contact-style',
-            get_template_directory_uri() . '/css/pages/contact.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/contact.css')
-        );
-    }  
 
     ////////////////////////////////
     // load foundation icons
