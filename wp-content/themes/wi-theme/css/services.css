@@ -242,9 +242,9 @@ body {
   display: block;
 }
 
-/* =============================== */
-/* Overlay at Bottom of Thumbnail  */
-/* =============================== */
+/* ================================== */
+/* Overlay at Bottom of Service Item  */
+/* ================================== */
 
 .service-overlay {
   /* positions the overlay at the bottom of an service item */
