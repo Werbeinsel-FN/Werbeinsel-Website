@@ -4,12 +4,12 @@
  * Description: Template for the contact page
  */
 
-global $wp;
-
 get_header(); ?>
 
-<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css"> -->
+
+<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/contact.css?v=<?php echo filemtime(get_template_directory() . '/css/contact.css'); ?>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
 <!-- <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet"> -->
 
@@ -27,26 +27,13 @@ get_header(); ?>
 	
         <div class="content row loaded">
         
-            <h1 class="contact-form headline text-center">
-                Kontakt
-            </h1>
-            <h2 class="contact-form subline text-center">
+            <h3 class="contact-form headline text-center">
+                Kontakt</h3>
+            <div class="contact-form subline text-center">
                 Einfach das Formular ausfüllen - wir freuen uns auf Sie!
-            </h2>
+            </div>
 
-            <!-- <?php echo do_shortcode('[wi_form id="30"]'); ?>  -->
-        <?php 
-        $current_url = home_url( add_query_arg( array(), $wp->request ) );
-
-        if ($current_url === 'https://werbeinsel.de/kontakt') {
-            echo do_shortcode('[wi_form id="24793"]');
-        } 
-        else if ($current_url === 'http://werbeinsel.local/kontakt') {
-            echo do_shortcode('[wi_form id="30"]');
-        } else {
-            echo do_shortcode('[wi_form id="39"]');
-        }
-        ?>             
+            <?php echo do_shortcode('[wi_form id="30"]'); ?> 
         </div>
     </div>
     <div class="contact-bottom-wrapper">
@@ -59,7 +46,7 @@ get_header(); ?>
                 </div>
                 <div class="data-wrapper">
                     <div class="data-head-wrapper">
-                        <h5>Adresse</h5>
+                        <h4>Adresse</h4>
                     </div>
                     <div class="data-content-wrapper">
                         Am Flugplatz 76/3<br />
@@ -75,7 +62,7 @@ get_header(); ?>
                 </div>
                 <div class="data-wrapper">
                     <div class="data-head-wrapper">
-                        <h5>E-Mail</h5>
+                        <h4>E-Mail</h4>
                     </div>
                     <div class="data-content-wrapper">
                         <a href="mailto:hallo@werbeinsel.de">hallo@werbeinsel.de</a>
@@ -90,7 +77,7 @@ get_header(); ?>
                 </div>
                 <div class="data-wrapper">
                     <div class="data-head-wrapper">
-                        <h5>Telefon</h5>
+                        <h4>Telefon</h4>
                     </div>
                     <div class="data-content-wrapper">
                         <a href="tel:+4975417005744">+49 7541 700 57 44</a>

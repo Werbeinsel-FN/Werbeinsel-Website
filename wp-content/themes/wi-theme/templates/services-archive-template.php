@@ -3,6 +3,7 @@
 get_header();
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/services.css?v=<?php echo filemtime(get_template_directory() . '/css/services.css'); ?>">
 
 <main class="services-main-wrapper">
   <div class="services-inner-wrapper">

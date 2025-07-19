@@ -45,153 +45,41 @@ add_filter('archive_template', 'wi_theme_register_services_archive_template');
 ///////////////////////////////////////////////////////////////////////
 
 function wi_theme_enqueue_styles() {
-
-    ////////////////////////////////
-    // Register Main Stylesheet
-    ////////////////////////////////
-
+    // register main stylesheet
     wp_enqueue_style(
         'wi-style', 
         get_stylesheet_uri()
     );
 
-    ////////////////////////////////
-    // register global styles
-    ////////////////////////////////
-
-    wp_enqueue_style(
-        'wi-css-variables',
-        get_template_directory_uri() . '/css/base/variables.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/variables.css')
-    );
-
-    wp_enqueue_style(
-        'wi-typography',
-        get_template_directory_uri() . '/css/base/typography.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/typography.css')
-    );
-   
-    wp_enqueue_style(
-        'wi-global-style',
-        get_template_directory_uri() . '/css/base/globals.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/globals.css')
-    );       
-    
-    ////////////////////////////////
-    // register layouts
-    ////////////////////////////////
-
     wp_enqueue_style(
         'wi-header-style', 
-        get_template_directory_uri() . '/css/layout/header.css', 
+        get_template_directory_uri() . '/css/header.css', 
         array(), 
-        filemtime(get_template_directory() . '/css/layout/header.css')
+        filemtime(get_template_directory() . '/css/header.css')
     );    
 
     wp_enqueue_style(
         'wi-footer-style', 
-        get_template_directory_uri() . '/css/layout/footer.css', 
+        get_template_directory_uri() . '/css/footer.css', 
         array(), 
-        filemtime(get_template_directory() . '/css/layout/footer.css')
+        filemtime(get_template_directory() . '/css/footer.css')
     );
 
     wp_enqueue_style(
         'wi-mainmenu-style',
-        get_template_directory_uri() . '/css/layout/mainmenu.css',
+        get_template_directory_uri() . '/css/mainmenu.css',
         array(),
-        filemtime(get_template_directory() . '/css/layout/mainmenu.css')
+        filemtime(get_template_directory() . '/css/mainmenu.css')
     );
 
-    ////////////////////////////////
-    // register pages
-    ////////////////////////////////
-
-    if (is_page_template('templates/home-template.php')) {
-        wp_enqueue_style(
-            'wi-home-style',
-            get_template_directory_uri() . '/css/pages/home.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/home.css')
-        );
-    }
-
-    if (is_post_type_archive('services')) {
-        wp_enqueue_style(
-            'wi-services-style',
-            get_template_directory_uri() . '/css/pages/services.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/services.css')
-        );
-    }
-
-    if (is_page_template('templates/contact-template.php')) {
-
-        wp_enqueue_style(
-            'wi-forms-style',
-            get_template_directory_uri() . '/css/layout/form.css',
-            [],
-            filemtime(get_template_directory() . '/css/layout/form.css')
-        );
-
-        wp_enqueue_style(
-            'wi-input-fields-style',
-            get_template_directory_uri() . '/css/components/input-fields.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/input-fields.css')
-        );
-
-        wp_enqueue_style(
-            'wi-select-fields-style',
-            get_template_directory_uri() . '/css/components/select-fields.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/select-fields.css')
-        );   
-
-        wp_enqueue_style(
-            'wi-buttons-style',
-            get_template_directory_uri() . '/css/components/buttons.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/buttons.css')
-        );        
-
-        wp_enqueue_style(
-            'wi-contact-style',
-            get_template_directory_uri() . '/css/pages/contact.css',
-            [
-                'wi-forms-style',
-                'wi-input-fields-style',
-                'wi-select-fields-style',
-                'wi-buttons-style'
-            ],
-            filemtime(get_template_directory() . '/css/pages/contact.css')
-        );
-    }     
-
-    if (is_page_template('templates/impressum-template.php')) {
-        wp_enqueue_style(
-            'wi-imprint-style',
-            get_template_directory_uri() . '/css/pages/impressum.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/impressum.css')
-        );
-    }      
-
-    if (is_page_template('templates/datenschutz-template.php')) {
-        wp_enqueue_style(
-            'wi-privacy-style',
-            get_template_directory_uri() . '/css/pages/datenschutz.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/datenschutz.css')
-        );
-    } 
-
-    ////////////////////////////////
+    wp_enqueue_style(
+        'wi-home-style',
+        get_template_directory_uri() . '/css/home.css',
+        array(),
+        filemtime(get_template_directory() . '/css/home.css')
+    );
+    
     // load foundation icons
-    ////////////////////////////////
-
     wp_enqueue_style(
         'foundation-icons',
         'https://cdn.jsdelivr.net/npm/foundation-icons/foundation-icons.css',

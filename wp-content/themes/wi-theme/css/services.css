@@ -1,40 +1,12 @@
 /* =============================== */
-/* Globals                         */
-/* =============================== */
-
-:root {
-  /* Centralized values for reusability */
-  --max-width: 1780px;
-  --padding-percent: 5%;
-  --border-radius-default: 40px;
-  --border-radius-large: 60px;
-  --font-unbounded: "Unbounded", sans-serif;
-  --font-poppins: "Poppins", sans-serif;
-  --color-yellow: #ffed00;
-  --color-black: #000;
-  --color-white: #fff;
-}
-
-html {
-  text-rendering: optimizeLegibility;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  unicode-bidi: isolate;
-}
-
-body {
-  margin: 0;
-}
-
-/* =============================== */
 /* Outer Wrapper                   */
 /* =============================== */
 
 .services-main-wrapper {
-  background-color: var(--color-yellow); /* zadrzavamo tvoju boju */
-  color: black;
+  /* colors as Kris selected */
+  background-color: var(--main-color);
+
+  /* stack following sections vertically */
   display: flex;
   flex-direction: column;
 }
@@ -44,20 +16,25 @@ body {
 /* =============================== */
 
 .service-category-section {
+  /* center content vertically and horizontally */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.service-category-section::before,
-.service-category-section::after {
+.service-category-section::before {
+  /* clearfix: creates pseudo-element before the section to contain floats */
   content: " ";
   display: table;
   box-sizing: border-box;
 }
 
 .service-category-section::after {
+  /* clearfix: clears floats after section to prevent overlap */
   clear: both;
+  content: " ";
+  display: table;
+  box-sizing: border-box;
 }
 
 /* =============================== */
@@ -65,26 +42,20 @@ body {
 /* =============================== */
 
 .service-category-section h1 {
-  font-size: clamp(
-    97px,
-    calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
-    271px
-  );
-  font-family: var(--font-unbounded);
-  text-transform: uppercase;
-  font-weight: 800;
-  line-height: 0.88em;
-  text-align: center;
-  letter-spacing: -0.035em;
-  margin: 0;
-  margin-block-start: var(--padding-percent);
-  margin-inline-end: 0;
+  /* logical margins: writing-direction agnostic spacing */
+  margin-block-start: 5%; /* spacing above the element */
+  margin-inline-end: 0px; /* spacing at the end (right or left, depending on direction) */
+
+  /* ensures the element starts on a new line and takes up full width */
   display: block;
-  max-width: var(--max-width);
+
+  /* ensures that the headline is in 2 rows and design stays same for bigger screen sizes */
+  max-width: var(--max-content-size);
 }
 
+/* Change font color in middle section */
 .service-category-section.is-dark h1 {
-  color: var(--color-white);
+  color: #fff;
 }
 
 /* =============================== */
@@ -92,13 +63,17 @@ body {
 /* =============================== */
 
 .services-grid-desktop {
-  max-width: var(--max-width);
-  padding: var(--padding-percent);
+  /* maximum width & padding same as Zwetschke */
+  max-width: var(--max-content-size);
+  padding: 5%;
+
+  /* excludes padding from width calculation */
   box-sizing: content-box;
 }
 
+/* background for middle section */
 .service-category-section.is-dark {
-  background-color: var(--color-black);
+  background-color: #000;
 }
 
 /* =============================== */
@@ -106,30 +81,63 @@ body {
 /* =============================== */
 
 .services-grid {
+  /* grid layout for services so we can easier manage the item next to each other layout*/
   display: grid;
+
+  /* horizontal gap between services */
   gap: 3%;
 }
 
+/* =============================== */
+/* 1 Service in a Row?             */
+/* =============================== */
+
+/* Didn't touch anything here */
 .services-grid:has(> .service-item:only-child) {
   display: flex;
   justify-content: center;
 }
+
+/* Commented as didn't tested but max-width 500px felt weird */
+/* .services-grid:has(> .service-item:only-child) .service-item {
+  max-width: 500px;
+  width: 100%;
+} */
 
 .services-grid:has(> .service-item:only-child) .service-title {
   font-size: 3.5vh;
   font-weight: bold;
 }
 
+/* Same here */
+/* .services-grid:has(> .service-item:only-child) .service-thumbnail img {
+  height: 500px;
+  object-fit: cover;
+} */
+
+/* =============================== */
+/* 2 Services in a Row             */
+/* =============================== */
+
 .services-grid.two-columns-row {
+  /* 2 equal columns */
   grid-template-columns: repeat(2, 1fr);
+
+  /* some spacing below the row */
   padding-bottom: 3%;
 }
 
 .services-grid.two-columns-row:nth-child(2) {
+  /* last category without 'cause wrapper already has some padding */
   padding-bottom: 0;
 }
 
+/* =============================== */
+/* 3 Services in a Row             */
+/* =============================== */
+
 .services-grid.three-columns-row {
+  /* 3 equal columns */
   grid-template-columns: repeat(3, 1fr);
 }
 
@@ -138,11 +146,18 @@ body {
 /* =============================== */
 
 .service-item {
+  /* full width of this parent grid cell */
   width: 100%;
+
+  /* enforces a square shape regardless of screen width */
   aspect-ratio: 1 / 1;
+
+  /* center child elements horizontally & vertically */
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* establish a new positioning context for child elements */
   position: relative;
 }
 
@@ -151,22 +166,37 @@ body {
 /* =============================== */
 
 .service-thumbnail {
+  /* stack & clip this element to parent element */
   position: relative;
+
+  /* ensures it fills the parent element */
   height: 100%;
   width: 100%;
+
+  /* horizontally center within parent */
   margin: 0 auto;
+
+  /* cut everything which is bigger than this element (important for rounded corners & overlays) */
   overflow: hidden;
-  border-radius: var(--border-radius-default);
+
+  /* rounded corners size same as Zwetschke */
+  border-radius: 40px;
 }
 
+/* larger radius if 2 services in a row cause they are bigger (Zwetschke does same) */
 .services-grid.two-columns-row .service-thumbnail {
-  border-radius: var(--border-radius-large);
+  border-radius: 60px;
 }
 
 .service-thumbnail img {
+  /* ensures image completely covers the thumbnail area, cropping if necessary */
   width: 100%;
   height: 100%;
+
+  /* scales image to cover while preserving aspect ratio */
   object-fit: cover;
+
+  /* removes unwanted whitespace and ensures it fills container */
   display: block;
 }
 
@@ -175,18 +205,30 @@ body {
 /* ================================== */
 
 .service-overlay {
+  /* positions the overlay at the bottom of an service item */
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
+
+  /* but only 1/3 of the height of an service item */
   height: 30%;
+
+  /* keep text away from edge */
   padding-left: 7.5%;
+
+  /* include padding & border in height/width calculations */
   box-sizing: border-box;
+
+  /* center subheadline and title */
   display: flex;
   align-items: center;
-  color: var(--color-white);
+
+  /* default text color for readability */
+  color: white;
 }
 
+/* top & bottom category: black overlay */
 .service-category-section:nth-of-type(odd) .service-overlay {
   background: linear-gradient(
     to top,
@@ -196,10 +238,11 @@ body {
   );
 }
 
+/* middle category: yellow overlay */
 .service-category-section:nth-of-type(even) .service-overlay {
   background: linear-gradient(
     to top,
-    var(--color-yellow) 0%,
+    rgb(255, 237, 0) 0%,
     rgba(255, 237, 0, 0.6) 50%,
     rgba(255, 237, 0, 0) 100%
   );
@@ -209,70 +252,42 @@ body {
 /* Titles                          */
 /* =============================== */
 
+/* Change font color in middle section */
 .service-category-section.is-dark h2,
 .service-category-section.is-dark h3 {
-  color: var(--color-black);
+  color: black;
 }
 
-.service-overlay h3 {
-  font-family: var(--font-poppins);
-  text-transform: none;
-}
+/* =============================== */
+/* Service Subtitle                */
+/* =============================== */
 
+/* if 2 services in a row */
 .services-grid.two-columns-row h3 {
-  font-size: clamp(
-    20px,
-    calc(20px + 10 * ((100vw - 1024px) / (2000 - 1024))),
-    30px
-  );
+  /* some spacing below the row */
   margin: 0 0 3%;
 }
 
+/* if 3 services in a row */
 .services-grid.three-columns-row h3 {
-  font-size: clamp(
-    16px,
-    calc(16px + 1 * ((100vw - 430px) / (2000 - 430))),
-    17px
-  );
+  /* some less spacing as they are smaller */
   margin: 0 0 0.5vh;
 }
 
+/* Didn't do mobile so far but Zwetschke somehow does this? */
+/* @media screen and (min-width: 41.25em) {
+    .medium-6 {
+        width: 50%;
+    }
+} */
+
 /* =============================== */
-/* Main Title                      */
+/* responsive                      */
 /* =============================== */
-
-.service-overlay h2 {
-  font-family: var(--font-unbounded);
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  line-height: 1.2em;
-  font-weight: 800;
-  margin: 0;
-}
-
-.services-grid.two-columns-row h2 {
-  font-size: clamp(
-    20px,
-    calc(20px + 40 * ((100vw - 430px) / (2000 - 430))),
-    60px
-  );
-}
-
-.services-grid.three-columns-row h2 {
-  font-size: clamp(
-    20px,
-    calc(20px + 7 * ((100vw - 1024px) / (2000 - 1024))),
-    27px
-  );
-}
 
 .services-grid-mobile {
   display: none;
 }
-
-/* =============================== */
-/* Responsive                      */
-/* =============================== */
 
 @media (max-width: 1024px) {
   .services-grid-desktop {
@@ -313,7 +328,6 @@ body {
     height: auto;
     margin: 0 auto;
   }
-
   .service-item {
     display: flex;
     flex-direction: column;
@@ -363,7 +377,6 @@ body {
     font-size: 4vh;
     letter-spacing: -2px;
   }
-
   .services-grid + .services-grid {
     margin-top: 0;
     padding-top: 5vh;
@@ -373,12 +386,10 @@ body {
     margin-bottom: 0;
     padding-bottom: 0;
   }
-
   .services-grid:has(> .service-item:only-child) .service-title {
     font-size: 1rem;
   }
 }
-
 @media (max-width: 600px) {
   .services-main-wrapper {
     align-items: center;
