@@ -2,26 +2,29 @@
 /* Globals                         */
 /* =============================== */
 
-html {
-  /* enables ligatures & better kerning for readability */
-  text-rendering: optimizeLegibility;    
+:root {
+  /* Centralized values for reusability */
+  --max-width: 1780px;
+  --padding-percent: 5%;
+  --border-radius-default: 40px;
+  --border-radius-large: 60px;
+  --font-unbounded: "Unbounded", sans-serif;
+  --font-poppins: "Poppins", sans-serif;
+  --color-yellow: #ffed00;
+  --color-black: #000;
+  --color-white: #fff;
+}
 
-  /* smoother font rendering on macOS and Windows */
+html {
+  text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-
-  /* prevent automatic text size adjustment on iOS, Android, IE */
   -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;           
-
-  /* isolate text direction from surrounding context */
-  /* -> prevents bidirectional text from being influenced by surrounding text direction */
-  /* Example: <p>text<span>1234</span>text</p> then stays and is not rendered <p>text<span>4321</span>text</p> */
-  unicode-bidi: isolate;      
+  -webkit-text-size-adjust: 100%;
+  unicode-bidi: isolate;
 }
 
 body {
-  /* remove default body margin to avoid unintended spacing */ 
   margin: 0;
 }
 
@@ -30,11 +33,8 @@ body {
 /* =============================== */
 
 .services-main-wrapper {
-  /* colors as Kris selected */
-  background-color: #ffed00;
+  background-color: var(--color-yellow);
   color: black;
-
-  /* stack following sections vertically */
   display: flex;
   flex-direction: column;
 }
@@ -44,25 +44,20 @@ body {
 /* =============================== */
 
 .service-category-section {
-  /* center content vertically and horizontally */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.service-category-section::before {
-  /* clearfix: creates pseudo-element before the section to contain floats */
-  content: ' ';
+.service-category-section::before,
+.service-category-section::after {
+  content: " ";
   display: table;
-  box-sizing: border-box;   
+  box-sizing: border-box;
 }
 
 .service-category-section::after {
-  /* clearfix: clears floats after section to prevent overlap */
   clear: both;
-  content: ' ';
-  display: table; 
-  box-sizing: border-box;   
 }
 
 /* =============================== */
@@ -70,34 +65,26 @@ body {
 /* =============================== */
 
 .service-category-section h1 {
-  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp(97px, calc(97px + 174 * ((100vw - 660px) / (2000 - 660))), 271px);
-
-  /* typography same as Zwetschke */
-  font-family: "Unbounded", sans-serif;
+  font-size: clamp(
+    97px,
+    calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
+    271px
+  );
+  font-family: var(--font-unbounded);
   text-transform: uppercase;
-  font-weight: 800; 
-  line-height: 0.88em;       /* tighter line height */
-  text-align: center;        /* center text horizontally */
-  letter-spacing: -0.035em;  /* slightly tighter letter spacing */
-
-  /* reset margin as h1 always has some default margin */
+  font-weight: 800;
+  line-height: 0.88em;
+  text-align: center;
+  letter-spacing: -0.035em;
   margin: 0;
-
-  /* logical margins: writing-direction agnostic spacing */
-  margin-block-start: 5%;     /* spacing above the element */
-  margin-inline-end: 0px;      /* spacing at the end (right or left, depending on direction) */
-
-  /* ensures the element starts on a new line and takes up full width */
-  display: block;    
-
-  /* ensures that the headline is in 2 rows and design stays same for bigger screen sizes */
-  max-width: 1780px;
+  margin-block-start: var(--padding-percent);
+  margin-inline-end: 0;
+  display: block;
+  max-width: var(--max-width);
 }
 
-/* Change font color in middle section */
 .service-category-section.is-dark h1 {
-  color: #fff;
+  color: var(--color-white);
 }
 
 /* =============================== */
@@ -105,17 +92,13 @@ body {
 /* =============================== */
 
 .services-grid-desktop {
-/* maximum width & padding same as Zwetschke */  
-  max-width: 1780px;
-  padding: 5%;
-
-  /* excludes padding from width calculation */
+  max-width: var(--max-width);
+  padding: var(--padding-percent);
   box-sizing: content-box;
 }
 
-/* background for middle section */
 .service-category-section.is-dark {
-  background-color: #000;
+  background-color: var(--color-black);
 }
 
 /* =============================== */
@@ -123,63 +106,30 @@ body {
 /* =============================== */
 
 .services-grid {
-  /* grid layout for services so we can easier manage the item next to each other layout*/
   display: grid;
-
-  /* horizontal gap between services */
   gap: 3%;
 }
 
-/* =============================== */
-/* 1 Service in a Row?             */
-/* =============================== */
-
-/* Didn't touch anything here */
 .services-grid:has(> .service-item:only-child) {
   display: flex;
   justify-content: center;
 }
-
-/* Commented as didn't tested but max-width 500px felt weird */
-/* .services-grid:has(> .service-item:only-child) .service-item {
-  max-width: 500px;
-  width: 100%;
-} */
 
 .services-grid:has(> .service-item:only-child) .service-title {
   font-size: 3.5vh;
   font-weight: bold;
 }
 
-/* Same here */
-/* .services-grid:has(> .service-item:only-child) .service-thumbnail img {
-  height: 500px;
-  object-fit: cover;
-} */
-
-/* =============================== */
-/* 2 Services in a Row             */
-/* =============================== */
-
 .services-grid.two-columns-row {
-  /* 2 equal columns */
   grid-template-columns: repeat(2, 1fr);
-
-  /* some spacing below the row */
   padding-bottom: 3%;
 }
 
 .services-grid.two-columns-row:nth-child(2) {
-  /* last category without 'cause wrapper already has some padding */
   padding-bottom: 0;
 }
 
-/* =============================== */
-/* 3 Services in a Row             */
-/* =============================== */
-
 .services-grid.three-columns-row {
-  /* 3 equal columns */
   grid-template-columns: repeat(3, 1fr);
 }
 
@@ -188,18 +138,11 @@ body {
 /* =============================== */
 
 .service-item {
-  /* full width of this parent grid cell */
   width: 100%;
-
-  /* enforces a square shape regardless of screen width */
   aspect-ratio: 1 / 1;
-
-  /* center child elements horizontally & vertically */
   display: flex;
   justify-content: center;
-  align-items: center;  
-  
-  /* establish a new positioning context for child elements */
+  align-items: center;
   position: relative;
 }
 
@@ -208,37 +151,22 @@ body {
 /* =============================== */
 
 .service-thumbnail {
-  /* stack & clip this element to parent element */
   position: relative;
-
-  /* ensures it fills the parent element */
   height: 100%;
   width: 100%;
-
-  /* horizontally center within parent */
-  margin: 0 auto;  
-
-  /* cut everything which is bigger than this element (important for rounded corners & overlays) */
+  margin: 0 auto;
   overflow: hidden;
-
-  /* rounded corners size same as Zwetschke */
-  border-radius: 40px;
+  border-radius: var(--border-radius-default);
 }
 
-/* larger radius if 2 services in a row cause they are bigger (Zwetschke does same) */
 .services-grid.two-columns-row .service-thumbnail {
-  border-radius: 60px;
+  border-radius: var(--border-radius-large);
 }
 
 .service-thumbnail img {
-  /* ensures image completely covers the thumbnail area, cropping if necessary */
   width: 100%;
   height: 100%;
-
-  /* scales image to cover while preserving aspect ratio */
   object-fit: cover;
-
-  /* removes unwanted whitespace and ensures it fills container */
   display: block;
 }
 
@@ -247,30 +175,18 @@ body {
 /* ================================== */
 
 .service-overlay {
-  /* positions the overlay at the bottom of an service item */
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-
-  /* but only 1/3 of the height of an service item */
   height: 30%;
-
-  /* keep text away from edge */
   padding-left: 7.5%;
-
-  /* include padding & border in height/width calculations */
   box-sizing: border-box;
-
-  /* center subheadline and title */
   display: flex;
   align-items: center;
-
-  /* default text color for readability */
-  color: white;
+  color: var(--color-white);
 }
 
-/* top & bottom category: black overlay */
 .service-category-section:nth-of-type(odd) .service-overlay {
   background: linear-gradient(
     to top,
@@ -280,11 +196,10 @@ body {
   );
 }
 
-/* middle category: yellow overlay */
 .service-category-section:nth-of-type(even) .service-overlay {
   background: linear-gradient(
     to top,
-    rgb(255, 237, 0) 0%,
+    var(--color-yellow) 0%,
     rgba(255, 237, 0, 0.6) 50%,
     rgba(255, 237, 0, 0) 100%
   );
@@ -294,10 +209,9 @@ body {
 /* Titles                          */
 /* =============================== */
 
-/* Change font color in middle section */
-.service-category-section.is-dark h2, 
+.service-category-section.is-dark h2,
 .service-category-section.is-dark h3 {
-  color: black;
+  color: var(--color-black);
 }
 
 /* =============================== */
@@ -305,28 +219,25 @@ body {
 /* =============================== */
 
 .service-overlay h3 {
-  /* typography same as Zwetschke */
-  font-family: 'Poppins', sans-serif; 
-
-  /* ensure text is displayed normally if default headline have uppercase */
+  font-family: var(--font-poppins);
   text-transform: none;
 }
 
-/* if 2 services in a row */
 .services-grid.two-columns-row h3 {
-  /* flexible, responsive font size between 20px (1024px screen size) and 30px (2000px screen size) */
-  font-size: clamp(20px, calc(20px + ((10) * ((100vw - 1024px) / (2000 - 1024)))), 30px);
-
-  /* some spacing below the row */
+  font-size: clamp(
+    20px,
+    calc(20px + 10 * ((100vw - 1024px) / (2000 - 1024))),
+    30px
+  );
   margin: 0 0 3%;
-} 
+}
 
-/* if 3 services in a row */
 .services-grid.three-columns-row h3 {
-  /* flexible, responsive font size between 16px (430px screen size) and 17px (2000px screen size) (?) */
-  font-size: clamp(16px, calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 17px);
-
-  /* some less spacing as they are smaller */
+  font-size: clamp(
+    16px,
+    calc(16px + 1 * ((100vw - 430px) / (2000 - 430))),
+    17px
+  );
   margin: 0 0 0.5vh;
 }
 
@@ -335,46 +246,36 @@ body {
 /* =============================== */
 
 .service-overlay h2 {
-  /* typography same as Zwetschke */
-  font-family: "Unbounded", sans-serif;
+  font-family: var(--font-unbounded);
   text-transform: uppercase;
   letter-spacing: -0.04em;
   line-height: 1.2em;
   font-weight: 800;
-
-  /* reset margin as h1 always has some default margin */
-  margin: 0;  
+  margin: 0;
 }
 
-/* if 2 services in a row */
 .services-grid.two-columns-row h2 {
-  /* flexible, responsive font size between 20px (430px screen size) and 60px (2000px screen size) */
-  font-size: clamp(20px, calc(20px + ((40) * ((100vw - 430px) / (2000 - 430)))), 60px);
+  font-size: clamp(
+    20px,
+    calc(20px + 40 * ((100vw - 430px) / (2000 - 430))),
+    60px
+  );
 }
 
-/* if 3 services in a row */
 .services-grid.three-columns-row h2 {
-  /* flexible, responsive font size between 20px (1024px screen size) and 27px (2000px screen size) */
-  font-size: clamp(20px, calc(20px + ((7) * ((100vw - 1024px) / (2000 - 1024)))), 27px);  
+  font-size: clamp(
+    20px,
+    calc(20px + 7 * ((100vw - 1024px) / (2000 - 1024))),
+    27px
+  );
 }
-
-
-
-
-/* Didn't do mobile so far but Zwetschke somehow does this? */
-/* @media screen and (min-width: 41.25em) {
-    .medium-6 {
-        width: 50%;
-    }
-} */
-
-/* =============================== */
-/* responsive                      */
-/* =============================== */
 
 .services-grid-mobile {
   display: none;
 }
+/* =============================== */
+/* Responsive                      */
+/* =============================== */
 
 @media (max-width: 1024px) {
   .services-grid-desktop {
