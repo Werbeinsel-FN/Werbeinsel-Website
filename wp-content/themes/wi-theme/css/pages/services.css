@@ -33,7 +33,7 @@ body {
 /* =============================== */
 
 .services-main-wrapper {
-  background-color: var(--color-yellow);
+  background-color: var(--color-yellow); /* zadrzavamo tvoju boju */
   color: black;
   display: flex;
   flex-direction: column;
@@ -214,10 +214,6 @@ body {
   color: var(--color-black);
 }
 
-/* =============================== */
-/* Subtitle                        */
-/* =============================== */
-
 .service-overlay h3 {
   font-family: var(--font-poppins);
   text-transform: none;
@@ -273,6 +269,7 @@ body {
 .services-grid-mobile {
   display: none;
 }
+
 /* =============================== */
 /* Responsive                      */
 /* =============================== */
@@ -316,6 +313,7 @@ body {
     height: auto;
     margin: 0 auto;
   }
+
   .service-item {
     display: flex;
     flex-direction: column;
@@ -365,6 +363,7 @@ body {
     font-size: 4vh;
     letter-spacing: -2px;
   }
+
   .services-grid + .services-grid {
     margin-top: 0;
     padding-top: 5vh;
@@ -374,10 +373,12 @@ body {
     margin-bottom: 0;
     padding-bottom: 0;
   }
+
   .services-grid:has(> .service-item:only-child) .service-title {
     font-size: 1rem;
   }
 }
+
 @media (max-width: 600px) {
   .services-main-wrapper {
     align-items: center;

@@ -1,0 +1,11 @@
+:root {
+  /* Typography */
+  --main-font-family: 'Unbounded', sans-serif;;
+  --secondary-font-family: 'Poppins', sans-serif;;
+
+  /* Colors */
+  --main-color: #ffed00; 
+
+  /* Content */
+  --max-content-size: 1780px;
+}
