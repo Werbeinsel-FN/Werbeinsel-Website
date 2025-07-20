@@ -81,6 +81,11 @@ h1 {
   color: black;
 }
 
+/* Change font color in middle section */
+.service-category-section.is-dark h1 {
+  color: #fff;
+}
+
 /* =============================== */
 /* Services Subtitles              */
 /* =============================== */

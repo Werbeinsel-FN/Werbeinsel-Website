@@ -185,6 +185,13 @@ function wi_theme_enqueue_styles() {
         );   
 
         wp_enqueue_style(
+            'wi-textarea-style',
+            get_template_directory_uri() . '/css/components/textareas.css',
+            ['wi-forms-style'],
+            filemtime(get_template_directory() . '/css/components/textareas.css')
+        );
+
+        wp_enqueue_style(
             'wi-buttons-style',
             get_template_directory_uri() . '/css/components/buttons.css',
             ['wi-forms-style'],
@@ -198,6 +205,7 @@ function wi_theme_enqueue_styles() {
                 'wi-forms-style',
                 'wi-input-fields-style',
                 'wi-select-fields-style',
+                'wi-textarea-style',
                 'wi-buttons-style'
             ],
             filemtime(get_template_directory() . '/css/pages/contact.css')
