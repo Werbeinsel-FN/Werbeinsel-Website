@@ -105,6 +105,13 @@ function wi_theme_enqueue_styles() {
         filemtime(get_template_directory() . '/css/layout/mainmenu.css')
     );
 
+    wp_enqueue_style(
+        'wi-layout-content-style',
+        get_template_directory_uri() . '/css/layout/content.css',
+        [],
+        filemtime(get_template_directory() . '/css/layout/content.css')
+    );
+
     ////////////////////////////////
     // register pages
     ////////////////////////////////
@@ -118,11 +125,38 @@ function wi_theme_enqueue_styles() {
         );
     }
 
-   if (is_page_template('templates/services-archive-template.php')) {
+    if (is_post_type_archive('services')) {
+        
+        wp_enqueue_style(
+            'wi-grid-style',
+            get_template_directory_uri() . '/css/layout/grid.css',
+            ['wi-layout-content-style'],
+            filemtime(get_template_directory() . '/css/layout/grid.css')
+        );   
+
+        wp_enqueue_style(
+            'wi-service-item-style',
+            get_template_directory_uri() . '/css/components/service-items.css',
+            ['wi-layout-content-style'],
+            filemtime(get_template_directory() . '/css/components/service-items.css')
+        );   
+
+        wp_enqueue_style(
+            'wi-service-item-overlay-style',
+            get_template_directory_uri() . '/css/components/service-item-overlays.css',
+            ['wi-layout-content-style'],
+            filemtime(get_template_directory() . '/css/components/service-item-overlays.css')
+        );         
+
         wp_enqueue_style(
             'wi-services-style',
             get_template_directory_uri() . '/css/pages/services.css',
-            [],
+            [
+                'wi-layout-content-style',
+                'wi-grid-style',
+                'wi-service-item-style',
+                'wi-service-item-overlay-style'
+            ],
             filemtime(get_template_directory() . '/css/pages/services.css')
         );
     }

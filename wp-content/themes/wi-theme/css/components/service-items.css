@@ -1,0 +1,38 @@
+/* =============================== */
+/* Service Image                   */
+/* =============================== */
+
+.service-thumbnail {
+  /* stack & clip this element to parent element */
+  position: relative;
+
+  /* ensures it fills the parent element */
+  height: 100%;
+  width: 100%;
+
+  /* horizontally center within parent */
+  margin: 0 auto;  
+
+  /* cut everything which is bigger than this element (important for rounded corners & overlays) */
+  overflow: hidden;
+
+  /* rounded corners size same as Zwetschke */
+  border-radius: 40px;
+}
+
+/* larger radius if 2 services in a row cause they are bigger (Zwetschke does same) */
+.services-grid.two-columns-row .service-thumbnail {
+  border-radius: 60px;
+}
+
+.service-thumbnail img {
+  /* ensures image completely covers the thumbnail area, cropping if necessary */
+  width: 100%;
+  height: 100%;
+
+  /* scales image to cover while preserving aspect ratio */
+  object-fit: cover;
+
+  /* removes unwanted whitespace and ensures it fills container */
+  display: block;
+}
