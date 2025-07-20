@@ -118,7 +118,7 @@ function wi_theme_enqueue_styles() {
         );
     }
 
-    if (is_post_type_archive('services')) {
+   if (is_page_template('templates/services-archive-template.php')) {
         wp_enqueue_style(
             'wi-services-style',
             get_template_directory_uri() . '/css/pages/services.css',
@@ -197,9 +197,10 @@ function wi_theme_enqueue_styles() {
         'https://cdn.jsdelivr.net/npm/foundation-icons/foundation-icons.css',
         array(), // no dependencies
         null     // no fixed version no
-    );    
+    ); 
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
+
 
 ///////////////////////////////////////////////////////////////////////
 //	Register JS

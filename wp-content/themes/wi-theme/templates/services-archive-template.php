@@ -5,7 +5,7 @@ get_header();
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
 
-<div class="services-main-wrapper">
+<main class="services-main-wrapper wi-services-main" role="main">
     <div class="services-inner-wrapper">
 
         <?php
@@ -83,52 +83,64 @@ get_header();
                     }
         ?>
 
-        <div class="<?php echo $section_class; ?>">
-            <h1><?php echo $section_title; ?></h1>
+        <section class="<?php echo $section_class; ?>" aria-labelledby="section-title-<?php echo $section_index; ?>">
+            <!-- Section title -->
+            <header>
+                <h1 id="section-title-<?php echo $section_index; ?>"><?php echo $section_title; ?></h1>
+            </header>
 
+            <!-- Desktop layout -->
             <div class="services-grid-desktop">
-            <?php foreach ($rows as $row_posts): ?>
-                <?php
-                $class = (count($row_posts) === 3) ? 'services-grid three-columns-row' : 'services-grid two-columns-row';
-                ?>
-                <div class="<?php echo $class; ?>">
-                    <?php foreach ($row_posts as $post): setup_postdata($post); ?>
-                        <div class="service-item">
-                            <div class="service-thumbnail">
-                                <a href="<?php the_permalink(); ?>">
-                                    <?php the_post_thumbnail(); ?>
-                                    <div class="service-overlay">
-                                        <div class="service-overlay-content">
-                                            <div class="service-subtitle"><h3>Lorem Ipsum</h3></div>
-                                            <div class="service-title"><h2><?php the_title(); ?></h2></div>
+                <?php foreach ($rows as $row_posts): ?>
+                    <?php
+                    $class = (count($row_posts) === 3) ? 'services-grid three-columns-row' : 'services-grid two-columns-row';
+                    ?>
+                    <div class="<?php echo $class; ?>">
+                        <?php foreach ($row_posts as $post): setup_postdata($post); ?>
+                            <article class="service-item" itemscope itemtype="https://schema.org/Service">
+                                <div class="service-thumbnail">
+                                    <a href="<?php the_permalink(); ?>" itemprop="url">
+                                        <?php the_post_thumbnail('full', ['itemprop' => 'image']); ?>
+                                        <div class="service-overlay">
+                                            <div class="service-overlay-content">
+                                                <div class="service-subtitle">
+                                                    <h3 itemprop="description">Lorem Ipsum</h3>
+                                                </div>
+                                                <div class="service-title">
+                                                    <h2 itemprop="name"><?php the_title(); ?></h2>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    <?php endforeach; wp_reset_postdata(); ?>
-                </div>
-            <?php endforeach; ?>
-        </div>
+                                    </a>
+                                </div>
+                            </article>
+                        <?php endforeach; wp_reset_postdata(); ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- Mobile layout -->
             <div class="services-grid-mobile">
                 <div class="services-carousel">
-                    <?php foreach ($posts as $post): ?>
-                        <div class="service-item">
+                    <?php foreach ($posts as $post): setup_postdata($post); ?>
+                        <article class="service-item" itemscope itemtype="https://schema.org/Service">
                             <div class="service-thumbnail">
-                                <a href="<?php the_permalink(); ?>">
-                                    <?php the_post_thumbnail(); ?>
+                                <a href="<?php the_permalink(); ?>" itemprop="url">
+                                    <?php the_post_thumbnail('full', ['itemprop' => 'image']); ?>
                                     <div class="service-overlay">
                                         <div class="service-overlay-content">
-                                            <div class="service-title"><?php the_title(); ?></div>
+                                            <div class="service-title">
+                                                <h2 itemprop="name"><?php the_title(); ?></h2>
+                                            </div>
                                         </div>
                                     </div>
                                 </a>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
+                        </article>
+                    <?php endforeach; wp_reset_postdata(); ?>
                 </div>
             </div>
-        </div>
+        </section>
 
         <?php
                     $section_index++;
@@ -136,6 +148,6 @@ get_header();
             endforeach;
         ?>
     </div>
-</div>
+</main>
 
 <?php get_footer(); ?>
