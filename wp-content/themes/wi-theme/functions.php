@@ -256,7 +256,7 @@ function wi_theme_enqueue_js() {
         '1.0',
         true
     );
-    if (is_page('kontakt')) {
+    if (is_page('contact')) {
         wp_enqueue_script(
             'wi-theme-js',
             get_template_directory_uri() . '/js/contact.js',
