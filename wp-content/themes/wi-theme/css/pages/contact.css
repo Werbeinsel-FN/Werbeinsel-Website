@@ -2,10 +2,10 @@
 /* Outer Wrapper                   */
 /* =============================== */
 
-.service-main-wrapper {
-  background-color: #ffed00;
+.contact-form,
+.contact-bottom-wrapper {
+  background-color: var(--main-color);
 }
-
 
 #contact-form {
   color: #000;
@@ -122,8 +122,6 @@ form {
   position: relative;
 }
 
-
-
 .content-form .control-group textarea + .control-label {
   left: 2.3em;
 }
@@ -161,8 +159,14 @@ form {
   max-width: 945px;
   padding-top: 10px;
   line-height: 1.5em;
+  font-family: var(--secondary-font-family);
 }
-
+.content-form .button-wrapper .privacy a {
+  line-height: inherit;
+  color: #1779ba;
+  text-decoration: none;
+  cursor: pointer;
+}
 @media (max-width: 1023px) {
   .content-form .button-wrapper .privacy {
     width: 100%;
@@ -180,9 +184,6 @@ form {
   width: 100%;
 }
 
-
-
-
 /**************************************/
 /* Bottom area                        */
 /**************************************/
@@ -191,12 +192,6 @@ form {
   position: relative;
   height: 500px;
 }
-
-
-.contact-bottom-wrapper {
-  background-color: #ffed00;
-}
-
 
 @media (max-width: 659px) {
   .contact-bottom-wrapper {
@@ -267,10 +262,6 @@ form {
   width: 70px;
   height: 70px;
 }
-.contact-address-wrapper .email .icon-wrapper {
-  background: #ffed00;
-}
-
 .contact-address-wrapper i {
   flex-grow: 1;
   display: flex;
@@ -281,11 +272,9 @@ form {
 .data-wrapper {
   display: flex;
   flex-direction: column;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   height: 100%;
 }
-
-
 
 .data-content-wrapper {
   display: flex;

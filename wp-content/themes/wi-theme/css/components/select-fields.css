@@ -8,9 +8,26 @@
   justify-content: center;
   /* max-width: 1060px; */
   margin: 0.5em auto;
+  gap: 2vh;
   /* gap: 0 25px;     */
 }
+.wi-checkbox-group > label {
+  box-sizing: border-box;
+  background: #000;
+  padding: 0.8em 0;
+  width: calc(33.33% - 25px);
+  border-radius: 90px;
+  border: 6px solid #000;
+  transition: background 0.4s, color 0.4s;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: baseline;
 
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 @media (max-width: 659px) {
   .wpcf7-checkbox {
     gap: 0 15px;

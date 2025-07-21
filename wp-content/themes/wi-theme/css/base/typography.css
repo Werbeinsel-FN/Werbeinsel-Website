@@ -76,7 +76,7 @@ h1 {
 }
 
 /* Change font color in middle section */
-.service-category-section.is-dark h2, 
+.service-category-section.is-dark h2,
 .service-category-section.is-dark h3 {
   color: black;
 }
@@ -124,9 +124,9 @@ h1 {
 
 .wi-contact-main h1 {
   font-size: clamp(
-    60px,
-    calc(60px + ((40) * ((100vw - 430px) / (2000 - 430)))),
-    100px
+    50px,
+    calc(50px + ((36) * ((100vw - 430px) / (2000 - 430)))),
+    85px
   );
 }
 
@@ -160,17 +160,34 @@ h1 {
   text-transform: uppercase;
   line-height: 1em;
   font-size: clamp(
-    25px,
-    calc(25px + ((30) * ((100vw - 430px) / (2000 - 430)))),
-    55px
+    32px,
+    calc(32px + ((30) * ((100vw - 430px) / (2000 - 430)))),
+    60px
   );
   font-weight: 800;
 
   text-align: center;
 
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
 }
-
+/* =============================== */
+/* Contact Select-fields   */
+/* =============================== */
+.wi-checkbox-group > label {
+  font-size: clamp(
+    20px,
+    calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
+    30px
+  );
+  margin: 0;
+  padding: 0.8em 0;
+  text-align: center;
+  font-family: var(--main-font-family);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 0.9em;
+}
 /* =============================== */
 /* Contact Services Titles         */
 /* =============================== */
