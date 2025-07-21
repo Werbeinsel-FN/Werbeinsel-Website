@@ -125,7 +125,7 @@ function wi_theme_enqueue_styles() {
         );
     }
 
-    if (is_post_type_archive('services')) {
+    if (is_page_template('templates/services-archive-template.php')) {
         
         wp_enqueue_style(
             'wi-grid-style',
