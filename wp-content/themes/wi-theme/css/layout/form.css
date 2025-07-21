@@ -44,7 +44,7 @@ form {
 
 @media screen and (min-width: 41.25em) {
   .medium-6 {
-    width: 50% !important;
+    width: 50%;
   }
 }
 
