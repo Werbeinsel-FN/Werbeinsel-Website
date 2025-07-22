@@ -1,93 +1,37 @@
+/*============================
+  GRID SYSTEM (DESKTOP)
+============================*/
 .services-grid-desktop {
-/* maximum width & padding same as Zwetschke */  
-  /* max-width: var(--max-content-size); */
-  padding: 5%;
-
-  /* excludes padding from width calculation */
-  box-sizing: content-box;
+  display: block;
 }
-
-/* =============================== */
-/* Services Grid                   */
-/* =============================== */
 
 .services-grid {
-  /* grid layout for services so we can easier manage the item next to each other layout*/
   display: grid;
-
-  /* horizontal gap between services */
-  gap: 3%;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 3rem;
 }
 
-/* =============================== */
-/* 1 Service in a Row?             */
-/* =============================== */
-
-/* Didn't touch anything here */
-.services-grid:has(> .service-item:only-child) {
+/* Center one post */
+.services-grid.one-column-row {
   display: flex;
   justify-content: center;
 }
 
-/* Commented as didn't tested but max-width 500px felt weird */
-/* .services-grid:has(> .service-item:only-child) .service-item {
-  max-width: 500px;
-  width: 100%;
-} */
-
-.services-grid:has(> .service-item:only-child) .service-title {
-  font-size: 3.5vh;
-  font-weight: bold;
-}
-
-/* Same here */
-/* .services-grid:has(> .service-item:only-child) .service-thumbnail img {
-  height: 500px;
-  object-fit: cover;
-} */
-
-/* =============================== */
-/* 2 Services in a Row             */
-/* =============================== */
-
-.services-grid.two-columns-row {
-  /* 2 equal columns */
-  grid-template-columns: repeat(2, 1fr);
-
-  /* some spacing below the row */
-  padding-bottom: 3%;
-}
-
-.services-grid.two-columns-row:nth-child(2) {
-  /* last category without 'cause wrapper already has some padding */
-  padding-bottom: 0;
-}
-
-/* =============================== */
-/* 3 Services in a Row             */
-/* =============================== */
-
-.services-grid.three-columns-row {
-  /* 3 equal columns */
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* =============================== */
-/* Individual Service Item         */
-/* =============================== */
-
-.service-item {
-  /* full width of this parent grid cell */
-  width: 100%;
-
-  /* enforces a square shape regardless of screen width */
+/* Optional: limit width to match two-column size */
+.services-grid.one-column-row .service-item {
+  width: 40vw;
   aspect-ratio: 1 / 1;
+}
 
-  /* center child elements horizontally & vertically */
-  display: flex;
+/* Two columns row */
+.services-grid.two-columns-row {
+  grid-template-columns: repeat(2, minmax(0, 40vw));
   justify-content: center;
-  align-items: center;  
-  
-  /* establish a new positioning context for child elements */
-  position: relative;
+}
+
+/* Three columns row */
+.services-grid.three-columns-row {
+  grid-template-columns: repeat(3, minmax(0, 27vw));
+  justify-content: center;
 }

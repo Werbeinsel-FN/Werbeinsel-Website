@@ -91,9 +91,16 @@ get_header();
 
             <!-- Desktop layout -->
             <div class="services-grid-desktop">
+                
                 <?php foreach ($rows as $row_posts): ?>
                     <?php
-                    $class = (count($row_posts) === 3) ? 'services-grid three-columns-row' : 'services-grid two-columns-row';
+                   if (count($row_posts) === 1) {
+    $class = 'services-grid one-column-row';
+} elseif (count($row_posts) === 3) {
+    $class = 'services-grid three-columns-row';
+} else {
+    $class = 'services-grid two-columns-row';
+}
                     ?>
                     <div class="<?php echo $class; ?>">
                         <?php foreach ($row_posts as $post): setup_postdata($post); ?>

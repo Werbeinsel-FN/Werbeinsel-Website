@@ -1,192 +1,51 @@
-/* =============================== */
-/* Outer Wrapper                   */
-/* =============================== */
-
+/*============================
+  BASE STYLES
+============================*/
 .services-main-wrapper {
-  /* colors as Kris selected */
-  background-color: var(--main-color);
-
-  /* stack following sections vertically */
-  display: flex;
-  flex-direction: column;
+  font-family: var(--main-font-family);
 }
-
-/* =============================== */
-/* Categories                      */
-/* =============================== */
 
 .service-category-section {
-  /* center content vertically and horizontally */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background-color: var(--main-color);
+  padding: 4rem 1rem;
 }
 
-.service-category-section::before {
-  /* clearfix: creates pseudo-element before the section to contain floats */
-  content: ' ';
-  display: table;
-  box-sizing: border-box;   
+.service-category-section.is-dark {
+  background-color: #000;
+  color: #fff;
 }
 
-.service-category-section::after {
-  /* clearfix: clears floats after section to prevent overlap */
-  clear: both;
-  content: ' ';
-  display: table; 
-  box-sizing: border-box;   
-}
-
-/* =============================== */
-/* Category Headlines              */
-/* =============================== */
-
-.service-category-section h1 {
-  /* logical margins: writing-direction agnostic spacing */
-  margin-block-start: 5%;     /* spacing above the element */
-  margin-inline-end: 0px;      /* spacing at the end (right or left, depending on direction) */
-
-  /* ensures the element starts on a new line and takes up full width */
-  display: block;    
-
-  /* ensures that the headline is in 2 rows and design stays same for bigger screen sizes */
-  /* max-width: var(--max-content-size); */
-}
-
-/* =============================== */
-/* Service Subtitle                */
-/* =============================== */
-
-/* if 2 services in a row */
-.services-grid.two-columns-row h3 {
-  /* some spacing below the row */
-  margin: 0 0 3%;
-} 
-
-/* if 3 services in a row */
-.services-grid.three-columns-row h3 {
-  /* some less spacing as they are smaller */
-  margin: 0 0 0.5vh;
-}
-
-/* Didn't do mobile so far but Zwetschke somehow does this? */
-/* @media screen and (min-width: 41.25em) {
-    .medium-6 {
-        width: 50%;
-    }
-} */
-
-/* =============================== */
-/* responsive                      */
-/* =============================== */
-
+/*============================
+  MOBILE CAROUSEL STYLE
+============================*/
 .services-grid-mobile {
   display: none;
 }
 
-@media (max-width: 1024px) {
+/*============================
+  RESPONSIVE
+============================*/
+@media (max-width: 768px) {
   .services-grid-desktop {
     display: none;
   }
 
   .services-grid-mobile {
     display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .services-carousel {
     display: flex;
-    overflow-x: auto;
+    gap: 1.5rem;
     scroll-snap-type: x mandatory;
-    gap: 5vw;
-    padding: 5vh 5vw;
+    padding: 1rem;
   }
 
   .services-carousel .service-item {
-    flex: 0 0 80%;
-    scroll-snap-align: center;
-    max-width: 80%;
-  }
-
-  .services-grid.two-columns-row,
-  .services-grid.three-columns-row,
-  .services-grid.even-grid,
-  .services-grid.odd-grid {
-    grid-template-columns: 1fr;
-    gap: 5vh;
-    grid-auto-rows: 400px;
-  }
-
-  .services-grid:has(> .service-item:only-child) .service-item {
-    width: 80%;
-    max-width: 400px;
-    aspect-ratio: 1 / 1;
-    height: auto;
-    margin: 0 auto;
-  }
-  .service-item {
-    display: flex;
-    flex-direction: column;
-    aspect-ratio: 1 / 1;
-    width: 80%;
-    max-width: 400px;
-    height: auto;
-    margin: 0 auto;
-  }
-
-  .service-thumbnail {
-    flex: 1;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    border: 5px solid black;
-    border-radius: 40px;
-    overflow: hidden;
-  }
-
-  .service-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: 25px;
-  }
-
-  .service-overlay {
-    height: 35%;
-  }
-
-  .service-title {
-    font-size: 1rem;
-  }
-
-  .service-excerpt {
-    font-size: 0.7rem;
-  }
-
-  .services-title-wrapper,
-  .service-category-section {
-    font-size: 1rem;
-  }
-
-  .service-category-section h1 {
-    font-size: 4vh;
-    letter-spacing: -2px;
-  }
-  .services-grid + .services-grid {
-    margin-top: 0;
-    padding-top: 5vh;
-  }
-
-  .services-grid:not(:last-child) {
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-  .services-grid:has(> .service-item:only-child) .service-title {
-    font-size: 1rem;
-  }
-}
-@media (max-width: 600px) {
-  .services-main-wrapper {
-    align-items: center;
+    min-width: 280px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
   }
 }

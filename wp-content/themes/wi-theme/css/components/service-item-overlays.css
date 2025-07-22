@@ -1,43 +1,39 @@
+/*============================
+  OVERLAY
+============================*/
 .service-overlay {
-  /* positions the overlay at the bottom of an service item */
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-
-  /* but only 1/3 of the height of an service item */
   height: 30%;
-
-  /* keep text away from edge */
-  padding-left: 7.5%;
-
-  /* include padding & border in height/width calculations */
-  box-sizing: border-box;
-
-  /* center subheadline and title */
+  background: linear-gradient(to top, var(--overlay-color), transparent);
   display: flex;
-  align-items: center;
-
-  /* default text color for readability */
-  color: white;
+  align-items: flex-end;
+  padding: 1.5rem;
+  color: #fff;
+  z-index: 2;
 }
 
-/* top & bottom category: black overlay */
-.service-category-section:nth-of-type(odd) .service-overlay {
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    rgba(0, 0, 0, 0) 100%
-  );
+.service-category-section:not(.is-dark) .service-overlay {
+  --overlay-color: #000;
 }
 
-/* middle category: yellow overlay */
-.service-category-section:nth-of-type(even) .service-overlay {
-  background: linear-gradient(
-    to top,
-    rgb(255, 237, 0) 0%,
-    rgba(255, 237, 0, 0.6) 50%,
-    rgba(255, 237, 0, 0) 100%
-  );
+.service-category-section.is-dark .service-overlay {
+  --overlay-color: var(--main-color);
+  color: #000;
+}
+
+.service-overlay-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.service-overlay-content h3 {
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0 0 0.25rem 0;
+  opacity: 0.8;
 }
