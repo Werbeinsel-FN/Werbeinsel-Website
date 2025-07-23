@@ -28,6 +28,9 @@
   align-items: center;
   justify-content: center;
 }
+.wi-checkbox-group br {
+  display: none;
+}
 @media (max-width: 659px) {
   .wpcf7-checkbox {
     gap: 0 15px;
