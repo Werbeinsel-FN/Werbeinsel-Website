@@ -1,6 +1,15 @@
 /*============================
   BASE STYLES
 ============================*/
+/* Just in case any grid or flex container is too wide */
+.services-main-wrapper,
+.services-inner-wrapper,
+.services-grid-desktop,
+.services-grid-mobile,
+.services-carousel {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
 .services-main-wrapper {
   font-family: var(--main-font-family);
 }
