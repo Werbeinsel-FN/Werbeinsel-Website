@@ -1,6 +1,14 @@
 /* =============================== */
 /* Outer Wrapper                   */
 /* =============================== */
+.wi-contact-main,
+.contact-form,
+.contact-bottom-wrapper,
+.contact-address-wrapper,
+.contact-map-outer-wrapper,
+.row {
+  max-width: 100%;
+}
 
 .contact-form,
 .contact-bottom-wrapper {
