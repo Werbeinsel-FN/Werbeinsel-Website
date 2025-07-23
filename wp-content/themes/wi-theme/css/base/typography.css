@@ -29,15 +29,11 @@ h1 {
   margin: 0;
 }
 
-/* Change font color in middle section */
-.service-category-section.is-dark h1 {
-  color: #fff;
-}
 .service-category-section header h1 {
-  font-size: clamp(2rem, 5vw, 4rem);
+  /* font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 800;
   text-transform: uppercase;
-  text-align: center;
+  text-align: center; */
   margin-bottom: 3rem;
 }
 /* =============================== */
