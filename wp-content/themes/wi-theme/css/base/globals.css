@@ -1,0 +1,28 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+  /* enables ligatures & better kerning for readability */
+  text-rendering: optimizeLegibility;    
+
+  /* smoother font rendering on macOS and Windows */
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+
+  /* prevent automatic text size adjustment on iOS, Android, IE */
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;           
+
+  /* isolate text direction from surrounding context */
+  /* -> prevents bidirectional text from being influenced by surrounding text direction */
+  /* Example: <p>text<span>1234</span>text</p> then stays and is not rendered <p>text<span>4321</span>text</p> */
+  unicode-bidi: isolate;      
+}
+
+body {
+  /* remove default body margin to avoid unintended spacing */ 
+  margin: 0;
+}

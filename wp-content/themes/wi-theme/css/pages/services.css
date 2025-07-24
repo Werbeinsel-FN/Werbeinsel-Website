@@ -1,0 +1,60 @@
+/*============================
+  BASE STYLES
+============================*/
+/* Just in case any grid or flex container is too wide */
+.services-main-wrapper,
+.services-inner-wrapper,
+.services-grid-desktop,
+.services-grid-mobile,
+.services-carousel {
+  max-width: 100vw;
+}
+.services-main-wrapper {
+  font-family: var(--main-font-family);
+}
+
+.service-category-section {
+  background-color: var(--main-color);
+  padding: 4rem 1rem;
+}
+
+.service-category-section.is-dark {
+  background-color: #000;
+  color: #fff;
+}
+
+/*============================
+  MOBILE CAROUSEL STYLE
+============================*/
+.services-grid-mobile {
+  display: none;
+}
+
+/*============================
+  RESPONSIVE
+============================*/
+
+@media (max-width: 768px) {
+  .services-grid-desktop {
+    display: none;
+  }
+
+  .services-grid-mobile {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .services-carousel {
+    display: flex;
+    gap: 1.5rem;
+    scroll-snap-type: x mandatory;
+    padding: 1rem 1rem 1rem 0;
+  }
+
+  .services-carousel .service-item {
+    max-width: 280px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+}

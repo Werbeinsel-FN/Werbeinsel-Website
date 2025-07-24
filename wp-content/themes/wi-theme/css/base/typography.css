@@ -1,0 +1,299 @@
+/* =============================== */
+/* Main Headlines                  */
+/* =============================== */
+
+h1 {
+  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
+  font-size: clamp(
+    97px,
+    calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
+    271px
+  );
+  color: black;
+
+  /* typography same as Zwetschke */
+  font-family: var(--main-font-family);
+  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 0.88em; /* tighter line height */
+  text-align: center; /* center text horizontally */
+  letter-spacing: -0.035em; /* slightly tighter letter spacing */
+
+  /* if loooooong word and doesn't fit: break it (example: looo-
+    oooong word) */
+  overflow-wrap: break-word;
+  /* use separator */
+  hyphens: auto;
+
+  /* reset margin as h1 always has some default margin */
+  margin: 0;
+}
+
+.service-category-section header h1 {
+  /* font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center; */
+  margin-bottom: 3rem;
+}
+/* =============================== */
+/* Services Titles                 */
+/* =============================== */
+
+.wi-services-main h2 {
+  /* typography same as Zwetschke */
+  font-family: var(--main-font-family);
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  line-height: 1.2em;
+  font-weight: 800;
+  /* font-size: clamp(
+    25px,
+    calc(25px + ((30) * ((100vw - 430px) / (2000 - 430)))),
+    55px
+    );     */
+
+  /* reset margin as h2 always has some default margin */
+  margin: 0;
+}
+
+/* if 2 services in a row */
+.wi-services-main .services-grid.two-columns-row h2 {
+  /* flexible, responsive font size between 20px (430px screen size) and 60px (2000px screen size) */
+  font-size: clamp(
+    20px,
+    calc(20px + ((40) * ((100vw - 430px) / (2000 - 430)))),
+    60px
+  );
+}
+
+/* if 3 services in a row */
+.wi-services-main .services-grid.three-columns-row h2 {
+  /* flexible, responsive font size between 20px (1024px screen size) and 27px (2000px screen size) */
+  font-size: clamp(
+    20px,
+    calc(20px + ((7) * ((100vw - 1024px) / (2000 - 1024)))),
+    27px
+  );
+}
+
+/* Change font color in middle section */
+.service-category-section.is-dark h2,
+.service-category-section.is-dark h3 {
+  color: black;
+}
+
+/* Change font color in middle section */
+.service-category-section.is-dark h1 {
+  color: #fff;
+}
+
+/* =============================== */
+/* Services Subtitles              */
+/* =============================== */
+
+.wi-services-main .h3 {
+  /* typography same as Zwetschke */
+  font-family: var(--secondary-font-family);
+
+  /* ensure text is displayed normally if default headline have uppercase */
+  text-transform: none;
+}
+
+/* if 2 services in a row */
+.wi-services-main .services-grid.two-columns-row h3 {
+  /* flexible, responsive font size between 20px (1024px screen size) and 30px (2000px screen size) */
+  font-size: clamp(
+    20px,
+    calc(20px + ((10) * ((100vw - 1024px) / (2000 - 1024)))),
+    30px
+  );
+}
+
+/* if 3 services in a row */
+.wi-services-main .services-grid.three-columns-row h3 {
+  /* flexible, responsive font size between 16px (430px screen size) and 17px (2000px screen size) (?) */
+  font-size: clamp(
+    16px,
+    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))),
+    17px
+  );
+}
+
+/* =============================== */
+/* Contact Main Headline           */
+/* =============================== */
+
+.wi-contact-main h1 {
+  font-size: clamp(
+    50px,
+    calc(50px + ((36) * ((100vw - 430px) / (2000 - 430)))),
+    85px
+  );
+}
+
+/* =============================== */
+/* Contact Subtitle                */
+/* =============================== */
+
+.wi-contact-main h2 {
+  font-size: clamp(
+    25px,
+    calc(25px + ((30) * ((100vw - 430px) / (2000 - 430)))),
+    55px
+  );
+
+  margin-bottom: 1.05em;
+  letter-spacing: -0.035em;
+  font-family: var(--secondary-font-family);
+  font-weight: normal;
+  text-align: center;
+  line-height: 1.15;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* =============================== */
+/* Contact Services Select Title   */
+/* =============================== */
+
+.wi-contact-main h3 {
+  font-family: var(--main-font-family);
+  text-transform: uppercase;
+  line-height: 1em;
+  font-size: clamp(
+    32px,
+    calc(32px + ((30) * ((100vw - 430px) / (2000 - 430)))),
+    60px
+  );
+  font-weight: 800;
+
+  text-align: center;
+
+  margin-bottom: 2rem;
+}
+/* =============================== */
+/* Contact Select-fields   */
+/* =============================== */
+.wi-checkbox-group > label {
+  font-size: clamp(
+    20px,
+    calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
+    30px
+  );
+  margin: 0;
+  padding: 0.8em 0;
+  text-align: center;
+  font-family: var(--main-font-family);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 0.9em;
+}
+/* =============================== */
+/* Contact Services Titles         */
+/* =============================== */
+
+.service-overlay label {
+  /* typography same as Zwetschke */
+  font-family: var(--main-font-family);
+  font-size: clamp(
+    20px,
+    calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
+    30px
+  );
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  text-align: center;
+  color: white;
+
+  /* reset margin? */
+  margin: 0;
+  margin-bottom: 0.9em;
+
+  /* cell style */
+  background: #000;
+  padding: 0.8em 0;
+  width: calc(33.33% - 25px);
+  border-radius: 90px;
+  border: 6px solid #000;
+  transition: background 0.4s, color 0.4s;
+
+  /* mouse pointer style */
+  cursor: pointer;
+
+  /* for following elemets */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wi-checkbox-group > label.is-checked {
+  background: #ffed00 !important;
+  color: #000 !important;
+}
+
+@media screen and (max-width: 768px) {
+  .wi-checkbox-group > label {
+    flex: 1 1 100%;
+  }
+}
+
+.no-label > div:nth-child(1) {
+  margin-bottom: 3rem;
+}
+
+/* =============================== */
+/* Contact Bottom Titles           */
+/* =============================== */
+
+.wi-contact-main h5 {
+  font-family: var(--main-font-family);
+  text-transform: uppercase;
+  font-size: clamp(
+    20px,
+    calc(20px + ((7) * ((100vw - 1024px) / (2000 - 1024)))),
+    27px
+  );
+
+  /* some gap to below elements */
+  margin: 0 0 5%;
+}
+
+/**************************************/
+/* Mid-title                          */
+/**************************************/
+
+#contact-form .budget-titel {
+  margin-top: 1.7em;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+@media (max-width: 659px) {
+  #contact-form .budget-titel {
+    margin: 1.5rem 0;
+  }
+}
+
+.column:last-child:not(:first-child),
+.columns:last-child:not(:first-child) {
+  float: right;
+}
+
+@media screen and (min-width: 41.25em) {
+  .medium-12 {
+    width: 100%;
+  }
+}
+
+.clear {
+  display: block;
+  visibility: hidden;
+  clear: both;
+  overflow: hidden;
+  width: 0;
+  height: 0;
+}
