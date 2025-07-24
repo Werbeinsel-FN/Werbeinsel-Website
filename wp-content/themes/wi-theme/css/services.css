@@ -1,0 +1,315 @@
+/* =============================== */
+/* Outer Wrapper                   */
+/* =============================== */
+
+.services-main-wrapper {
+  /* colors as Kris selected */
+  background-color: var(--main-color);
+
+  /* stack following sections vertically */
+  display: flex;
+  flex-direction: column;
+}
+
+.service-category-section {
+  /* center content vertically and horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.service-category-section::before {
+  /* clearfix: creates pseudo-element before the section to contain floats */
+  content: " ";
+  display: table;
+  box-sizing: border-box;
+}
+
+.service-category-section::after {
+  /* clearfix: clears floats after section to prevent overlap */
+  clear: both;
+  content: " ";
+  display: table;
+  box-sizing: border-box;
+}
+
+/* =============================== */
+/* Category Headlines              */
+/* =============================== */
+
+.service-category-section h1 {
+  /* logical margins: writing-direction agnostic spacing */
+  margin-block-start: 5%; /* spacing above the element */
+  margin-inline-end: 0px; /* spacing at the end (right or left, depending on direction) */
+
+  /* ensures the element starts on a new line and takes up full width */
+  display: block;
+
+  /* ensures that the headline is in 2 rows and design stays same for bigger screen sizes */
+  max-width: var(--max-content-size);
+}
+
+/* Change font color in middle section */
+.service-category-section.is-dark h1 {
+  color: #fff;
+}
+
+/* =============================== */
+/* Services                        */
+/* =============================== */
+
+.services-grid-desktop {
+  /* maximum width & padding same as Zwetschke */
+  max-width: var(--max-content-size);
+  padding: 5%;
+
+  /* excludes padding from width calculation */
+  box-sizing: content-box;
+}
+
+/* background for middle section */
+.service-category-section.is-dark {
+  background-color: #000;
+}
+
+/* =============================== */
+/* Services Grid                   */
+/* =============================== */
+
+.services-grid {
+  /* grid layout for services so we can easier manage the item next to each other layout*/
+  display: grid;
+
+  /* horizontal gap between services */
+  gap: 3%;
+}
+
+/* =============================== */
+/* 1 Service in a Row?             */
+/* =============================== */
+
+/* Didn't touch anything here */
+.services-grid:has(> .service-item:only-child) {
+  display: flex;
+  justify-content: center;
+}
+
+/* Commented as didn't tested but max-width 500px felt weird */
+/* .services-grid:has(> .service-item:only-child) .service-item {
+  max-width: 500px;
+  width: 100%;
+} */
+
+.services-grid:has(> .service-item:only-child) .service-title {
+  font-size: 3.5vh;
+  font-weight: bold;
+}
+
+/* Same here */
+/* .services-grid:has(> .service-item:only-child) .service-thumbnail img {
+  height: 500px;
+  object-fit: cover;
+} */
+
+/* =============================== */
+/* 2 Services in a Row             */
+/* =============================== */
+
+.services-grid.two-columns-row {
+  /* 2 equal columns */
+  grid-template-columns: repeat(2, 1fr);
+
+  /* some spacing below the row */
+  padding-bottom: 3%;
+}
+
+.services-grid.two-columns-row:nth-child(2) {
+  /* last category without 'cause wrapper already has some padding */
+  padding-bottom: 0;
+}
+
+/* =============================== */
+/* 3 Services in a Row             */
+/* =============================== */
+
+.services-grid.three-columns-row {
+  /* 3 equal columns */
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* =============================== */
+/* Individual Service Item         */
+/* =============================== */
+
+.service-item {
+  /* full width of this parent grid cell */
+  width: 100%;
+
+  /* enforces a square shape regardless of screen width */
+  aspect-ratio: 1 / 1;
+
+  /* center child elements horizontally & vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* establish a new positioning context for child elements */
+  position: relative;
+}
+
+/* =============================== */
+/* Service Image                   */
+/* =============================== */
+
+.service-thumbnail {
+  /* stack & clip this element to parent element */
+  position: relative;
+
+  /* ensures it fills the parent element */
+  height: 100%;
+  width: 100%;
+
+  /* horizontally center within parent */
+  margin: 0 auto;
+
+  /* cut everything which is bigger than this element (important for rounded corners & overlays) */
+  overflow: hidden;
+
+  /* rounded corners size same as Zwetschke */
+  border-radius: 40px;
+}
+
+/* larger radius if 2 services in a row cause they are bigger (Zwetschke does same) */
+.services-grid.two-columns-row .service-thumbnail {
+  border-radius: 60px;
+}
+
+.service-thumbnail img {
+  /* ensures image completely covers the thumbnail area, cropping if necessary */
+  width: 100%;
+  height: 100%;
+
+  /* scales image to cover while preserving aspect ratio */
+  object-fit: cover;
+
+  /* removes unwanted whitespace and ensures it fills container */
+  display: block;
+}
+
+/* ================================== */
+/* Overlay at Bottom of Service Item  */
+/* ================================== */
+
+.service-overlay {
+  /* positions the overlay at the bottom of an service item */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  /* but only 1/3 of the height of an service item */
+  height: 30%;
+
+  /* keep text away from edge */
+  padding-left: 7.5%;
+
+  /* include padding & border in height/width calculations */
+  box-sizing: border-box;
+
+  /* center subheadline and title */
+  display: flex;
+  align-items: center;
+
+  /* default text color for readability */
+  color: white;
+}
+
+/* top & bottom category: black overlay */
+.service-category-section:nth-of-type(odd) .service-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+
+/* middle category: yellow overlay */
+.service-category-section:nth-of-type(even) .service-overlay {
+  background: linear-gradient(
+    to top,
+    rgb(255, 237, 0) 0%,
+    rgba(255, 237, 0, 0.6) 50%,
+    rgba(255, 237, 0, 0) 100%
+  );
+}
+
+/* =============================== */
+/* Titles                          */
+/* =============================== */
+
+/* Change font color in middle section */
+.service-category-section.is-dark h2,
+.service-category-section.is-dark h3 {
+  color: black;
+}
+
+/* =============================== */
+/* Service Subtitle                */
+/* =============================== */
+
+/* if 2 services in a row */
+.services-grid.two-columns-row h3 {
+  /* some spacing below the row */
+  margin: 0 0 3%;
+}
+
+/* if 3 services in a row */
+.services-grid.three-columns-row h3 {
+  /* some less spacing as they are smaller */
+  margin: 0 0 0.5vh;
+}
+
+/* Didn't do mobile so far but Zwetschke somehow does this? */
+/* @media screen and (min-width: 41.25em) {
+    .medium-6 {
+        width: 50%;
+    }
+} */
+
+/* =============================== */
+/* responsive                      */
+/* =============================== */
+
+.services-grid-mobile {
+  display: none;
+}
+
+/*============================
+  RESPONSIVE
+============================*/
+
+@media (max-width: 768px) {
+  .services-grid-desktop {
+    display: none;
+  }
+
+  .services-grid-mobile {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .services-carousel {
+    display: flex;
+    gap: 1.5rem;
+    scroll-snap-type: x mandatory;
+    padding: 1rem 1rem 1rem 0;
+  }
+
+  .services-carousel .service-item {
+    max-width: 280px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+}

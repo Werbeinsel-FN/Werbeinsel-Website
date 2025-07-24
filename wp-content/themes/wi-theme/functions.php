@@ -45,62 +45,29 @@ add_filter('archive_template', 'wi_theme_register_services_archive_template');
 ///////////////////////////////////////////////////////////////////////
 
 function wi_theme_enqueue_styles() {
-
-    ////////////////////////////////
-    // Register Main Stylesheet
-    ////////////////////////////////
-
+    // register main stylesheet
     wp_enqueue_style(
         'wi-style', 
         get_stylesheet_uri()
     );
 
-    ////////////////////////////////
-    // register global styles
-    ////////////////////////////////
-
-    wp_enqueue_style(
-        'wi-css-variables',
-        get_template_directory_uri() . '/css/base/variables.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/variables.css')
-    );
-
-    wp_enqueue_style(
-        'wi-typography',
-        get_template_directory_uri() . '/css/base/typography.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/typography.css')
-    );
-   
-    wp_enqueue_style(
-        'wi-global-style',
-        get_template_directory_uri() . '/css/base/globals.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/globals.css')
-    );       
-    
-    ////////////////////////////////
-    // register layouts
-    ////////////////////////////////
-
     wp_enqueue_style(
         'wi-header-style', 
-        get_template_directory_uri() . '/css/layout/header.css', 
+        get_template_directory_uri() . '/css/header.css', 
         array(), 
-        filemtime(get_template_directory() . '/css/layout/header.css')
+        filemtime(get_template_directory() . '/css/header.css')
     );    
 
     wp_enqueue_style(
         'wi-footer-style', 
-        get_template_directory_uri() . '/css/layout/footer.css', 
+        get_template_directory_uri() . '/css/footer.css', 
         array(), 
-        filemtime(get_template_directory() . '/css/layout/footer.css')
+        filemtime(get_template_directory() . '/css/footer.css')
     );
 
     wp_enqueue_style(
         'wi-mainmenu-style',
-        get_template_directory_uri() . '/css/layout/mainmenu.css',
+        get_template_directory_uri() . '/css/mainmenu.css',
         array(),
         filemtime(get_template_directory() . '/css/layout/mainmenu.css')
     );
@@ -232,8 +199,6 @@ function wi_theme_enqueue_styles() {
 
     ////////////////////////////////
     // load foundation icons
-    ////////////////////////////////
-
     wp_enqueue_style(
         'foundation-icons',
         'https://cdn.jsdelivr.net/npm/foundation-icons/foundation-icons.css',
