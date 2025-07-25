@@ -89,7 +89,24 @@ function wi_theme_enqueue_styles() {
 
     // Home
     if (is_page_template('templates/home-template.php')) {
+        wi_enqueue_service_styles();
         wi_enqueue_page_style('wi-home-style', '/css/pages/home.css');
+    }
+
+    // Services (overview)
+    if (is_page_template('templates/services/services-template.php')) {
+        wi_enqueue_service_styles();
+    }
+
+    // Service Category Page
+    if (is_tax('service_category')) {
+        wi_enqueue_service_styles(); // same styles as overview page
+        wi_enqueue_page_style('wi-service-category-style', '/css/pages/service-category.css', [
+            'wi-layout-content-style',
+            'wi-grid-style',
+            'wi-service-item-style',
+            'wi-service-item-overlay-style',
+        ]);
     }
 
     // Contact
@@ -116,23 +133,7 @@ function wi_theme_enqueue_styles() {
     // Privacy Declaration
     if (is_page_template('templates/datenschutz-template.php')) {
         wi_enqueue_page_style('wi-privacy-style', '/css/pages/datenschutz.css');
-    }
-
-    // Services (overview)
-    if (is_page_template('templates/services/services-template.php')) {
-        wi_enqueue_service_styles();
-    }
-
-    // Service Category Page
-    if (is_tax('service_category')) {
-        wi_enqueue_service_styles(); // same styles as overview page
-        wi_enqueue_page_style('wi-service-category-style', '/css/pages/service-category.css', [
-            'wi-layout-content-style',
-            'wi-grid-style',
-            'wi-service-item-style',
-            'wi-service-item-overlay-style',
-        ]);
-    }
+    }    
 
     // Load Foundation Icons
     wp_enqueue_style(
@@ -143,15 +144,6 @@ function wi_theme_enqueue_styles() {
     );
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
-
-add_action('wp_head', function() {
-    global $wp_styles;
-    echo '<!-- Enqueued styles: -->';
-    foreach ($wp_styles->queue as $style) {
-        echo "<!-- $style -->\n";
-    }
-});
-
 
 // Helper function to register style sheets
 function wi_enqueue_page_style($handle, $relative_path, $deps = []) {

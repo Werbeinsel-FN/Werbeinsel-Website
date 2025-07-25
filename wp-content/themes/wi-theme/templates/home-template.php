@@ -61,60 +61,74 @@ get_header(); ?>
         </section> -->
 
         <section class="home-services-container">
-            <div class="home-services-head-container">
+            <!-- <header>
                 <h1>Unsere Leistungen:</h1>
-            </div>
+            </header> -->
             <div class="home-services-content-container">
-            <?php 
-                // Query for services
-                $services = new WP_Query(array(
-                    'post_type'      => 'services',
-                    'posts_per_page' => -1, // amount of services shown
-                    'order' => 'ASC'           
-                ));
+                <div class="services-grid-desktop">
+                    <?php                     
+                        $service_categories = get_terms([
+                            'taxonomy' => 'service_category',
+                            'hide_empty' => true,
+                        ]);
 
-                if ($services->have_posts()) :
-                    while ($services->have_posts()) : $services->the_post(); ?>
-                        <article id="service-<?php the_ID(); ?>" <?php post_class(); ?>>
-                            <header class="service-header">
-                                <div class="service-header-top-wrapper">
-                                    <div class="service-category-wrapper">
-                                        <?php
-                                        $terms = get_the_terms(get_the_ID(), 'service_category');
-                                        if (!empty($terms) && !is_wp_error($terms)) {
-                                            foreach ($terms as $term) {                                               
-                                                echo '<span class="service-category">' . esc_html($term->name) . '</span> ';
-                                            }
-                                        }
-                                        ?>
-                                    </div>
-                                    <div class="service-thumbnail-wrapper">								
-                                        <?php the_post_thumbnail('full', ['class' => 'service-thumbnail', 'alt' => get_the_title()]); ?> 
-                                    </div>
-                                </div>
-                            </header>
-                            <div class="service-content">
-                                <div class="service-title-wrapper">
-                                    <?php 
-                                        $full_title = get_the_title();
-                                        $short_title = mb_strlen($full_title) > 25 ? mb_substr($full_title, 0, 16) . ' […]' : $full_title;
-                                    ?>
-                                    <h2 class="service-title" title="<?php echo esc_attr($full_title); ?>">
-                                        <a href="<?php the_permalink(); ?>">
-                                            <?php echo esc_html($short_title); ?>
-                                        </a>
-                                    </h2>							
-                                </div>
-                            </div>                      
-                        </article>                       
-                    <?php endwhile;
-                else :
-                    echo '<p>' . __('Keine Services gefunden.', 'wi-theme') . '</p>';
-                endif;
+                        usort($service_categories, function($a, $b) {
+                            return intval(get_term_meta($a->term_id, 'term_order', true)) <=> intval(get_term_meta($b->term_id, 'term_order', true));
+                        });
 
-                // Reset Post Data
-                wp_reset_postdata();
-                ?>                    
+                        $section_titles = ['Auf die Straße', 'Lass kleben', 'Design & Design'];
+                        $index = 0;
+
+                        foreach ($service_categories as $cat) :
+                            $query = new WP_Query([
+                                'post_type' => 'services',
+                                'posts_per_page' => -1,
+                                'tax_query' => [[
+                                    'taxonomy' => 'service_category',
+                                    'field'    => 'slug',
+                                    'terms'    => $cat->slug,
+                                ]],
+                                'orderby' => 'menu_order',
+                                'order'   => 'ASC',
+                            ]);
+
+                            $services = $query->posts;
+                            $rows = wi_theme_group_services_into_rows($services);
+                            $section_class = ($index % 2) ? 'service-category-section is-dark' : 'service-category-section';
+                            $section_title = $section_titles[$index] ?? esc_html($cat->name);
+                            ?>
+
+                            <section class="<?= $section_class; ?>" aria-labelledby="section-title-<?= $index; ?>">
+                                <header>
+                                    <h1 id="section-title-<?= $index; ?>"><?= $section_title; ?></h1>
+                                </header>
+
+                                <?php if (!empty($rows)) : ?>
+                                    <?php foreach ($rows as $row): ?>
+                                        <div class="services-grid-row <?= count($row) === 3 ? 'three-columns-row' : (count($row) === 1 ? 'one-column-row' : 'two-columns-row'); ?>">
+                                            <?php foreach ($row as $service): ?>
+                                                <?php
+                                                    get_template_part(
+                                                        'templates/services/template-parts/service-item',
+                                                        null,
+                                                        ['service' => $service]
+                                                    );
+                                                ?>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <p><?= __('Keine Services gefunden.', 'wi-theme'); ?></p>
+                                <?php endif; ?>
+
+                            </section>
+
+                            <?php
+                            wp_reset_postdata();
+                            $index++;
+                        endforeach; 
+                    ?>
+                </div>                  
             </div>
         </section>        
 
