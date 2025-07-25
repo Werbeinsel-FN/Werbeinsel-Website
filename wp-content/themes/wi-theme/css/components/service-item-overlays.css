@@ -18,7 +18,7 @@
 }
 
 .services-grid-row.three-columns-row .service-overlay {
-  padding: calc(var(--main-spacing-size) / 2) var(--main-spacing-size);
+  padding: calc(var(--main-spacing-size) / 4 * 3) var(--main-spacing-size);
 }
 
 .service-category-section.is-dark .service-overlay {
