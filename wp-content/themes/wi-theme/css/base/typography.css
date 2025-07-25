@@ -28,20 +28,35 @@ h1 {
   color: black;
 }
 
+a {
+  text-decoration: none;
+}
+
 /* =============================== */
 /* Services                        */
 /* =============================== */
 
-/* ===== Headlines ===== */
+/* ===== Headline colors ===== */
 
-/* change font color in middle section */
-.service-category-section.is-dark h1 {
-  color: #fff;
+.service-category-section.is-dark h1, 
+.wi-services-main h2 a, 
+.wi-services-main h3 a {
+  color: white;
 }
 
-/* ===== Service item titles ===== */
+.wi-services-main h2 a:hover,
+.wi-services-main h3 a:hover {
+  color: var(--main-color);
+}
 
-.wi-services-main h2 {
+/* ----- change font color in middle section ----- */
+.service-category-section.is-dark h2 a,
+.service-category-section.is-dark h3 a {
+  color: black;
+}
+
+.service-category-section.is-dark h2 a:hover,
+.service-category-section.is-dark h3 a:hover {
   color: white;
 }
 
@@ -65,12 +80,6 @@ h1 {
   );
 }
 
-/* ----- change font color in middle section ----- */
-.service-category-section.is-dark h2,
-.service-category-section.is-dark h3 {
-  color: black;
-}
-
 /* =============================== */
 /* Services Subtitles              */
 /* =============================== */
@@ -80,8 +89,6 @@ h1 {
 
   /* ensure text is displayed normally if default headline have uppercase */
   text-transform: none;
-
-  color: #fff;
 }
 
 /* ----- if 2 services in a row ----- */

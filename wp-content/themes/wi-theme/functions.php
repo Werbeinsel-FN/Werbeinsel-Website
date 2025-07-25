@@ -558,14 +558,18 @@ function wi_theme_register_service_categories() {
         'show_admin_column' => true,
         'query_var'         => true,
         'show_in_rest' => true,
-        'rewrite'           => array('slug' => 'servicekategorie'),
+        'rewrite'           => array(
+            'slug' => 'services',
+            'with_front' => false,
+            'hierarchical' => true
+        ),
     );
 
     register_taxonomy('service_category', array('services'), $args);
 }
 add_action('init', 'wi_theme_register_service_categories');
 
-// disable fucking Gutenberg editor
+// disable fuckin' Gutenberg editor
 add_filter( 'use_block_editor_for_post_type', function( $use_block_editor, $post_type ) {
     if ( 'services' === $post_type ) {
         return false; // force classic editor
