@@ -14,45 +14,46 @@ add_action('after_setup_theme', 'wi_theme_setup');
     Register Templates
 ======================================== */
 
-function wi_theme_register_single_page_templates($template) {
-    global $post;
-	
-    if ($post->post_type === 'services') { 
-        $single_template = locate_template(['templates/services/service-template.php']);
-        if ($single_template) {
-            return $single_template;
+function wi_theme_register_templates() {
+    // Register services template
+    add_filter('theme_page_templates', function($templates) {
+        $templates['templates/services/services-template.php'] = 'Services';
+        return $templates;
+    });
+
+    // Load page template from subfolder
+    add_filter('template_include', function($template) {
+        if (is_page_template('templates/services/services-template.php')) {
+            return get_theme_file_path('templates/services/services-template.php');
         }
-    }
+        return $template;
+    });
 
-    // Fallback to default template if not found
-    return $template;
-}
-add_filter('single_template', 'wi_theme_register_single_page_templates');
-
-function wi_theme_register_archive_templates($template) {
-    if (is_post_type_archive('services')) {
-        $archive_template = locate_template('templates/services/services-template.php');
-        if ($archive_template) {
-            return $archive_template;
+    // Load service template
+    add_filter('single_template', function($template) {
+        global $post;
+        if ($post && $post->post_type === 'services') {
+            $custom_template = locate_template('templates/services/service-template.php');
+            if ($custom_template) {
+                return $custom_template;
+            }
         }
-    }
-    return $template;
-}
-add_filter('archive_template', 'wi_theme_register_archive_templates');
+        return $template;
+    });
 
-function wi_theme_register_taxonomy_templates($template) {
-    $taxonomy = get_query_var('taxonomy');
-
-    if ($taxonomy === 'service_category') {
-        $custom_template = locate_template('templates/services/service-category-template.php');
-        if ($custom_template) {
-            return $custom_template;
+    // Load service category template
+    add_filter('taxonomy_template', function($template) {
+        $taxonomy = get_query_var('taxonomy');
+        if ($taxonomy === 'service_category') {
+            $custom_template = locate_template('templates/services/service-category-template.php');
+            if ($custom_template) {
+                return $custom_template;
+            }
         }
-    }
-
-    return $template;
+        return $template;
+    });
 }
-add_filter('taxonomy_template', 'wi_theme_register_taxonomy_templates');
+add_action('init', 'wi_theme_register_templates');
 
 /* ========================================
     Register CSS
@@ -139,7 +140,7 @@ function wi_theme_enqueue_styles() {
         );
     }
 
-    if (is_post_type_archive('services')) {
+    if (is_page_template('templates/services/services-template.php')) {
         
         wp_enqueue_style(
             'wi-grid-style',
@@ -174,6 +175,15 @@ function wi_theme_enqueue_styles() {
             filemtime(get_template_directory() . '/css/pages/services.css')
         );
     }
+
+    if (is_tax('service_category')) {
+        wp_enqueue_style(
+            'wi-service-category-style',
+            get_template_directory_uri() . '/css/pages/service-category.css',
+            [],
+            filemtime(get_template_directory() . '/css/pages/service-category.css')
+        );
+    }    
 
     if (is_page_template('templates/contact-template.php')) {
 
@@ -233,7 +243,7 @@ function wi_theme_enqueue_styles() {
             [],
             filemtime(get_template_directory() . '/css/pages/impressum.css')
         );
-    }      
+    }
 
     if (is_page_template('templates/datenschutz-template.php')) {
         wp_enqueue_style(
@@ -256,7 +266,6 @@ function wi_theme_enqueue_styles() {
     ); 
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
-
 
 /* ========================================
     Register JS
@@ -497,14 +506,35 @@ function wi_theme_register_services_post_type() {
         'public'             => true,
         'has_archive'        => true,
         'menu_icon'          => 'dashicons-portfolio',
-        'rewrite'            => array('slug' => 'services'),
+        'rewrite' => array(
+            'slug' => 'services/%service_category%',
+            'with_front' => false
+        ),
         'supports'           => array('title', 'editor', 'thumbnail', 'custom-fields', 'page-attributes'),
         'show_in_rest'       => true,
     );
 
     register_post_type('services', $args);
+
+    // Reload permalinks (only once, otherwise needs to be commented)
+    //flush_rewrite_rules();
 }
 add_action('init', 'wi_theme_register_services_post_type');
+
+function wi_theme_services_post_type_link($post_link, $post) {
+    if ($post->post_type === 'services') {
+        $terms = get_the_terms($post->ID, 'service_category');
+        if ($terms && !is_wp_error($terms)) {
+            $term = array_shift($terms);
+            return str_replace('%service_category%', $term->slug, $post_link);
+        } else {
+            // Falls keine Kategorie vorhanden ist
+            return str_replace('%service_category%', 'kategorie', $post_link);
+        }
+    }
+    return $post_link;
+}
+add_filter('post_type_link', 'wi_theme_services_post_type_link', 10, 2);
 
 function wi_theme_register_service_categories() {
     $labels = array(

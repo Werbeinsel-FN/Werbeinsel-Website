@@ -1,0 +1,23 @@
+.service-archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    list-style: none;
+    padding: 0;
+}
+
+.service-item {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    background: #fff;
+    transition: box-shadow 0.2s ease;
+}
+
+.service-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.service-thumbnail img {
+    width: 100%;
+    height: auto;
+}
