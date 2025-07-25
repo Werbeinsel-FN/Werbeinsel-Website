@@ -11,7 +11,7 @@
 }
 
 .service-category-section.is-dark {
-  background-color: var(--overlay-default-color);
+  background-color: black;
   color: #fff;
 }
 
