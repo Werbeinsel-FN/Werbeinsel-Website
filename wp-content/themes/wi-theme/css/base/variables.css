@@ -4,8 +4,15 @@
   --secondary-font-family: 'Poppins', sans-serif;;
 
   /* Colors */
-  --main-color: #ffed00; 
+  --main-color: #ffed00;
+  --overlay-default-color: #000;
 
   /* Content */
   --max-content-size: 1780px;
+
+  --main-spacing-size: 5vh;
+
+  --main-border-radius: 40px;
+
+  --overlay-height: 30%;
 }

@@ -10,9 +10,9 @@ function wi_theme_setup() {
 }
 add_action('after_setup_theme', 'wi_theme_setup');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Templates
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register Templates
+======================================== */
 
 function wi_theme_register_services_single_template($template) {
     global $post;
@@ -40,9 +40,9 @@ function wi_theme_register_services_archive_template($template) {
 }
 add_filter('archive_template', 'wi_theme_register_services_archive_template');
 
-///////////////////////////////////////////////////////////////////////
-//	Register CSS
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register CSS
+======================================== */
 
 function wi_theme_enqueue_styles() {
 
@@ -244,9 +244,9 @@ function wi_theme_enqueue_styles() {
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
 
 
-///////////////////////////////////////////////////////////////////////
-//	Register JS
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register JS
+======================================== */
 
 function wi_theme_enqueue_js() {
     wp_enqueue_script(
@@ -284,9 +284,9 @@ function wi_theme_enqueue_js() {
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Fonts
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register Fonts
+======================================== */
 
 function wi_theme_enqueue_google_fonts() {
     $menu_font = get_option('wi_theme_menu_font', 'Arial');
@@ -309,10 +309,9 @@ function wi_theme_enqueue_roboto_font() {
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Shortcodes
-///////////////////////////////////////////////////////////////////////
-
+/* ========================================
+    Register Shortcodes
+======================================== */
 // [primary_menu]
 function wi_theme_register_primary_menu_shortcode() {
     ob_start();
@@ -325,9 +324,9 @@ function wi_theme_register_primary_menu_shortcode() {
 }
 add_shortcode('primary_menu', 'wi_theme_register_primary_menu_shortcode');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Appearance > Widgets areas
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register Appearance > Widgets areas
+======================================== */
 
 function wi_theme_widgets_init() {
 	// register sidebar widget area
@@ -351,11 +350,11 @@ function wi_theme_widgets_init() {
 }
 add_action('widgets_init', 'wi_theme_widgets_init');
 
-///////////////////////////////////////////////////////////////////////
-//	Register CPTs
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register CPTs
+======================================== */
 
-// Referenzen
+// === Referenzen ===
 
 function wi_theme_render_references() {
     $total_items = 12;
@@ -447,13 +446,10 @@ function wi_theme_render_references() {
 
     echo '</div></div></div></div>';
 }
-
-
-
-
 // add_action('init', 'wi_theme_render_references');
 
-// Services
+// === Services ===
+
 function wi_theme_register_services_post_type() {
     $labels = array(
         'name'                  => __('Leistungen', 'wi-theme'),
@@ -533,7 +529,8 @@ add_filter( 'use_block_editor_for_post_type', function( $use_block_editor, $post
     return $use_block_editor;
 }, 10, 2 );
 
-// service order
+// --- Services Order ---
+
 function wi_theme_add_service_order_column($columns) {
     $columns['menu_order'] = 'Reihenfolge';
     return $columns;
@@ -580,7 +577,8 @@ function wi_theme_reorder_services_columns($columns) {
 }
 add_filter('manage_edit-services_columns', 'wi_theme_reorder_services_columns');
 
-// service category order
+// --- Services Category Order ---
+
 function wi_theme_add_category_order_field($taxonomy) {
     ?>
     <div class="form-field">
@@ -717,9 +715,34 @@ add_action('admin_footer-edit-tags.php', 'wi_theme_quickedit_js');
 // }
 // add_action('after_switch_theme', 'wi_theme_create_default_service_categories');
 
-///////////////////////////////////////////////////////////////////////
-//	Theme Options
-///////////////////////////////////////////////////////////////////////
+// --- Helper Functions ---
+
+function wi_theme_group_services_into_rows($services) {
+    $service_count = count($services);
+    $rows = [];
+
+    if ($service_count === 3) {
+        $rows[] = $services;
+    } else {
+        $i = 0;
+        while ($i < $service_count) {
+            $remaining = $service_count - $i;
+            if ($remaining === 3 && $service_count > 3 && $service_count % 2 !== 0) {
+                $rows[] = array_slice($services, $i, 3);
+                $i += 3;
+            } else {
+                $rows[] = array_slice($services, $i, 2);
+                $i += 2;
+            }
+        }
+    }
+
+    return $rows;
+}
+
+/* ========================================
+    Theme Options
+======================================== */
 
 function wi_theme_add_admin_menu() {
     add_menu_page(
@@ -989,9 +1012,9 @@ function wi_theme_allowed_upload_types($mimes) {
 }
 add_filter('upload_mimes', 'wi_theme_allowed_upload_types');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Leaflet (free contact map)
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register Leaflet (free contact map)
+======================================== */
 
 // function wi_theme_enqueue_leaflet_assets() {
 //
@@ -1001,9 +1024,9 @@ add_filter('upload_mimes', 'wi_theme_allowed_upload_types');
 // }
 // add_action('wp_enqueue_scripts', 'wi_theme_enqueue_leaflet_assets');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Flickity Slider
-///////////////////////////////////////////////////////////////////////
+/* ========================================
+    Register Flickity Slider
+======================================== */
 
 function wi_theme_enqueue_flickity_assets() {
     // Flickity CSS

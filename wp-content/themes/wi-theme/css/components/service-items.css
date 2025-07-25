@@ -4,18 +4,16 @@
 .service-item {
   position: relative;
   overflow: hidden;
-  border-radius: 1rem;
+  border-radius: var(--main-border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
   /* Make square */
   aspect-ratio: 1 / 1;
-  width: 100%;
 }
 
 .service-thumbnail {
   width: 100%;
   height: 100%;
-  display: block;
 }
 
 /* Make images fill service-item and cover */
@@ -23,5 +21,4 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
