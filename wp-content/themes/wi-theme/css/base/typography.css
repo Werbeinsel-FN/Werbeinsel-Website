@@ -2,9 +2,17 @@
 /* Main Headlines                  */
 /* =============================== */
 
-h1, h2, h2, h3, h4, h5, h6 {
+h1, h2, h2, h3, h4, h5, h6, p {
   /* reset margin as h1 always has some default margin */
   margin: 0;
+}
+
+h1, h2 {
+  font-family: var(--main-font-family);
+  text-transform: var(--main-font-text-transform-value);
+  font-weight: var(--main-font-weight-value);
+  line-height: var(--main-font-line-height-value); 
+  letter-spacing: var(--main-font-letter-spacing-value);
 }
 
 h1 {
@@ -14,32 +22,31 @@ h1 {
     calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
     271px
   );
-  color: black;
 
-  /* typography same as Zwetschke */
-  font-family: var(--main-font-family);
-  text-transform: uppercase;
-  font-weight: 800;
-  line-height: 0.88em; /* tighter line height */
-  text-align: center; /* center text horizontally */
-  letter-spacing: -0.035em; /* slightly tighter letter spacing */
+  text-align: center;
+
+  color: black;
 }
 
 /* =============================== */
-/* Services Titles                 */
+/* Services                        */
 /* =============================== */
+
+/* ===== Headlines ===== */
+
+/* change font color in middle section */
+.service-category-section.is-dark h1 {
+  color: #fff;
+}
+
+/* ===== Service item titles ===== */
 
 .wi-services-main h2 {
-  /* typography same as Zwetschke */
-  font-family: var(--main-font-family);
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  line-height: 1.2em;
-  font-weight: 800;
+  color: white;
 }
 
-/* if 2 services in a row */
-.wi-services-main .services-grid-row.two-columns-row h2 {
+/* ----- if 2 services in a row ----- */
+.services-grid-row.two-columns-row h2 {
   /* flexible, responsive font size between 20px (430px screen size) and 60px (2000px screen size) */
   font-size: clamp(
     20px,
@@ -48,8 +55,8 @@ h1 {
   );
 }
 
-/* if 3 services in a row */
-.wi-services-main .services-grid-row.three-columns-row h2 {
+/* ----- if 3 services in a row ----- */
+.services-grid-row.three-columns-row h2 {
   /* flexible, responsive font size between 20px (1024px screen size) and 27px (2000px screen size) */
   font-size: clamp(
     20px,
@@ -58,37 +65,37 @@ h1 {
   );
 }
 
-/* Change font color in middle section */
+/* ----- change font color in middle section ----- */
 .service-category-section.is-dark h2,
 .service-category-section.is-dark h3 {
   color: black;
-}
-
-/* Change font color in middle section */
-.service-category-section.is-dark h1 {
-  color: #fff;
 }
 
 /* =============================== */
 /* Services Subtitles              */
 /* =============================== */
 
-.wi-services-main .services-grid-row h3 {
-  /* typography same as Zwetschke */
+.wi-services-main h3 {
   font-family: var(--secondary-font-family);
 
   /* ensure text is displayed normally if default headline have uppercase */
   text-transform: none;
+
+  color: #fff;
 }
 
-/* if 2 services in a row */
-.wi-services-main .services-grid-row.two-columns-row h3 {
+/* ----- if 2 services in a row ----- */
+.services-grid-row.two-columns-row h3 {
   /* flexible, responsive font size between 16px (1024px screen size) and 17px (2000px screen size) */
-  font-size: clamp(16px, calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 17px);
+  font-size: clamp(
+    16px, 
+    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 
+    17px
+  );
 }
 
-/* if 3 services in a row */
-.wi-services-main .services-grid-row.three-columns-row h3 {
+/* ----- if 3 services in a row ----- */
+.services-grid-row.three-columns-row h3 {
   /* flexible, responsive font size between 16px (430px screen size) and 17px (2000px screen size) (?) */
   font-size: clamp(
     16px,
@@ -98,8 +105,10 @@ h1 {
 }
 
 /* =============================== */
-/* Contact Main Headline           */
+/* Contact                         */
 /* =============================== */
+
+/* ===== Headline ===== */
 
 .wi-contact-main h1 {
   font-size: clamp(
@@ -109,9 +118,7 @@ h1 {
   );
 }
 
-/* =============================== */
-/* Contact Subtitle                */
-/* =============================== */
+/* ===== Subtitle ===== */
 
 .wi-contact-main h2 {
   font-size: clamp(
@@ -130,9 +137,7 @@ h1 {
   -webkit-text-size-adjust: 100%;
 }
 
-/* =============================== */
-/* Contact Services Select Title   */
-/* =============================== */
+/* ===== Mid title ===== */
 
 .wi-contact-main h3 {
   font-family: var(--main-font-family);
@@ -149,9 +154,9 @@ h1 {
 
   margin-bottom: 2rem;
 }
-/* =============================== */
-/* Contact Select-fields   */
-/* =============================== */
+
+/* ===== Select Fields ===== */
+
 .wi-checkbox-group > label {
   font-size: clamp(
     20px,
@@ -167,9 +172,8 @@ h1 {
   color: #fff;
   margin-bottom: 0.9em;
 }
-/* =============================== */
-/* Contact Services Titles         */
-/* =============================== */
+
+/* ===== Service Titles ===== */
 
 .service-overlay label {
   /* typography same as Zwetschke */
@@ -222,9 +226,7 @@ h1 {
   margin-bottom: 3rem;
 }
 
-/* =============================== */
-/* Contact Bottom Titles           */
-/* =============================== */
+/* ===== Bottom Titles ===== */
 
 .wi-contact-main h5 {
   font-family: var(--main-font-family);

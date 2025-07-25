@@ -1,17 +1,23 @@
 :root {
   /* Typography */
-  --main-font-family: 'Unbounded', sans-serif;;
-  --secondary-font-family: 'Poppins', sans-serif;;
+  --main-font-family: 'Unbounded', sans-serif;
+  --main-font-text-transform-value: uppercase;
+  --main-font-weight-value: 800;
+  --main-font-line-height-value: 0.88em;            /* tighter line height */
+  --main-font-letter-spacing-value: -0.04em;        /* slightly tighter letter spacing */
+
+  --secondary-font-family: 'Poppins', sans-serif;
 
   /* Colors */
   --main-color: #ffed00;
   --overlay-default-color: #000;
 
+  --main-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
   /* Content */
   --max-content-size: 1780px;
 
   --main-spacing-size: 5vh;
-
   --main-border-radius: 40px;
 
   --overlay-height: 30%;
