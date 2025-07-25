@@ -1,40 +1,52 @@
 <?php
 /**
- * Template für die Taxonomie "service_category"
- * Pfad: templates/services/service-category-template.php
+ * Template for the service-categories
+ * Path: templates/services/service-category-template.php
  */
 
-get_header(); ?>
+get_header(); 
+?>
 
-<main class="container">
-    <h1><?php single_term_title(); ?></h1>
-    <p><?php echo term_description(); ?></p>
+<main class="wi-services-category-main">
+    <div class="inner-wrapper">
+        <section class="service-category-section">
+            <header>
+                <h1><?php single_term_title(); ?></h1>
+                <p><?php echo term_description(); ?></p>
+            </header>
+            <div class="services-grid-desktop">
+                <?php 
+                    $term = get_queried_object();
+                    $query = new WP_Query([
+                        'post_type' => 'services',
+                        'posts_per_page' => -1,
+                        'tax_query' => [[
+                            'taxonomy' => 'service_category',
+                            'field'    => 'slug',
+                            'terms' => $term->slug,
+                        ]],
+                        'orderby' => 'menu_order',
+                        'order'   => 'ASC',
+                    ]);
 
-    <div class="service-list">
-        <?php if (have_posts()) : ?>
-            <ul class="service-archive-grid">
-                <?php while (have_posts()) : the_post(); ?>
-                    <li class="service-item">
-                        <a href="<?php the_permalink(); ?>">
-                            <?php if (has_post_thumbnail()) : ?>
-                                <div class="service-thumbnail">
-                                    <?php the_post_thumbnail('medium'); ?>
-                                </div>
-                            <?php endif; ?>
-                            <h2 class="service-title"><?php the_title(); ?></h2>
-                        </a>
-                        <div class="service-excerpt">
-                            <?php the_excerpt(); ?>
-                        </div>
-                    </li>
-                <?php endwhile; ?>
-            </ul>
-
-            <?php the_posts_pagination(); ?>
-
-        <?php else : ?>
-            <p>Keine Leistungen in dieser Kategorie gefunden.</p>
-        <?php endif; ?>
+                    $services = $query->posts;
+                    $rows = wi_theme_group_services_into_rows($services);                
+                
+                foreach ($rows as $row): ?>
+                    <div class="services-grid-row <?= count($row) === 3 ? 'three-columns-row' : (count($row) === 1 ? 'one-column-row' : 'two-columns-row'); ?>">
+                        <?php foreach ($row as $service): ?>
+                            <?php
+                                get_template_part(
+                                    'templates/services/template-parts/service-item', 
+                                    null, 
+                                    ['service' => $service]
+                                );
+                            ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>    
+        </section>
     </div>
 </main>
 

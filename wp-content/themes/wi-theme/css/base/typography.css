@@ -32,6 +32,15 @@ a {
   text-decoration: none;
 }
 
+.wi-services-category-main h1 {
+  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
+  font-size: clamp(
+    97px,
+    calc(97px + 78 * ((100vw - 660px) / (2000 - 660))),
+    175px
+  );
+}
+
 /* =============================== */
 /* Services                        */
 /* =============================== */
@@ -39,13 +48,13 @@ a {
 /* ===== Headline colors ===== */
 
 .service-category-section.is-dark h1, 
-.wi-services-main h2 a, 
-.wi-services-main h3 a {
+.service-category-section h2 a, 
+.service-category-section h3 a {
   color: white;
 }
 
-.wi-services-main h2 a:hover,
-.wi-services-main h3 a:hover {
+.service-category-section h2 a:hover,
+.service-category-section h3 a:hover {
   color: var(--main-color);
 }
 
@@ -84,7 +93,7 @@ a {
 /* Services Subtitles              */
 /* =============================== */
 
-.wi-services-main h3 {
+.service-category-section h3 {
   font-family: var(--secondary-font-family);
 
   /* ensure text is displayed normally if default headline have uppercase */

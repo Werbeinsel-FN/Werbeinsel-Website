@@ -1,4 +1,4 @@
-.service-archive-grid {
+/* .service-archive-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
@@ -20,4 +20,12 @@
 .service-thumbnail img {
     width: 100%;
     height: auto;
+} */
+
+
+.service-category-section {
+  padding: var(--main-spacing-size);
+  display: flex;
+  flex-direction: column;
+  gap: var(--main-spacing-size);
 }

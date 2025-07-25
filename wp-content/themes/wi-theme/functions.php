@@ -60,212 +60,123 @@ add_action('init', 'wi_theme_register_templates');
 ======================================== */
 
 function wi_theme_enqueue_styles() {
+    // Global Styles (always loaded first)
+    wp_enqueue_style('wi-style', get_stylesheet_uri());
 
-    ////////////////////////////////
-    // Register Main Stylesheet
-    ////////////////////////////////
+    $styles_to_load = [
+        'wi-css-variables'          => '/css/base/variables.css',
+        'wi-typography'             => '/css/base/typography.css',
+        'wi-global-style'           => '/css/base/globals.css',
+        'wi-layout-content-style'   => '/css/layout/content.css',
+        'wi-header-style'           => '/css/layout/header.css',
+        'wi-footer-style'           => '/css/layout/footer.css',
+        'wi-mainmenu-style'         => '/css/layout/mainmenu.css',
+    ];
 
-    wp_enqueue_style(
-        'wi-style', 
-        get_stylesheet_uri()
-    );
+    foreach ($styles_to_load as $handle => $relative_path) {
+        $full_path = get_template_directory() . $relative_path;
+        if (file_exists($full_path)) {
+            wp_enqueue_style(
+                $handle,
+                get_template_directory_uri() . $relative_path,
+                [],
+                filemtime($full_path)
+            );
+        }
+    }
 
-    ////////////////////////////////
-    // register global styles
-    ////////////////////////////////
+    // === Page Styles === //
 
-    wp_enqueue_style(
-        'wi-css-variables',
-        get_template_directory_uri() . '/css/base/variables.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/variables.css')
-    );
-
-    wp_enqueue_style(
-        'wi-typography',
-        get_template_directory_uri() . '/css/base/typography.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/typography.css')
-    );
-   
-    wp_enqueue_style(
-        'wi-global-style',
-        get_template_directory_uri() . '/css/base/globals.css',
-        [],
-        filemtime(get_template_directory() . '/css/base/globals.css')
-    );       
-    
-    ////////////////////////////////
-    // register layouts
-    ////////////////////////////////
-
-    wp_enqueue_style(
-        'wi-header-style', 
-        get_template_directory_uri() . '/css/layout/header.css', 
-        array(), 
-        filemtime(get_template_directory() . '/css/layout/header.css')
-    );    
-
-    wp_enqueue_style(
-        'wi-footer-style', 
-        get_template_directory_uri() . '/css/layout/footer.css', 
-        array(), 
-        filemtime(get_template_directory() . '/css/layout/footer.css')
-    );
-
-    wp_enqueue_style(
-        'wi-mainmenu-style',
-        get_template_directory_uri() . '/css/layout/mainmenu.css',
-        array(),
-        filemtime(get_template_directory() . '/css/layout/mainmenu.css')
-    );
-
-    wp_enqueue_style(
-        'wi-layout-content-style',
-        get_template_directory_uri() . '/css/layout/content.css',
-        [],
-        filemtime(get_template_directory() . '/css/layout/content.css')
-    );
-
-    ////////////////////////////////
-    // register pages
-    ////////////////////////////////
-
+    // Home
     if (is_page_template('templates/home-template.php')) {
-        wp_enqueue_style(
-            'wi-home-style',
-            get_template_directory_uri() . '/css/pages/home.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/home.css')
-        );
+        wi_enqueue_page_style('wi-home-style', '/css/pages/home.css');
     }
 
-    if (is_page_template('templates/services/services-template.php')) {
-        
-        wp_enqueue_style(
-            'wi-grid-style',
-            get_template_directory_uri() . '/css/layout/grid.css',
-            ['wi-layout-content-style'],
-            filemtime(get_template_directory() . '/css/layout/grid.css')
-        );   
-
-        wp_enqueue_style(
-            'wi-service-item-style',
-            get_template_directory_uri() . '/css/components/service-items.css',
-            ['wi-layout-content-style'],
-            filemtime(get_template_directory() . '/css/components/service-items.css')
-        );   
-
-        wp_enqueue_style(
-            'wi-service-item-overlay-style',
-            get_template_directory_uri() . '/css/components/service-item-overlays.css',
-            ['wi-layout-content-style'],
-            filemtime(get_template_directory() . '/css/components/service-item-overlays.css')
-        );         
-
-        wp_enqueue_style(
-            'wi-services-style',
-            get_template_directory_uri() . '/css/pages/services.css',
-            [
-                'wi-layout-content-style',
-                'wi-grid-style',
-                'wi-service-item-style',
-                'wi-service-item-overlay-style'
-            ],
-            filemtime(get_template_directory() . '/css/pages/services.css')
-        );
-    }
-
-    if (is_tax('service_category')) {
-        wp_enqueue_style(
-            'wi-service-category-style',
-            get_template_directory_uri() . '/css/pages/service-category.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/service-category.css')
-        );
-    }    
-
+    // Contact
     if (is_page_template('templates/contact-template.php')) {
+        $form_components = [
+            'wi-forms-style' => '/css/layout/form.css',
+            'wi-input-fields-style' => '/css/components/input-fields.css',
+            'wi-select-fields-style' => '/css/components/select-fields.css',
+            'wi-textarea-style' => '/css/components/textareas.css',
+            'wi-buttons-style' => '/css/components/buttons.css',
+        ];
+        foreach ($form_components as $handle => $path) {
+            wi_enqueue_page_style($handle, $path, ['wi-forms-style']);
+        }
 
-        wp_enqueue_style(
-            'wi-forms-style',
-            get_template_directory_uri() . '/css/layout/form.css',
-            [],
-            filemtime(get_template_directory() . '/css/layout/form.css')
-        );
-
-        wp_enqueue_style(
-            'wi-input-fields-style',
-            get_template_directory_uri() . '/css/components/input-fields.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/input-fields.css')
-        );
-
-        wp_enqueue_style(
-            'wi-select-fields-style',
-            get_template_directory_uri() . '/css/components/select-fields.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/select-fields.css')
-        );   
-
-        wp_enqueue_style(
-            'wi-textarea-style',
-            get_template_directory_uri() . '/css/components/textareas.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/textareas.css')
-        );
-
-        wp_enqueue_style(
-            'wi-buttons-style',
-            get_template_directory_uri() . '/css/components/buttons.css',
-            ['wi-forms-style'],
-            filemtime(get_template_directory() . '/css/components/buttons.css')
-        );        
-
-        wp_enqueue_style(
-            'wi-contact-style',
-            get_template_directory_uri() . '/css/pages/contact.css',
-            [
-                'wi-forms-style',
-                'wi-input-fields-style',
-                'wi-select-fields-style',
-                'wi-textarea-style',
-                'wi-buttons-style'
-            ],
-            filemtime(get_template_directory() . '/css/pages/contact.css')
-        );
-    }     
-
-    if (is_page_template('templates/impressum-template.php')) {
-        wp_enqueue_style(
-            'wi-imprint-style',
-            get_template_directory_uri() . '/css/pages/impressum.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/impressum.css')
-        );
+        wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css', array_keys($form_components));
     }
 
+    // Imprint
+    if (is_page_template('templates/impressum-template.php')) {
+        wi_enqueue_page_style('wi-imprint-style', '/css/pages/impressum.css');
+    }
+
+    // Privacy Declaration
     if (is_page_template('templates/datenschutz-template.php')) {
-        wp_enqueue_style(
-            'wi-privacy-style',
-            get_template_directory_uri() . '/css/pages/datenschutz.css',
-            [],
-            filemtime(get_template_directory() . '/css/pages/datenschutz.css')
-        );
-    } 
+        wi_enqueue_page_style('wi-privacy-style', '/css/pages/datenschutz.css');
+    }
 
-    ////////////////////////////////
-    // load foundation icons
-    ////////////////////////////////
+    // Services (overview)
+    if (is_page_template('templates/services/services-template.php')) {
+        wi_enqueue_service_styles();
+    }
 
+    // Service Category Page
+    if (is_tax('service_category')) {
+        wi_enqueue_service_styles(); // same styles as overview page
+        wi_enqueue_page_style('wi-service-category-style', '/css/pages/service-category.css', [
+            'wi-layout-content-style',
+            'wi-grid-style',
+            'wi-service-item-style',
+            'wi-service-item-overlay-style',
+        ]);
+    }
+
+    // Load Foundation Icons
     wp_enqueue_style(
         'foundation-icons',
         'https://cdn.jsdelivr.net/npm/foundation-icons/foundation-icons.css',
-        array(), // no dependencies
-        null     // no fixed version no
-    ); 
+        [],
+        null
+    );
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
+
+add_action('wp_head', function() {
+    global $wp_styles;
+    echo '<!-- Enqueued styles: -->';
+    foreach ($wp_styles->queue as $style) {
+        echo "<!-- $style -->\n";
+    }
+});
+
+
+// Helper function to register style sheets
+function wi_enqueue_page_style($handle, $relative_path, $deps = []) {
+    wp_enqueue_style(
+        $handle,
+        get_template_directory_uri() . $relative_path,
+        $deps,
+        filemtime(get_template_directory() . $relative_path)
+    );
+}
+
+// Grouped styles for all services
+function wi_enqueue_service_styles() {
+    $service_styles = [
+        'wi-grid-style' => '/css/layout/grid.css',
+        'wi-service-item-style' => '/css/components/service-items.css',
+        'wi-service-item-overlay-style' => '/css/components/service-item-overlays.css',
+    ];
+
+    foreach ($service_styles as $handle => $path) {
+        wi_enqueue_page_style($handle, $path, ['wi-layout-content-style']);
+    }
+
+    wi_enqueue_page_style('wi-services-style', '/css/pages/services.css', array_keys($service_styles));
+}
 
 /* ========================================
     Register JS
