@@ -52,7 +52,7 @@ get_header(); ?>
                             <?php foreach ($row as $service): ?>
                                 <?php
                                     get_template_part(
-                                        'templates/template-parts/service-item', 
+                                        'templates/services/template-parts/service-item', 
                                         null, 
                                         ['service' => $service]
                                     );
@@ -67,7 +67,7 @@ get_header(); ?>
                         <?php foreach ($services as $service): ?>
                                 <?php 
                                     get_template_part(
-                                        'templates/template-parts/service-item', 
+                                        'templates/services/template-parts/service-item', 
                                         null, 
                                         ['service' => $service]
                                     ); 
