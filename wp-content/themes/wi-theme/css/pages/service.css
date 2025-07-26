@@ -1,0 +1,32 @@
+.service-main > div {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: var(--main-spacing-size);
+    gap: var(--main-spacing-size);
+}
+
+.service-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quote-wrapper {
+    align-self: flex-end;
+    text-align: right; /* optional, damit Text auch rechtsbündig ist */
+
+    font-family: var(--secondary-font-family);
+
+    padding-bottom: var(--main-spacing-size);
+}
+
+.service-main img {
+    max-width: 20vh;
+}
+
+.service-content-wrapper .bottom-wrapper {
+    flex-grow: 1;
+}

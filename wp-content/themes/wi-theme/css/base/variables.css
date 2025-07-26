@@ -11,6 +11,7 @@
   /* Colors */
   --main-color: #ffed00;
   --overlay-default-color: #000;
+  --invert-color: invert(1);
 
   --main-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 

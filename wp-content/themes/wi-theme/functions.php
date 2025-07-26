@@ -101,13 +101,29 @@ function wi_theme_enqueue_styles() {
     // Service Category Page
     if (is_tax('service_category')) {
         wi_enqueue_service_styles(); // same styles as overview page
-        wi_enqueue_page_style('wi-service-category-style', '/css/pages/service-category.css', [
-            'wi-layout-content-style',
-            'wi-grid-style',
-            'wi-service-item-style',
-            'wi-service-item-overlay-style',
-        ]);
+        wi_enqueue_page_style(
+            'wi-service-category-style', 
+            '/css/pages/service-category.css', 
+            [
+                'wi-layout-content-style',
+                'wi-grid-style',
+                'wi-service-item-style',
+                'wi-service-item-overlay-style',
+            ]
+        );
     }
+
+    // Service Single
+    if (is_singular('services')) {
+        wp_enqueue_style(
+            'wi-single-service-style',
+            get_template_directory_uri() . '/css/pages/service.css',
+            [
+                'wi-layout-content-style',
+            ],
+            filemtime(get_template_directory() . '/css/pages/service.css')
+        );
+    }    
 
     // Contact
     if (is_page_template('templates/contact-template.php')) {
