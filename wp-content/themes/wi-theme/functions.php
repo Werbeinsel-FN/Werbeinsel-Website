@@ -126,20 +126,9 @@ function wi_theme_enqueue_styles() {
     }    
 
     // Contact
-    if (is_page_template('templates/contact-template.php')) {
-        $form_components = [
-            'wi-forms-style' => '/css/layout/form.css',
-            'wi-input-fields-style' => '/css/components/input-fields.css',
-            'wi-select-fields-style' => '/css/components/select-fields.css',
-            'wi-textarea-style' => '/css/components/textareas.css',
-            'wi-buttons-style' => '/css/components/buttons.css',
-        ];
-        foreach ($form_components as $handle => $path) {
-            wi_enqueue_page_style($handle, $path, ['wi-forms-style']);
-        }
-
-        wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css', array_keys($form_components));
-    }
+if (is_page_template('templates/contact-template.php')) {
+    wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css');
+}
 
     // Imprint
     if (is_page_template('templates/impressum-template.php')) {
@@ -198,15 +187,6 @@ function wi_theme_enqueue_js() {
         '1.0',
         true
     );
-    if (is_page('contact')) {
-        wp_enqueue_script(
-            'wi-theme-js',
-            get_template_directory_uri() . '/js/contact.js',
-            array(),
-            '1.0',
-            true
-        );
-    }
     if (is_page('datenschutz')) {
         wp_enqueue_script(
             'wi-theme-js',

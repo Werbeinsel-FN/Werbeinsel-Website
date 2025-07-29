@@ -114,7 +114,32 @@ function wi_forms_enqueue_styles() {
 
 }
 add_action('wp_enqueue_scripts', 'wi_forms_enqueue_styles');
+    // Contact
+add_action('wp_enqueue_scripts', function () {
+    if (is_page_template('templates/contact-template.php')) {
+        $form_components = [
+            'wi-forms-style'           => 'css/form.css',
+            'wi-input-fields-style'    => 'css/input-fields.css',
+            'wi-select-fields-style'   => 'css/select-fields.css',
+            'wi-textarea-style'        => 'css/textareas.css',
+            'wi-buttons-style'         => 'css/buttons.css',
+        ];
 
+        foreach ($form_components as $handle => $path) {
+            $file_path = plugin_dir_path(__FILE__) . $path;
+            $file_url  = plugins_url($path, __FILE__);
+
+            if (file_exists($file_path)) {
+                wp_enqueue_style(
+                    $handle,
+                    $file_url,
+                    ($handle === 'wi-forms-style') ? [] : ['wi-forms-style'],
+                    filemtime($file_path)
+                );
+            }
+        }
+    }
+});
 ///////////////////////////////////////////////////////////////////////
 //	Register JS
 ///////////////////////////////////////////////////////////////////////
@@ -152,7 +177,24 @@ function wi_ajax_get_form() {
 }
 add_action('wp_ajax_wi_get_form', 'wi_ajax_get_form');
 add_action('wp_ajax_nopriv_wi_get_form', 'tsg_ajax_wi_form');
+// contact
+add_action('wp_enqueue_scripts', function () {
+    if (is_page('contact')) {
+        $js_path = 'js/contact.js';
+        $full_path = plugin_dir_path(__FILE__) . $js_path;
+        $full_url  = plugins_url($js_path, __FILE__);
 
+        if (file_exists($full_path)) {
+            wp_enqueue_script(
+                'wi-contact-js',
+                $full_url,
+                [],
+                filemtime($full_path),
+                true // Load in footer
+            );
+        }
+    }
+});
 ///////////////////////////////////////////////////////////////////////
 //	Shortcodes
 ///////////////////////////////////////////////////////////////////////
