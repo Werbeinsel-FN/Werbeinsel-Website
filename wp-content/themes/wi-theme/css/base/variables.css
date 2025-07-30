@@ -32,7 +32,6 @@
     calc(var(--submit-font-size-min) + (11 * ((100vw - 430px) / (1570)))),
     var(--submit-font-size-max)
   );
-  --submit-font-weight: 700;
   --submit-padding: 1em 2.07em 1.05em;
   --submit-border-radius: 50px;
   --submit-box-shadow: inset 0 -0.275em 0.1px 0 var(--overlay-default-color);

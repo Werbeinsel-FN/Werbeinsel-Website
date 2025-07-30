@@ -1,36 +1,14 @@
 /**************************************/
 /* Submit Button Styles               */
 /**************************************/
-/* Mobile: center align */
-@media (max-width: 659px) {
-  .content-form .button-wrapper .send-button-wrapper {
-    width: 100%;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-}
-/* Tablet/small desktop: order adjustment */
-@media (max-width: 1023px) {
-  .content-form .button-wrapper .send-button-wrapper {
-    order: 90;
-  }
-}
+
 /* Main Button Styles using variables */
 .send-button-wrapper > button {
   position: relative;
   display: block;
   cursor: pointer;
   border: none;
-  padding: var(--submit-padding);
   border-radius: var(--submit-border-radius);
-  font-family: var(--main-font-family);
-  font-size: var(--submit-font-size-clamp);
-  font-weight: var(--submit-font-weight);
-  text-transform: var(--submit-text-transform);
-  letter-spacing: var(--main-font-letter-spacing-value);
-  color: var(--overlay-default-color);
   background-color: var(--main-color);
   box-shadow: var(--submit-box-shadow);
   transform: var(--main-font-text-transform-value);
@@ -68,4 +46,20 @@ input[type="submit"]:before {
   left: 0;
   width: 100%;
   height: 100%;
+}
+/* Mobile: center align */
+@media (max-width: 659px) {
+  .content-form .button-wrapper .send-button-wrapper {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+/* Tablet/small desktop: order adjustment */
+@media (max-width: 1023px) {
+  .content-form .button-wrapper .send-button-wrapper {
+    order: 90;
+  }
 }

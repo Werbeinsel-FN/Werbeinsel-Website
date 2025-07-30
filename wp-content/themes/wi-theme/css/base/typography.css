@@ -1,17 +1,46 @@
 /* =============================== */
+/* Default style                 */
+/* =============================== */
+body {
+  text-align: center;
+}
+a,
+.send-button-wrapper > button:hover {
+  text-decoration: none;
+}
+.wi-contact-main h5,
+h1,
+h2,
+.send-button-wrapper > button,
+.service-category-section h3,
+.wi-contact-main h3,
+.wi-checkbox-group > label,
+.service-overlay label,
+.wi-contact-main h5 {
+  text-transform: var(--main-font-text-transform-value);
+}
+/* =============================== */
 /* Main Headlines                  */
 /* =============================== */
 
-h1, h2, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   /* reset margin as h1 always has some default margin */
   margin: 0;
 }
 
-h1, h2 {
+h1,
+h2,
+.send-button-wrapper > button {
   font-family: var(--main-font-family);
-  text-transform: var(--main-font-text-transform-value);
   font-weight: var(--main-font-weight-value);
-  line-height: var(--main-font-line-height-value); 
+  line-height: var(--main-font-line-height-value);
   letter-spacing: var(--main-font-letter-spacing-value);
 }
 
@@ -22,14 +51,7 @@ h1 {
     calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
     271px
   );
-
-  text-align: center;
-
   color: black;
-}
-
-a {
-  text-decoration: none;
 }
 
 .wi-services-category-main h1 {
@@ -47,8 +69,8 @@ a {
 
 /* ===== Headline colors ===== */
 
-.service-category-section.is-dark h1, 
-.service-category-section h2 a, 
+.service-category-section.is-dark h1,
+.service-category-section h2 a,
 .service-category-section h3 a {
   color: white;
 }
@@ -92,20 +114,20 @@ a {
 /* =============================== */
 /* Services Subtitles              */
 /* =============================== */
-
+.service-category-section h2,
+.service-category-section h3 {
+  text-align: left;
+}
 .service-category-section h3 {
   font-family: var(--secondary-font-family);
-
-  /* ensure text is displayed normally if default headline have uppercase */
-  text-transform: none;
 }
 
 /* ----- if 2 services in a row ----- */
 .services-grid-row.two-columns-row h3 {
   /* flexible, responsive font size between 16px (1024px screen size) and 17px (2000px screen size) */
   font-size: clamp(
-    16px, 
-    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 
+    16px,
+    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))),
     17px
   );
 }
@@ -147,7 +169,6 @@ a {
   letter-spacing: -0.035em;
   font-family: var(--secondary-font-family);
   font-weight: normal;
-  text-align: center;
   line-height: 1.15;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
@@ -157,7 +178,6 @@ a {
 
 .wi-contact-main h3 {
   font-family: var(--main-font-family);
-  text-transform: uppercase;
   line-height: 1em;
   font-size: clamp(
     32px,
@@ -165,9 +185,6 @@ a {
     60px
   );
   font-weight: 800;
-
-  text-align: center;
-
   margin-bottom: 2rem;
 }
 
@@ -181,9 +198,7 @@ a {
   );
   margin: 0;
   padding: 0.8em 0;
-  text-align: center;
   font-family: var(--main-font-family);
-  text-transform: uppercase;
   letter-spacing: -0.02em;
   color: #fff;
   margin-bottom: 0.9em;
@@ -199,10 +214,8 @@ a {
     calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
     30px
   );
-  text-transform: uppercase;
   letter-spacing: -0.02em;
   font-weight: 800;
-  text-align: center;
   color: white;
 
   /* reset margin? */
@@ -227,6 +240,12 @@ a {
   justify-content: center;
 }
 
+/* Main Button Styles*/
+.send-button-wrapper > button {
+  padding: var(--submit-padding);
+  font-size: var(--submit-font-size-clamp);
+  color: var(--overlay-default-color);
+}
 .wi-checkbox-group > label.is-checked {
   background: #ffed00 !important;
   color: #000 !important;
@@ -246,7 +265,6 @@ a {
 
 .wi-contact-main h5 {
   font-family: var(--main-font-family);
-  text-transform: uppercase;
   font-size: clamp(
     20px,
     calc(20px + ((7) * ((100vw - 1024px) / (2000 - 1024)))),
@@ -264,7 +282,6 @@ a {
 #contact-form .budget-titel {
   margin-top: 1.7em;
   letter-spacing: -0.03em;
-  text-align: center;
 }
 
 @media (max-width: 659px) {
