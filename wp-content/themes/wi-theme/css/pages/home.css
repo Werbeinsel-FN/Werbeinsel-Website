@@ -3,10 +3,15 @@
 /**************************************/
 
 .home-main-container {
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
   width: 100%;
+}
+
+.home-services-container .service-category-section.is-dark > div {
+  max-width: var(--max-content-size);
+}
+
+.home-services-container .service-category-section h1 {
+  text-align: center;
 }
 
 /**************************************/
