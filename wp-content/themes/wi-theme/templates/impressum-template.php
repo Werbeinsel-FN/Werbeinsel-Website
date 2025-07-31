@@ -3,69 +3,58 @@
  * Template Name: Impressum
  * Description: Template for the Impressum page
  */
-
 get_header(); ?>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
+<main>
+        <section class="impressum-container">
+            <header class="impressum-header">
+                <h1>Impressum</h1>
+            </header>
 
-<main id="impressum-main" class="impressum-main">
-<header><h1>Impressum</h1></header>
-<section class="impressum-section">
-  <div class="company-info">
-    <h3>zwetschke GmbH &amp; Co. KG</h3>
-    <p>Proviantbachstr. 1 ½<br>
-    86153 Augsburg</p>
+            <article class="impressum-section-up">
+                <section class="impressum-section">
+                    <h2>Werbeinsel</h2>
+                    <p>Flughafen 76/3<br>88046 Friedrichshafen<br>Deutschland</p>
+                </section>
 
-    <p>Handelsregister: HRA 18731<br>
-    Registergericht: Amtsgericht Augsburg</p>
-  </div>
+                <section class="impressum-section">
+                    <h2>Kontakt</h2>
+                    <p>Telefon: <a href="tel:+4975417005744">+49 7541 700 57 44</a><br>
+                    E-Mail: <a href="mailto:hallo@werbeinsel.de">hallo@werbeinsel.de</a></p>
+                </section>
 
-  <div class="representation">
-    <h3>Vertreten durch:</h3>
-    <p>zwetschke Verwaltungs GmbH<br>
-    Proviantbachstr. 1 ½<br>
-    86153 Augsburg</p>
+                <section class="impressum-section">
+                    <h2>Inhaber</h2>
+                    <p>Kristijan Cajic</p>
+                </section>
 
-    <p>Diese vertreten durch:<br>
-    Hannes Zwetschke</p>
+                <section class="impressum-section">
+                    <h2>Umsatzsteuer-ID</h2>
+                    <p>gemäß § 27a UStG: DE322482204</p>
+                </section>
 
-    <p>Handelsregister: HRB 30246<br>
-    Registergericht: Amtsgericht Augsburg</p>
-  </div>
+                <section class="impressum-section">
+                    <h2>Verantwortlich für den Inhalt</h2>
+                    <p>nach § 18 Abs. 2 MStV: Kristijan Cajic</p>
+                </section>
+              </article>
+              <article class="impressum-section-down">
+                <section class="impressum-section">
+                    <h2>Haftung für Inhalte</h2>
+                    <p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.</p>
+                </section>
+                <section class="impressum-section">
+                    <h2>Haftung für Links</h2>
+                    <p>Unsere Webseite enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+                </section>
 
-  <div class="contact">
-    <h3>Kontakt</h3>
-    <p>Telefon: +49 821 899 822 11<br>
-    E-Mail: <a href="mailto:info@zwetschke.de">info@zwetschke.de</a></p>
-  </div>
+                <section class="impressum-section">
+                    <h2>Urheberrecht</h2>
+                    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung und Verbreitung bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+                </section>
+                <article>
+            
+        </section>
+    </main>
 
-  <div class="vat-id">
-    <h3>Umsatzsteuer-ID</h3>
-    <p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz: DE304374864</p>
-  </div>
-
-  <div class="editorial">
-    <h3>Redaktionell verantwortlich</h3>
-    <p>Hannes Zwetschke</p>
-  </div>
-
-  <div class="dispute-resolution">
-    <h3>Verbraucher­streit­beilegung / Universal­schlichtungs­stelle</h3>
-    <p>Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
-  </div>
-
-  <div class="data-protection">
-    <h3>Name und Anschrift des Datenschutzbeauftragten:</h3>
-    <p>SECUWING GmbH &amp; Co. KG | Datenschutz Agentur<br>
-    Maximilian Hartung<br>
-    Frauentorstraße 9<br>
-    86152 Augsburg<br>
-    Telefon: +49 821 90786458<br>
-    E-Mail: <a href="mailto:epost@datenschutz-agentur.de">epost@datenschutz-agentur.de</a></p>
-  </div>
-</section>
-</main>
-
-<?php get_footer();
+<?php get_footer(); ?>
