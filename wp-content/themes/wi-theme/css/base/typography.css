@@ -126,10 +126,10 @@ a {
     55px
   );
 
+  text-transform: none;
+  font-weight: normal;
   letter-spacing: -0.035em;
   font-family: var(--secondary-font-family);
-  font-weight: normal;
-  line-height: 1.15;
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
 }
