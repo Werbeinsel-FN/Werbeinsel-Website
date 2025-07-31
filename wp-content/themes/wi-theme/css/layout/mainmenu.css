@@ -5,10 +5,8 @@
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 600px;
   z-index: 1000;
-  text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: var(--main-spacing-size);
 }
 @media (max-width: 768px) {
   #mainmenu {
@@ -25,17 +23,14 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease-in-out;
-  background-color: #ffed00;
-  border-radius: 45px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  background-color: var(--main-color);
+  border-radius: var(--main-border-radius);
   position: fixed;
   bottom: 0;
   left: 50%;
   transform: translate(-50%, 100px);
   width: 100%;
-  max-width: 250px;
+  max-width: calc(var(--max-content-size) / 20 * 3);
   height: 78px;
   border: 3px solid black;
   transition: max-width 0.3s ease-in-out, transform 0.3s ease-in-out,
@@ -49,30 +44,25 @@
 }
 /* Wenn die Maus über das Menü fährt */
 .resp-menu:hover {
-  max-width: 300px; /* Menü wird breiter */
+  max-width: calc(var(--max-content-size) / 20 * 3.5); /* Menü wird breiter */
 }
 
 /* Menü wird angezeigt */
 .resp-menu.open {
   transform: translate(-50%, 0); /* Menü fährt bündig hoch */
-  max-width: 400px;
+  max-width: calc(var(--max-content-size) / 20 * 3.5);
   opacity: 1;
   height: auto;
-  padding: 5px;
-  max-height: 500px;
+  /* max-height: 500px; */
 }
 
 /* Menü-Items */
 .mod-menu {
-  list-style: none;
-  padding: 0;
-  margin-left: 0;
+  width: 100%;
+  padding: calc(var(--main-spacing-size) / 2);
   display: none;
   flex-direction: column;
-  gap: 5px;
   align-items: center;
-  margin-top: -7px;
-  margin-bottom: 5px;
 }
 
 .resp-menu.open .mod-menu {
@@ -120,7 +110,6 @@
   opacity: 0; /* Startet unsichtbar */
   animation-delay: 0.1s; /* Kleiner Delay für sanftes Auftauchen */
   margin-left: -1%;
-  margin-bottom: 20px;
 }
 
 .resp-menu:not(.open) .mod-menu li {
@@ -161,7 +150,7 @@
   align-items: center;
   list-style: none;
   padding: 0px;
-  border-radius: 45px;
+  border-radius: var(--main-border-radius);
   transition: background-color 0.3s ease-in-out, padding 0.3s ease-in-out; /* Sanfte Animation */
   text-align: center;
   width: 400px; /* Menü-Items werden breiter */
@@ -185,7 +174,7 @@
   display: block;
   transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   padding: 10px 20px; /* stalni padding, ne menja se */
-  border-radius: 45px; /* stalni border-radius */
+  border-radius: var(--main-border-radius); /* stalni border-radius */
 }
 .mod-menu li a:hover,
 .resp-menu a.active {
