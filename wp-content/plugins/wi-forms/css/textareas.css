@@ -1,10 +1,6 @@
 /**************************************/
 /* Textarea                           */
 /**************************************/
-#contact-form textarea {
-  margin-top: 1em;
-  padding-bottom: 50px;
-}
 .content-form .control-group textarea {
   height: 270px;
 }

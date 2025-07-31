@@ -1,9 +1,6 @@
 /* =============================== */
 /* Default style                 */
 /* =============================== */
-body {
-  text-align: center;
-}
 a,
 .send-button-wrapper > button:hover {
   text-decoration: none;
@@ -51,7 +48,6 @@ h1 {
     calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
     271px
   );
-  color: black;
 }
 
 .wi-services-category-main h1 {
@@ -154,6 +150,7 @@ h1 {
     calc(50px + ((36) * ((100vw - 430px) / (2000 - 430)))),
     85px
   );
+  text-align: center;
 }
 
 /* ===== Subtitle ===== */
@@ -165,7 +162,6 @@ h1 {
     55px
   );
 
-  margin-bottom: 1.05em;
   letter-spacing: -0.035em;
   font-family: var(--secondary-font-family);
   font-weight: normal;
@@ -185,23 +181,12 @@ h1 {
     60px
   );
   font-weight: 800;
-  margin-bottom: 2rem;
+  text-align: center;
 }
 
 /* ===== Select Fields ===== */
 
-.wi-checkbox-group > label {
-  font-size: clamp(
-    20px,
-    calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
-    30px
-  );
-  padding: var(--label-padding);
-  font-family: var(--main-font-family);
-  letter-spacing: var(--main-font-letter-spacing-value);
-  color: #fff;
-  margin-bottom: 0.9em;
-}
+
 
 /* ===== Service Titles ===== */
 
@@ -267,7 +252,6 @@ input[type="tel"] {
 /* Form textarea Styles*/
 textarea {
   padding: 2.5em 2.3em 1.5em 2.3em;
-  margin: 0 0 1em 0;
   font-family: monospace;
   font-size: 1.266em;
   font-weight: 500;
@@ -278,16 +262,7 @@ textarea {
   font-size: 0;
   line-height: 0;
 }
-.row .row {
-  margin: 0 -1.565rem;
-}
-.column,
-.columns {
-  padding: 0 1.565rem;
-}
-.content-form .control-group {
-  margin-bottom: 1.4em;
-}
+
 .wi-checkbox-group > label.is-checked {
   background: var(--main-color);
   color: var(--overlay-default-color);
@@ -297,10 +272,6 @@ textarea {
   .wi-checkbox-group > label {
     flex: 1 1 100%;
   }
-}
-
-.no-label > div:nth-child(1) {
-  margin-bottom: 3rem;
 }
 
 /* ===== Bottom Titles ===== */
@@ -332,10 +303,8 @@ textarea {
   }
 }
 
-.column:last-child:not(:first-child),
-.columns:last-child:not(:first-child) {
-  float: right;
-}
+
+
 
 @media screen and (min-width: 41.25em) {
   .medium-12 {

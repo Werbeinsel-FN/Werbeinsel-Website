@@ -6,13 +6,20 @@
   padding: var(--main-spacing-size);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--main-spacing-size);
-  background-color: var(--main-color);
+  max-width: var(--max-content-size);
 }
 
 .service-category-section.is-dark {
   background-color: black;
   color: #fff;
+  min-width: 100%;
+}
+
+.service-category-section.is-dark header,
+.service-category-section.is-dark .services-grid-desktop {
+  max-width: var(--max-content-size);
 }
 
 /*============================

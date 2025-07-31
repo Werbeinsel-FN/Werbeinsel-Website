@@ -1,36 +1,22 @@
+.wi-contact-main > div:not(:last-child){
+  max-width: var(--max-content-size);
+}
+
+main > div:last-of-type {
+  min-width: 100%;
+}
+
+.contact-head-wrapper {
+  padding: var(--main-spacing-size) 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(
+    var(--main-spacing-size) / 2
+  );  
+}
 /* =============================== */
 /* Outer Wrapper                   */
 /* =============================== */
-.wi-contact-main,
-.contact-form,
-.contact-bottom-wrapper,
-.contact-address-wrapper,
-.contact-map-outer-wrapper,
-.row {
-  max-width: 100%;
-}
-
-.contact-form,
-.contact-bottom-wrapper {
-  background-color: var(--main-color);
-}
-
-#contact-form {
-  color: #000;
-  padding: 5rem 0;
-  margin-top: 0;
-}
-
-.content-form {
-  margin-top: 2em;
-}
-
-.row,
-.row.big,
-.row.mid {
-  padding: 0 5%;
-  box-sizing: content-box;
-}
 
 @media (max-width: 659px) {
   .row,
@@ -38,11 +24,6 @@
   .row.mid {
     padding: 0 20px;
   }
-}
-
-.row {
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .row::after {
@@ -58,20 +39,6 @@
 /**************************************/
 /* Form                          */
 /**************************************/
-
-form {
-  display: block;
-  margin-top: 0em;
-  unicode-bidi: isolate;
-}
-
-.row .row {
-  padding-left: 0;
-  padding-right: 0;
-  max-width: none;
-  margin-left: -1.565rem;
-  margin-right: -1.565rem;
-}
 
 @media only screen and (max-width: 1024px) {
   .row .row {
@@ -101,17 +68,8 @@ form {
 
 @media screen and (min-width: 41.25em) {
   .medium-6 {
-    width: 50% !important;
+    width: calc(50% - var(--main-spacing-size) / 2);
   }
-}
-
-.column,
-.columns {
-  box-sizing: border-box;
-  width: 100%;
-  float: left;
-  padding-left: 1.565rem;
-  padding-right: 1.565rem;
 }
 
 @media only screen and (max-width: 1024px) {
@@ -120,10 +78,6 @@ form {
     padding-left: 0.7825rem;
     padding-right: 0.7825rem;
   }
-}
-
-.content-form .control-group {
-  margin-bottom: 1.4em;
 }
 
 .content-form .control-group .controls {
@@ -138,9 +92,6 @@ form {
 /* Form bottom area                   */
 /**************************************/
 
-.content-form .button-wrapper {
-  justify-content: space-between;
-}
 
 @media (max-width: 1023px) {
   .content-form .button-wrapper {
@@ -148,10 +99,7 @@ form {
   }
 }
 
-.flex-row {
-  display: flex;
-  flex-flow: row wrap;
-}
+
 
 /**************************************/
 /* Privacy                            */
@@ -165,9 +113,10 @@ form {
   );
   width: calc(100% - 360px);
   max-width: 945px;
-  padding-top: 10px;
   line-height: 1.5em;
   font-family: var(--secondary-font-family);
+
+  text-align: left;
 }
 .content-form .button-wrapper .privacy a {
   line-height: inherit;
@@ -217,7 +166,7 @@ form {
   position: relative;
   top: 0;
   left: 0;
-  width: fit-content;
+  width: calc(var(--max-content-size) / 3 * 2);
   margin: 0 auto;
   z-index: 2; /* liegt über der Karte */
   background-color: #fff;

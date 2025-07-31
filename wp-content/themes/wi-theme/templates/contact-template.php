@@ -23,16 +23,17 @@ get_header(); ?>
 
 
 <main id="wi-contact-main" class="wi-contact-main">
+    <div class="contact-head-wrapper">
+        <h1 class="contact-headline text-center">
+            Kontakt
+        </h1>
+        <h2 class="contact-subheadline text-center">
+            Einfach das Formular ausfüllen - wir freuen uns auf Sie!
+        </h2>
+    </div>
     <div id="contact-form" class="content-form contact-form">
 	
         <div class="content row loaded">
-        
-            <h1 class="contact-form headline text-center">
-                Kontakt
-            </h1>
-            <h2 class="contact-form subline text-center">
-                Einfach das Formular ausfüllen - wir freuen uns auf Sie!
-            </h2>
 
             <!-- <?php echo do_shortcode('[wi_form id="30"]'); ?>  -->
         <?php 

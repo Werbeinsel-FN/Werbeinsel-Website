@@ -2,22 +2,16 @@
 /* Select                             */
 /**************************************/
 
-.wi-checkbox-group,
-.wi-checkbox-group > label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 .wi-checkbox-group {
   display: flex;
   flex-flow: row wrap;
-  justify-content: center;
-  margin: 0.5em auto;
-  gap: var(--main-gap);
+  gap: var(--main-spacing-size);
 }
+
 .wi-checkbox-group > label {
   background: var(--overlay-default-color);
   flex: 1 1 calc(33.333% - 1rem);
+  flex: 1 1 calc(33.333% - var(--main-spacing-size));
   border-radius: var(--max-border-radius);
   border: var(--main-border);
   transition: background 0.4s, color 0.4s;
@@ -25,6 +19,7 @@
   display: inline-block;
   vertical-align: baseline;
   position: relative;
+  text-align: center;
 }
 .wi-checkbox-group br {
   display: none;

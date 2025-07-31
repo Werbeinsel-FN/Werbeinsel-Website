@@ -2,14 +2,57 @@
 /* Form                          */
 /**************************************/
 
-form {
-  display: block;
-  unicode-bidi: isolate;
+form > div:first-child > div:first-child > div:nth-of-type(odd):nth-of-type(-n+3) {
+  margin-right: calc(var(--main-spacing-size) / 2);
 }
-.row .row {
-  padding: var(--zero-padding);
-  max-width: none;
+
+form > div:first-child > div:first-child > div:nth-of-type(even):nth-of-type(-n+4) {
+  margin-left: calc(var(--main-spacing-size) / 2);
 }
+
+form > div:first-child > div:first-child > div:nth-of-type(-n+2) {
+  margin-bottom: var(--main-spacing-size);
+}
+
+form h3 {
+  margin: var(--main-spacing-size) 0;
+}
+
+form .services-select label:nth-of-type(-n+3) {
+  margin-bottom: calc(var(--main-spacing-size) / 2);
+}
+
+form .text-input {
+  margin-top: calc(var(--main-spacing-size) / 2 * 3);
+}
+
+.button-wrapper {
+  margin: calc(var(--main-spacing-size) / 2 * 3) 0 calc(var(--main-spacing-size) * 2);
+}
+
+
+
+
+
+.wi-checkbox-group > label {
+  font-size: clamp(
+    20px,
+    calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
+    30px
+  );
+  padding: var(--label-padding);
+  font-family: var(--main-font-family);
+  letter-spacing: var(--main-font-letter-spacing-value);
+  color: #fff;
+}
+
+
+
+
+
+
+
+
 .clearfix {
   display: block;
 }
@@ -38,14 +81,9 @@ form {
 .flex-row {
   display: flex;
   flex-flow: row wrap;
-}
-/**************************************/
-/* Form bottom area                   */
-/**************************************/
-
-.content-form .button-wrapper {
   justify-content: space-between;
 }
+
 
 @media only screen and (max-width: 1024px) {
   .row .row {
