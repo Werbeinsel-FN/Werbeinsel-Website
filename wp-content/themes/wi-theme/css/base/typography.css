@@ -248,8 +248,7 @@ h1 {
 /* Form Input-fields Styles*/
 input[type="text"],
 input[type="email"],
-input[type="tel"],
-textarea {
+input[type="tel"] {
   padding: var(--textarea-padding);
   line-height: var(--main-font-line-height-value);
   font-family: inherit;
@@ -257,12 +256,23 @@ textarea {
   font-weight: var(--main-font-weight-value);
   color: var(--overlay-default-color);
 }
+/* Form select-fields Styles*/
 .content-form .control-group .control-label {
   font-weight: var(--main-font-weight-value);
   font-size: var(--submit-font-size-min);
   letter-spacing: var(--main-font-letter-spacing-value);
   color: var(--overlay-default-color);
   font-family: var(--secondary-font-family);
+}
+/* Form textarea Styles*/
+textarea {
+  padding: 2.5em 2.3em 1.5em 2.3em;
+  margin: 0 0 1em 0;
+  font-family: monospace;
+  font-size: 1.266em;
+  font-weight: 500;
+  line-height: 1.25em;
+  color: fieldtext;
 }
 .wi-checkbox-group > label.is-checked {
   background: var(--main-color);
