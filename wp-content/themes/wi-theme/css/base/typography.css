@@ -1,78 +1,42 @@
 /* =============================== */
-/* Default style                 */
-/* =============================== */
-a,
-.send-button-wrapper > button:hover {
-  text-decoration: none;
-}
-.wi-contact-main h5,
-h1,
-h2,
-.send-button-wrapper > button,
-.service-category-section h3,
-.wi-contact-main h3,
-.wi-checkbox-group > label,
-.service-overlay label,
-.wi-contact-main h5 {
-  text-transform: var(--main-font-text-transform-value);
-}
-/* =============================== */
 /* Main Headlines                  */
 /* =============================== */
 
-h1,
-h2,
-h2,
-h3,
-h4,
-h5,
-h6,
-p {
-  /* reset margin as h1 always has some default margin */
+h1, h2, h2, h3, h4, h5, h6, p {
+  /* reset margin as those elements always has some default margin */
   margin: 0;
 }
 
-h1,
-h2,
-.send-button-wrapper > button {
+h1, h2, .send-button-wrapper > button {
   font-family: var(--main-font-family);
+  text-transform: var(--main-font-text-transform-value);
   font-weight: var(--main-font-weight-value);
   line-height: var(--main-font-line-height-value);
   letter-spacing: var(--main-font-letter-spacing-value);
 }
 
 h1 {
-  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp(
-    97px,
-    calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
-    271px
-  );
-}
-
-.wi-services-main h1 {
   text-align: center;
 }
 
-.wi-services-category-main h1 {
-  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp(
-    97px,
-    calc(97px + 78 * ((100vw - 660px) / (2000 - 660))),
-    175px
-  );
+a {
+  text-decoration: none;
+  color: black!important;
 }
 
 /* =============================== */
 /* Services                        */
 /* =============================== */
 
-/* ===== Headline colors ===== */
+.wi-services-main h1 {
+  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
+  font-size: clamp( 97px, calc(97px + 174 * ((100vw - 660px) / (2000 - 660))), 271px );
+}
 
 .service-category-section.is-dark h1,
 .service-category-section h2 a,
 .service-category-section h3 a {
-  color: white;
+  filter: var(--invert-color);
 }
 
 .service-category-section h2 a:hover,
@@ -80,10 +44,9 @@ h1 {
   color: var(--main-color);
 }
 
-/* ----- change font color in middle section ----- */
 .service-category-section.is-dark h2 a,
 .service-category-section.is-dark h3 a {
-  color: var(--overlay-default-color);
+  filter: none;
 }
 
 .service-category-section.is-dark h2 a:hover,
@@ -114,10 +77,7 @@ h1 {
 /* =============================== */
 /* Services Subtitles              */
 /* =============================== */
-.service-category-section h2,
-.service-category-section h3 {
-  text-align: left;
-}
+
 .service-category-section h3 {
   font-family: var(--secondary-font-family);
 }
