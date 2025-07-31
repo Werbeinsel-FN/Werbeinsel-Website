@@ -108,10 +108,11 @@ a {
 /* ===== Headline ===== */
 
 .wi-contact-main h1 {
-  font-size: clamp(
-    50px,
-    calc(50px + ((36) * ((100vw - 430px) / (2000 - 430)))),
-    85px
+  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
+  font-size: clamp( 
+    97px, 
+    calc(97px + 78 * ((100vw - 660px) / (2000 - 660))), 
+    175px 
   );
   text-align: center;
 }
