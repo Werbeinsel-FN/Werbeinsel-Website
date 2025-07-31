@@ -196,10 +196,9 @@ h1 {
     calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
     30px
   );
-  margin: 0;
-  padding: 0.8em 0;
+  padding: var(--label-padding);
   font-family: var(--main-font-family);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--main-font-letter-spacing-value);
   color: #fff;
   margin-bottom: 0.9em;
 }
