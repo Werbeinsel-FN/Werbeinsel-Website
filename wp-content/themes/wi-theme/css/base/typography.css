@@ -291,11 +291,6 @@ textarea {
 /* Mid-title                          */
 /**************************************/
 
-#contact-form .budget-titel {
-  margin-top: 1.7em;
-  letter-spacing: -0.03em;
-}
-
 @media (max-width: 659px) {
   #contact-form .budget-titel {
     margin: 1.5rem 0;
