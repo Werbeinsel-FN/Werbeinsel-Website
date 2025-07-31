@@ -8,7 +8,7 @@
   display: block;
   cursor: pointer;
   border: none;
-  border-radius: var(--submit-border-radius);
+  border-radius: var(--main-border-radius);
   background-color: var(--main-color);
   box-shadow: var(--submit-box-shadow);
   transform: var(--main-font-text-transform-value);

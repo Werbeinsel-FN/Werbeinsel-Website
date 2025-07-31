@@ -83,7 +83,7 @@ h1 {
 /* ----- change font color in middle section ----- */
 .service-category-section.is-dark h2 a,
 .service-category-section.is-dark h3 a {
-  color: black;
+  color: var(--overlay-default-color);
 }
 
 .service-category-section.is-dark h2 a:hover,
@@ -240,15 +240,34 @@ h1 {
   justify-content: center;
 }
 
-/* Main Button Styles*/
+/* Form Button Styles*/
 .send-button-wrapper > button {
   padding: var(--submit-padding);
   font-size: var(--submit-font-size-clamp);
   color: var(--overlay-default-color);
 }
+/* Form Input-fields Styles*/
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea {
+  padding: var(--textarea-padding);
+  line-height: var(--main-font-line-height-value);
+  font-family: inherit;
+  font-size: var(--main-font-size);
+  font-weight: var(--main-font-weight-value);
+  color: var(--overlay-default-color);
+}
+.content-form .control-group .control-label {
+  font-weight: var(--main-font-weight-value);
+  font-size: var(--submit-font-size-min);
+  letter-spacing: var(--main-font-letter-spacing-value);
+  color: var(--overlay-default-color);
+  font-family: var(--secondary-font-family);
+}
 .wi-checkbox-group > label.is-checked {
-  background: #ffed00 !important;
-  color: #000 !important;
+  background: var(--main-color);
+  color: var(--overlay-default-color);
 }
 
 @media screen and (max-width: 768px) {
