@@ -274,6 +274,20 @@ textarea {
   line-height: 1.25em;
   color: fieldtext;
 }
+.clearfix:after {
+  font-size: 0;
+  line-height: 0;
+}
+.row .row {
+  margin: 0 -1.565rem;
+}
+.column,
+.columns {
+  padding: 0 1.565rem;
+}
+.content-form .control-group {
+  margin-bottom: 1.4em;
+}
 .wi-checkbox-group > label.is-checked {
   background: var(--main-color);
   color: var(--overlay-default-color);

@@ -4,29 +4,15 @@
 
 form {
   display: block;
-  margin-top: 0em;
   unicode-bidi: isolate;
 }
-
 .row .row {
-  padding-left: 0;
-  padding-right: 0;
+  padding: var(--zero-padding);
   max-width: none;
-  margin-left: -1.565rem;
-  margin-right: -1.565rem;
 }
-
-@media only screen and (max-width: 1024px) {
-  .row .row {
-    margin-left: -0.7825rem;
-    margin-right: -0.7825rem;
-  }
-}
-
 .clearfix {
   display: block;
 }
-
 .clearfix:after {
   display: block;
   visibility: hidden;
@@ -34,45 +20,25 @@ form {
   width: 0;
   height: 0;
   content: " ";
-  font-size: 0;
-  line-height: 0;
 }
-
 .small-12 {
   width: 100%;
 }
-
-@media screen and (min-width: 41.25em) {
-  .medium-6 {
-    width: 50%;
-  }
-}
-
 .column,
 .columns {
-  box-sizing: border-box;
   width: 100%;
   float: left;
-  padding-left: 1.565rem;
-  padding-right: 1.565rem;
 }
 
-@media only screen and (max-width: 1024px) {
-  .column,
-  .columns {
-    padding-left: 0.7825rem;
-    padding-right: 0.7825rem;
-  }
-}
 
-.content-form .control-group {
-  margin-bottom: 1.4em;
-}
 
 .content-form .control-group .controls {
   position: relative;
 }
-
+.flex-row {
+  display: flex;
+  flex-flow: row wrap;
+}
 /**************************************/
 /* Form bottom area                   */
 /**************************************/
@@ -81,13 +47,17 @@ form {
   justify-content: space-between;
 }
 
-@media (max-width: 1023px) {
-  .content-form .button-wrapper {
-    align-items: center;
+@media only screen and (max-width: 1024px) {
+  .row .row {
+    margin: 0 -0.7825rem;
+  }
+  .column,
+  .columns {
+    padding: 0 0.7825rem;
   }
 }
-
-.flex-row {
-  display: flex;
-  flex-flow: row wrap;
+@media screen and (min-width: 41.25em) {
+  .medium-6 {
+    width: 50%;
+  }
 }
