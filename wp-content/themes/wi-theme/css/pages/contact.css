@@ -11,9 +11,7 @@ main > div:last-of-type {
 .wi-contact-main > .contact-head-wrapper {
   display: flex;
   flex-direction: column;
-  gap: calc(
-    var(--main-spacing-size) / 2
-  );  
+  gap: calc(var(--main-spacing-size));  
 }
 
 
