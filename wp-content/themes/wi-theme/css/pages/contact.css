@@ -1,19 +1,23 @@
 .wi-contact-main > div:not(:last-child){
   max-width: var(--max-content-size);
+  padding-left: var(--main-spacing-size);
+  padding-right: var(--main-spacing-size);
 }
 
 main > div:last-of-type {
   min-width: 100%;
 }
 
-.contact-head-wrapper {
-  padding: var(--main-spacing-size) 0;
+.wi-contact-main > .contact-head-wrapper {
+  padding-bottom: var(--main-spacing-size);
   display: flex;
   flex-direction: column;
   gap: calc(
     var(--main-spacing-size) / 2
   );  
 }
+
+
 /* =============================== */
 /* Outer Wrapper                   */
 /* =============================== */
