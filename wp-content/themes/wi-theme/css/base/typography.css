@@ -16,32 +16,31 @@ h1, h2, .send-button-wrapper > button {
 }
 
 h1 {
+  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
+  font-size: clamp( 97px, calc(97px + 174 * ((100vw - 660px) / (2000 - 660))), 271px );
+
   text-align: center;
 }
 
 a {
   text-decoration: none;
-  color: black!important;
 }
 
 /* =============================== */
 /* Services                        */
 /* =============================== */
 
-.wi-services-main h1 {
-  /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp( 97px, calc(97px + 174 * ((100vw - 660px) / (2000 - 660))), 271px );
-}
-
 .service-category-section.is-dark h1,
 .service-category-section h2 a,
 .service-category-section h3 a {
+  color: black;
   filter: var(--invert-color);
 }
 
 .service-category-section h2 a:hover,
 .service-category-section h3 a:hover {
   color: var(--main-color);
+  filter: none;
 }
 
 .service-category-section.is-dark h2 a,
@@ -147,10 +146,6 @@ a {
   font-weight: 800;
   text-align: center;
 }
-
-/* ===== Select Fields ===== */
-
-
 
 /* ===== Service Titles ===== */
 
