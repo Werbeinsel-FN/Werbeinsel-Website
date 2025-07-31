@@ -50,6 +50,10 @@ h1 {
   );
 }
 
+.wi-services-main h1 {
+  text-align: center;
+}
+
 .wi-services-category-main h1 {
   /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
   font-size: clamp(

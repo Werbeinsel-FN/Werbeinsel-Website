@@ -18,16 +18,12 @@ form h3 {
   margin: var(--main-spacing-size) 0;
 }
 
-form .services-select label:nth-of-type(-n+3) {
-  margin-bottom: calc(var(--main-spacing-size) / 2);
-}
-
 form .text-input {
   margin-top: calc(var(--main-spacing-size) / 2 * 3);
 }
 
 .button-wrapper {
-  margin: calc(var(--main-spacing-size) / 2 * 3) 0 calc(var(--main-spacing-size) * 2);
+  margin: var(--main-spacing-size) 0 calc(var(--main-spacing-size) * 2);
 }
 
 
