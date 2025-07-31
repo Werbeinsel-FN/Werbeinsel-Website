@@ -1,7 +1,7 @@
 .wi-contact-main > div:not(:last-child){
   max-width: var(--max-content-size);
-  padding-left: var(--main-spacing-size);
-  padding-right: var(--main-spacing-size);
+  padding: var(--main-spacing-size);
+  padding-bottom: 0;
 }
 
 main > div:last-of-type {
@@ -9,7 +9,6 @@ main > div:last-of-type {
 }
 
 .wi-contact-main > .contact-head-wrapper {
-  padding-bottom: var(--main-spacing-size);
   display: flex;
   flex-direction: column;
   gap: calc(
