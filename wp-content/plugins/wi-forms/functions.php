@@ -179,7 +179,7 @@ add_action('wp_ajax_wi_get_form', 'wi_ajax_get_form');
 add_action('wp_ajax_nopriv_wi_get_form', 'tsg_ajax_wi_form');
 // contact
 add_action('wp_enqueue_scripts', function () {
-    if (is_page('contact')) {
+    if (is_page('kontakt')) {
         $js_path = 'js/contact.js';
         $full_path = plugin_dir_path(__FILE__) . $js_path;
         $full_url  = plugins_url($js_path, __FILE__);
