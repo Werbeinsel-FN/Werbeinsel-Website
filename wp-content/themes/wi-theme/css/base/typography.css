@@ -2,16 +2,24 @@
 /* Main Headlines                  */
 /* =============================== */
 
-h1, h2, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   /* reset margin as h1 always has some default margin */
   margin: 0;
 }
 
-h1, h2 {
+h1,
+h2 {
   font-family: var(--main-font-family);
   text-transform: var(--main-font-text-transform-value);
   font-weight: var(--main-font-weight-value);
-  line-height: var(--main-font-line-height-value); 
+  line-height: var(--main-font-line-height-value);
   letter-spacing: var(--main-font-letter-spacing-value);
 }
 
@@ -47,8 +55,8 @@ a {
 
 /* ===== Headline colors ===== */
 
-.service-category-section.is-dark h1, 
-.service-category-section h2 a, 
+.service-category-section.is-dark h1,
+.service-category-section h2 a,
 .service-category-section h3 a {
   color: white;
 }
@@ -104,8 +112,8 @@ a {
 .services-grid-row.two-columns-row h3 {
   /* flexible, responsive font size between 16px (1024px screen size) and 17px (2000px screen size) */
   font-size: clamp(
-    16px, 
-    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 
+    16px,
+    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))),
     17px
   );
 }
@@ -231,7 +239,46 @@ a {
   background: #ffed00 !important;
   color: #000 !important;
 }
-
+/* Impressum */
+.impressum-container {
+  font-family: var(--main-font-family);
+  color: var(--overlay-default-color);
+  text-align: center;
+}
+.impressum-container,
+.impressum-section a {
+  color: var(--overlay-default-color);
+}
+.impressum-header h1 {
+  font-size: clamp(2rem, 8vw, 9.375rem);
+  padding: 10px 150px 100px 150px;
+}
+.impressum-container article {
+  padding: 0 150px 100px 150px;
+}
+.impressum-section {
+  font-family: var(--secondary-font-family);
+}
+.impressum-section h2,
+.impressum-section p {
+  font-size: clamp(1rem, 2.5vw, 2.5rem);
+  text-transform: none;
+}
+.impressum-section h2 {
+  font-weight: var(--main-font-weight-value);
+  padding-bottom: 0.5rem;
+}
+.impressum-section p {
+  padding-bottom: 3rem;
+  letter-spacing: 1px;
+}
+.impressum-section-down h2,
+.impressum-section-down p {
+  font-size: clamp(0.8rem, 1.6vw, 1.6rem);
+}
+.impressum-section-down p {
+  letter-spacing: 0;
+}
 @media screen and (max-width: 768px) {
   .wi-checkbox-group > label {
     flex: 1 1 100%;
