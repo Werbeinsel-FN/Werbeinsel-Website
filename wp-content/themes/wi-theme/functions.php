@@ -278,6 +278,25 @@ add_action('widgets_init', 'wi_theme_widgets_init');
 
 // === Referenzen ===
 
+function wi_theme_register_references_post_type() {
+    $labels = array(
+        'name' => __('Referenzen'),
+        'singular_name' => __('Referenz'),
+        // … weitere Labels
+    );
+    $args = array(
+        'labels' => $labels,
+        'public' => true,
+        'has_archive' => true,
+        'menu_icon' => 'dashicons-networking',
+        'rewrite' => array('slug' => 'referenzen'),
+        'supports' => array('title', 'editor', 'thumbnail', 'custom-fields'),
+        'show_in_rest' => true,
+    );
+    register_post_type('references', $args);
+}
+add_action('init', 'wi_theme_register_references_post_type');
+
 function wi_theme_render_references() {
     $rows = 3;
 
@@ -298,6 +317,15 @@ function wi_theme_render_references() {
     }
 
     $total_items = count($posts);
+
+    $min_items = 24;
+    if ($total_items < $min_items) {
+        $missing = $min_items - $total_items;
+        for ($i = 0; $i < $missing; $i++) {
+            $posts[] = null; // Platzhalter
+        }
+        $total_items = $min_items;
+    }    
 
     // Calculate dynamic item distribution
     $base = floor($total_items / $rows);
@@ -320,16 +348,20 @@ function wi_theme_render_references() {
         echo '<div class="content-list partner-list carousel" data-carousel-id="' . ($row + 1) . '">';
 
         for ($i = 0; $i < $row_lengths[$row]; $i++) {
-            if (!isset($posts[$index])) break;
 
             $post = $posts[$index];
-            $id = $post->ID;
 
             echo '<div class="carousel-cell">';
             echo '<figure class="customer-logo">';
 
-            if (has_post_thumbnail($id)) {
-                echo get_the_post_thumbnail($id, 'full');
+            if ($post && $post instanceof WP_Post) {
+                $id = $post->ID;
+
+                if (has_post_thumbnail($id)) {
+                    echo get_the_post_thumbnail($id, 'full');
+                } else {
+                    echo '<img src="' . esc_url($default_logo) . '" alt="Default Logo">';
+                }
             } else {
                 echo '<img src="' . esc_url($default_logo) . '" alt="Default Logo">';
             }
@@ -345,7 +377,6 @@ function wi_theme_render_references() {
 
     echo '</div></div></div></div>';
 }
-
 // add_action('init', 'wi_theme_render_references');
 
 // === Services ===

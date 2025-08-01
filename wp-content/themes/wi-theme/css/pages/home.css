@@ -1,3 +1,7 @@
+:where(figure) {
+  margin: 0;
+}
+
 /**************************************/
 /* General                            */
 /**************************************/
@@ -31,14 +35,6 @@
 /* Carousel Wrapper                   */
 /**************************************/
 
-.home-customer-logos .partner-list {
-  margin-top: 35px;
-}
-
-.home-customer-logos .partner-list-wrapper .partner-list:first-child {
-  margin-top: 0;
-}
-
 @media (max-width: 659px) {
   .home-customer-logos .partner-list {
     margin-top: 15px;
@@ -51,7 +47,7 @@
 
 .carousel-cell {
   box-sizing: border-box;
-  padding: 0 clamp(6px, 1.2vw, 16px); /* control horizontal spacing */
+  padding: calc(var(--main-spacing-size)/2);
 }
 
 /* Logo box */
