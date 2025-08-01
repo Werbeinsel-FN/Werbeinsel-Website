@@ -11,15 +11,11 @@
 
 /* Menu Wrapper */
 .resp-menu {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease-in-out;
   background-color: var(--main-color);
   border-radius: var(--main-border-radius);
   position: fixed;
   bottom: 0;
   left: 50%;
-  transform: translate(-50%, 100px);
   width: 100%;
   max-width: calc(var(--max-content-size) / 20 * 3);
   height: 78px;
@@ -30,8 +26,6 @@
 }
 
 .resp-menu.visible {
-  opacity: 1;
-  pointer-events: auto;
   transform: translate(-50%, 0);
 }
 
@@ -42,9 +36,7 @@
 
 /* Menü wird angezeigt */
 .resp-menu.open {
-  transform: translate(-50%, 0); /* Menü fährt bündig hoch */
   max-width: calc(var(--max-content-size) / 20 * 3.5);
-  opacity: 1;
   height: auto;
   /* max-height: 500px; */
 }
