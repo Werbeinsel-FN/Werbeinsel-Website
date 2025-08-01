@@ -61,6 +61,8 @@
   overflow: hidden;
   padding: 0;
   width: 100%;
+  aspect-ratio: 2 / 1;
+  max-width: calc(var(--main-spacing-size) * 10);
 }
 
 /**************************************/

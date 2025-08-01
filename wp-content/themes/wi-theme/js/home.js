@@ -47,7 +47,7 @@ function adjustCellWidth() {
     const newWidthPercent = 100 / itemsToShow;
 
     cells.forEach((cell) => {
-      cell.style.width = `${newWidthPercent}%`;
+      //cell.style.width = `${newWidthPercent}%`;
     });
   });
 }

@@ -299,6 +299,7 @@ add_action('init', 'wi_theme_register_references_post_type');
 
 function wi_theme_render_references() {
     $rows = 3;
+    $min_items = 24;
 
     $query = new WP_Query([
         'post_type' => 'references',
@@ -316,16 +317,16 @@ function wi_theme_render_references() {
         wp_reset_postdata();
     }
 
-    $total_items = count($posts);
+    $total_real = count($posts);
+    $total_items = max($total_real, $min_items);
 
-    $min_items = 24;
-    if ($total_items < $min_items) {
-        $missing = $min_items - $total_items;
-        for ($i = 0; $i < $missing; $i++) {
-            $posts[] = null; // Platzhalter
+    // Fill with Dummy Logo, if needed
+    if ($total_real < $min_items) {
+        $num_placeholders = $min_items - $total_real;
+        for ($i = 0; $i < $num_placeholders; $i++) {
+            $posts[] = null;
         }
-        $total_items = $min_items;
-    }    
+    }
 
     // Calculate dynamic item distribution
     $base = floor($total_items / $rows);
