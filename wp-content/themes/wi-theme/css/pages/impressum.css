@@ -1,7 +1,18 @@
 .impressum-container {
   background-color: var(--main-color);
+  max-width: var(--max-content-size);
+  margin: 0 auto;
 }
-
+.impressum-header h1,
+.impressum-container article {
+  padding: 10px 150px 100px 150px;
+}
+.impressum-section h2 {
+  padding-bottom: calc(var(--main-spacing-size) / 5);
+}
+.impressum-section p {
+  padding-bottom: calc(var(--main-spacing-size) * 1.7);
+}
 @media (max-width: 768px) {
   .impressum-header h1,
   .impressum-container article {
