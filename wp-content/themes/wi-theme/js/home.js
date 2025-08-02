@@ -37,20 +37,5 @@ document.addEventListener("DOMContentLoaded", function () {
   smoothAnimate();
 });
 
-function adjustCellWidth() {
-  document.querySelectorAll(".carousel").forEach((carousel) => {
-    const carouselWidth = carousel.offsetWidth;
-    const cells = carousel.querySelectorAll(".carousel-cell");
-
-    const itemsToShow = cells.length; 
-
-    const newWidthPercent = 100 / itemsToShow;
-
-    cells.forEach((cell) => {
-      //cell.style.width = `${newWidthPercent}%`;
-    });
-  });
-}
-
 window.addEventListener("resize", adjustCellWidth);
 document.addEventListener("DOMContentLoaded", adjustCellWidth);
