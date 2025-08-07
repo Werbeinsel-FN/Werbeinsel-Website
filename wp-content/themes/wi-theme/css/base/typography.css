@@ -201,12 +201,15 @@ a {
 input[type="text"],
 input[type="email"],
 input[type="tel"] {
-  padding: var(--textarea-padding);
+  padding: 0.5em 1.17em 0.2em;
   line-height: var(--main-font-line-height-value);
-  font-family: inherit;
+  font-family: var(--secondary-font-family);
   font-size: var(--main-font-size);
-  font-weight: var(--main-font-weight-value);
-  color: var(--overlay-default-color);
+  font-weight: 600;
+
+
+
+
 }
 /* Form select-fields Styles*/
 .content-form .control-group .control-label {
@@ -218,11 +221,16 @@ input[type="tel"] {
 }
 /* Form textarea Styles*/
 textarea {
-  padding: 2.5em 2.3em 1.5em 2.3em;
+  padding: 1.5em 2.3em 1.5em 2.3em;
+  padding: var(--main-spacing-size);
   font-family: monospace;
+  font-family: var(--secondary-font-family);
   font-size: 1.266em;
+  font-size: var(--main-font-size);
   font-weight: 500;
+  font-weight: 600;
   line-height: 1.25em;
+  line-height: var(--main-font-line-height-value);
   color: fieldtext;
 }
 .clearfix:after {
