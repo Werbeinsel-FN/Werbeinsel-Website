@@ -15,7 +15,8 @@
                 <span class="line"></span>
                 <span class="line"></span>
             </span>
-            <span class="label">Menü</span>
+            <span class="label">Menu</span>
         </button>
+        <button id="close-menu" aria-label="Close menu">&times;</button>
     </div>
 </nav>
