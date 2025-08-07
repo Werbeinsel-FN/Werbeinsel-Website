@@ -27,9 +27,6 @@ get_header(); ?>
         <h1 class="contact-headline text-center">
             Kontakt
         </h1>
-        <h2 class="contact-subheadline text-center">
-            Einfach das Formular ausfüllen - wir freuen uns auf Sie!
-        </h2>
     </div>
     <div id="contact-form" class="content-form contact-form">
 	

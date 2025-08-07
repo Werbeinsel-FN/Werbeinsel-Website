@@ -10,8 +10,8 @@
 
 .wi-checkbox-group > label {
   background: var(--overlay-default-color);
-  flex: 1 1 calc(33.333% - 1rem);
-  flex: 1 1 calc(33.333% - var(--main-spacing-size));
+  /* flex: 1 1 calc(33.333% - 1rem);
+  flex: 1 1 calc(33.333% - var(--main-spacing-size)); */
   border-radius: var(--max-border-radius);
   border: var(--main-border);
   transition: background 0.4s, color 0.4s;
@@ -20,6 +20,7 @@
   vertical-align: baseline;
   position: relative;
   text-align: center;
+  width: 100%;
 }
 .wi-checkbox-group br {
   display: none;

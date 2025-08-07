@@ -19,11 +19,11 @@ form h3 {
 }
 
 form .text-input {
-  margin-top: calc(var(--main-spacing-size) / 2 * 3);
+  margin-top: calc(var(--main-spacing-size) *2.5);
 }
 
 .button-wrapper {
-  margin: var(--main-spacing-size) 0 calc(var(--main-spacing-size) * 2);
+  margin: calc(var(--main-spacing-size) * 2) 0;
 }
 
 

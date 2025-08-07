@@ -37,6 +37,39 @@ main > div:last-of-type {
   display: table;
 }
 
+
+#contactForm > div:first-child {
+  padding-top: calc(var(--main-spacing-size));
+}
+
+
+
+.select-outer-wrapper {
+  display: flex;
+  flex-direction: row;
+
+  padding-top: var(--main-spacing-size);
+  gap: var(--main-spacing-size);
+}
+
+.select-outer-wrapper > div {
+  width: calc(100% / 3);
+  display: flex;
+  flex-direction: column;
+}
+
+.select-outer-wrapper > div > div:first-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  flex: 1;
+}
+
+.select-outer-wrapper > div > div:last-child > div > div > div {
+  gap: calc(var(--main-spacing-size) / 2);
+}
+
 /**************************************/
 /* Form                          */
 /**************************************/
@@ -239,11 +272,12 @@ main > div:last-of-type {
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
-  color: #696970;
+  color: black;
+  font-family: var(--secondary-font-family);
 }
 
 .data-content-wrapper a {
-  color: #696970;
+  color: black;
   text-decoration: underline;
 }
 

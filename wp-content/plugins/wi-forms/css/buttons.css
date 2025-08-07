@@ -10,17 +10,27 @@
   border: none;
   border-radius: var(--main-border-radius);
   background-color: var(--main-color);
-  box-shadow: var(--submit-box-shadow);
+  /* box-shadow: var(--submit-box-shadow); */
   transform: var(--main-font-text-transform-value);
   transition: var(--submit-transition);
+  border: var(--main-border);
+
+  padding: calc(var(--main-spacing-size) / 5 * 2) calc(var(--main-spacing-size) * 1.25);
 }
 /* Hover effect with variable override */
 .send-button-wrapper > button:hover {
-  box-shadow: var(--submit-box-shadow-hover);
+  /* box-shadow: var(--submit-box-shadow-hover);
   transform: var(--submit-transform-hover);
-  transition: var(--submit-transition-hover);
+  transition: var(--submit-transition-hover); */
   text-decoration: none;
+
+  color: white;
+  background-color: black;
+
+  transition: background-color 0.3s ease, color 0.3s ease;  
 }
+
+
 /**************************************/
 /* Input/Button Reset (cross-browser) */
 /**************************************/

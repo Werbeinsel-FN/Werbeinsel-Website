@@ -7,12 +7,19 @@ h1, h2, h2, h3, h4, h5, h6, p, ul {
   margin: 0;
 }
 
-h1, h2, .send-button-wrapper > button {
+h1, h2 {
   font-family: var(--main-font-family);
   text-transform: var(--main-font-text-transform-value);
   font-weight: var(--main-font-weight-value);
   line-height: var(--main-font-line-height-value);
   letter-spacing: var(--main-font-letter-spacing-value);
+}
+
+.send-button-wrapper > button {
+  font-family: var(--secondary-font-family);
+  text-transform: var(--main-font-text-transform-value);
+  font-weight: var(--main-font-weight-value);
+  line-height: var(--main-font-line-height-value);
 }
 
 h1 {
@@ -141,8 +148,8 @@ a {
   line-height: 1em;
   font-size: clamp(
     32px,
-    calc(32px + ((30) * ((100vw - 430px) / (2000 - 430)))),
-    60px
+    calc(32px + ((13) * ((100vw - 430px) / (2000 - 430)))),
+    45px
   );
   font-weight: 800;
   text-transform: var(--main-font-text-transform-value);
@@ -187,7 +194,6 @@ a {
 
 /* Form Button Styles*/
 .send-button-wrapper > button {
-  padding: var(--submit-padding);
   font-size: var(--submit-font-size-clamp);
   color: var(--overlay-default-color);
 }
@@ -259,7 +265,8 @@ textarea {
 /* ===== Bottom Titles ===== */
 
 .wi-contact-main h5 {
-  font-family: var(--main-font-family);
+  font-family: var(--secondary-font-family);
+  text-transform: uppercase;
   font-size: clamp(
     20px,
     calc(20px + ((7) * ((100vw - 1024px) / (2000 - 1024)))),
@@ -267,7 +274,7 @@ textarea {
   );
 
   /* some gap to below elements */
-  margin: 0 0 5%;
+  margin: 0 0 calc(var(--main-spacing-size) / 10);
 }
 
 /**************************************/
