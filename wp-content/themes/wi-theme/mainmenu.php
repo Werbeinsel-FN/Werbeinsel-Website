@@ -5,7 +5,7 @@
             wp_nav_menu(array(
                 'theme_location' => 'primary',
                 'container'      => false,
-                'items_wrap'     => '%3$s'
+                'menu_class'     => 'mod-menu',
             ));
             ?>
         </ul>
