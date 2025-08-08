@@ -74,8 +74,10 @@
 .mod-menu li a {
   display: block;
   transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  padding: 20px 30px;
+  /* padding: 20px 30px; */
   border-radius: var(--main-border-radius);
+  padding-block: 1rem;
+  padding-inline: 2rem;  
 }
 .mod-menu li a:hover,
 .resp-menu a.active {
