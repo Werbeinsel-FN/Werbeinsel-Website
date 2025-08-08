@@ -308,8 +308,10 @@ a {
   font-family: "Poppins", sans-serif;
   line-height: var(--main-font-line-height-value);
   font-size: 3rem;
-  font-weight: bold;
+  font-weight: var(--main-font-weight-value);
   text-align: center;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 #toggle-main-menu .label {
   text-transform: uppercase;
