@@ -318,6 +318,8 @@ a {
   font-weight: var(--main-font-weight-value);
   font-family: "Poppins", sans-serif;
   font-size: 1.125rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 #close-menu {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
