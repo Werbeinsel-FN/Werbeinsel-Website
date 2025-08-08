@@ -2,16 +2,24 @@
 /* Main Headlines                  */
 /* =============================== */
 
-h1, h2, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   /* reset margin as h1 always has some default margin */
   margin: 0;
 }
 
-h1, h2 {
+h1,
+h2 {
   font-family: var(--main-font-family);
   text-transform: var(--main-font-text-transform-value);
   font-weight: var(--main-font-weight-value);
-  line-height: var(--main-font-line-height-value); 
+  line-height: var(--main-font-line-height-value);
   letter-spacing: var(--main-font-letter-spacing-value);
 }
 
@@ -47,8 +55,8 @@ a {
 
 /* ===== Headline colors ===== */
 
-.service-category-section.is-dark h1, 
-.service-category-section h2 a, 
+.service-category-section.is-dark h1,
+.service-category-section h2 a,
 .service-category-section h3 a {
   color: white;
 }
@@ -104,8 +112,8 @@ a {
 .services-grid-row.two-columns-row h3 {
   /* flexible, responsive font size between 16px (1024px screen size) and 17px (2000px screen size) */
   font-size: clamp(
-    16px, 
-    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))), 
+    16px,
+    calc(16px + ((1) * ((100vw - 430px) / (2000 - 430)))),
     17px
   );
 }
@@ -291,4 +299,28 @@ a {
   overflow: hidden;
   width: 0;
   height: 0;
+}
+/* Menü */
+.mod-menu li a {
+  color: var(--overlay-default-color);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-family: "Poppins", sans-serif;
+  line-height: var(--main-font-line-height-value);
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+}
+#toggle-main-menu .label {
+  text-transform: uppercase;
+  font-weight: var(--main-font-weight-value);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.125rem;
+}
+#close-menu {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 2.6rem;
+  font-weight: 100;
+  color: var(--overlay-default-color);
+  line-height: var(--main-font-line-height-value);
 }
