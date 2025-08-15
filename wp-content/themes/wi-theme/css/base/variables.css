@@ -34,6 +34,7 @@
   --main-spacing-size: 5vh;
 
   --main-border: 8px solid #000;
+  --main-small-border: 2px solid #000;
   --main-border-radius: 40px;
   --max-border-radius: 100px;
   --overlay-height: 30%;
