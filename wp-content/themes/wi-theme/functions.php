@@ -126,13 +126,15 @@ function wi_theme_enqueue_styles() {
     }    
 
     // Contact
-if (is_page_template('templates/contact-template.php')) {
-    wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css');
-}
-//Jobs
-if (is_page_template('templates/jobs-template.php')) {
-    wi_enqueue_page_style('wi-jobs-style', '/css/pages/jobs.css');
-}
+    if (is_page_template('templates/contact-template.php')) {
+        wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css');
+    }
+    
+    //Jobs
+    if (is_page_template('templates/jobs-template.php')) {
+        wi_enqueue_page_style('wi-jobs-style', '/css/pages/jobs.css');
+    }
+
     // Imprint
     if (is_page_template('templates/impressum-template.php')) {
         wi_enqueue_page_style('wi-imprint-style', '/css/pages/impressum.css');
