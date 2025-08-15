@@ -126,9 +126,9 @@ function wi_theme_enqueue_styles() {
     }    
 
     // Contact
-if (is_page_template('templates/contact-template.php')) {
-    wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css');
-}
+    if (is_page_template('templates/contact-template.php')) {
+        wi_enqueue_page_style('wi-contact-style', '/css/pages/contact.css');
+    }
 
     // Imprint
     if (is_page_template('templates/impressum-template.php')) {
