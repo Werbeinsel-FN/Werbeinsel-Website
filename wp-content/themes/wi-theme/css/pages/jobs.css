@@ -1,0 +1,102 @@
+:root {
+  --brand-yellow: #ffed00;
+  --brand-black: #000;
+  --brand-white: #fff;
+  --border-radius: 40px;
+  --font-title: "Unbounded", sans-serif;
+  --font-body: "Poppins", sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: var(--brand-yellow);
+  font-family: var(--font-body);
+  color: var(--brand-black);
+}
+
+/* Intro Section */
+.intro-section {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.page-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: clamp(3rem, 12vw, 11rem);
+  margin: 0;
+  line-height: 1;
+  letter-spacing: 0.2rem;
+}
+
+.intro-text {
+  max-width: 800px;
+  margin: 1.75rem 7.1rem 0;
+  font-size: 1.094rem;
+  line-height: 1.6;
+}
+
+/* Job Listings */
+.job-listings {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 2.65rem auto 8rem;
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .job-listings {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.job-card {
+  background-color: var(--brand-white);
+  border: 2px solid var(--brand-black);
+  border-radius: var(--border-radius);
+  padding: 1.75rem;
+  max-width: 490px;
+}
+
+.job-card h2 {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.job-info {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+
+.job-info li {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+.job-card p {
+  font-size: 0.875rem;
+}
+/* Apply Button */
+.btn-apply {
+  display: inline-block;
+  margin-top: 1.5rem;
+  background-color: var(--brand-yellow);
+  color: var(--brand-black);
+  border: 2px solid var(--brand-black);
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-title);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.btn-apply:hover {
+  background-color: var(--brand-black);
+  color: var(--brand-white);
+}
