@@ -29,6 +29,8 @@
   /* Content */
   --max-content-size: 1780px;
 
+  --main-max-width: 1200px;
+
   --main-spacing-size: 5vh;
 
   --main-border: 8px solid #000;

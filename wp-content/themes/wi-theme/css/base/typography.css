@@ -32,7 +32,11 @@ h2 {
 
 h1 {
   /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp( 97px, calc(97px + 174 * ((100vw - 660px) / (2000 - 660))), 271px );
+  font-size: clamp(
+    97px,
+    calc(97px + 174 * ((100vw - 660px) / (2000 - 660))),
+    271px
+  );
 
   text-align: center;
 }
@@ -124,10 +128,10 @@ a {
 
 .wi-contact-main h1 {
   /* flexible, responsive font size between 97px (660px screen size) and 271px (2000px screen size) */
-  font-size: clamp( 
-    97px, 
-    calc(97px + 78 * ((100vw - 660px) / (2000 - 660))), 
-    175px 
+  font-size: clamp(
+    97px,
+    calc(97px + 78 * ((100vw - 660px) / (2000 - 660))),
+    175px
   );
   text-align: center;
 }
@@ -214,10 +218,6 @@ input[type="tel"] {
   font-family: var(--secondary-font-family);
   font-size: var(--main-font-size);
   font-weight: 600;
-
-
-
-
 }
 /* Form select-fields Styles*/
 .content-form .control-group .control-label {
@@ -303,9 +303,6 @@ textarea {
   }
 }
 
-
-
-
 @media screen and (min-width: 41.25em) {
   .medium-12 {
     width: 100%;
@@ -347,4 +344,34 @@ textarea {
   font-weight: 100;
   color: var(--overlay-default-color);
   line-height: var(--main-font-line-height-value);
+}
+/* Jobs*/
+.page-title {
+  font-size: clamp(3rem, 12vw, 11rem);
+  line-height: 1;
+  letter-spacing: 0.2rem;
+}
+.page-title,
+.job-card h2,
+.btn-apply {
+  font-family: var(--main-font-family);
+  font-weight: var(--main-font-weight-value);
+}
+.intro-text {
+  font-size: 1.094rem;
+  line-height: 1.6;
+}
+.job-card h2 {
+  font-size: 1.25rem;
+}
+.job-info li {
+  font-size: 0.875rem;
+}
+.job-card p {
+  font-size: 0.875rem;
+}
+.btn-apply {
+  color: var(--overlay-default-color);
+  text-decoration: none;
+  font-size: 0.875rem;
 }
