@@ -55,7 +55,7 @@ body {
 }
 
 .btn-apply:hover {
-  background-color: var(--brand-black);
+  background-color: var(--overlay-default-color);
   color: white;
 }
 @media (min-width: 768px) {
