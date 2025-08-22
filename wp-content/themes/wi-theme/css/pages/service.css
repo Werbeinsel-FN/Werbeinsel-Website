@@ -18,6 +18,10 @@
     width: 100%;
 }
 
+.service-main .e-con-inner {
+    max-width: inherit;
+}
+
 /* .quote-wrapper {
     align-self: flex-end;
     text-align: right;
