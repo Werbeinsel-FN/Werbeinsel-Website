@@ -14,9 +14,9 @@
     align-items: center;
 }
 
-.quote-wrapper {
+/* .quote-wrapper {
     align-self: flex-end;
-    text-align: right; /* optional, damit Text auch rechtsbündig ist */
+    text-align: right;
 
     font-family: var(--secondary-font-family);
 
@@ -29,4 +29,46 @@
 
 .service-content-wrapper .bottom-wrapper {
     flex-grow: 1;
+} */
+
+.elementor-image-carousel figure {
+    height: 500px;
+}
+
+.elementor-image-carousel figure img {
+    object-fit: cover;
+    display: block;           /* vermeidet Inline-Lücken */
+    width: 100%;
+    height: 100%;
+    object-position: 50% 65%;
+    border-radius: var(--main-border-radius);
+}
+
+.service-content-wrapper .elementor-heading-title {
+    text-align: center;
+    font-family: var(--heading-font)!important;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.elementor-element .swiper .elementor-swiper-button {
+    background-color: black;
+border-radius: 50%;
+  margin: 0 2.5%;
+}
+
+.elementor-element .swiper .elementor-swiper-button svg {
+    margin: 5px;
+}
+
+.elementor-element .swiper .elementor-swiper-button-prev svg {
+    padding-right: 4px;
+}
+
+.elementor-element .swiper .elementor-swiper-button-next svg {
+    padding-left: 4px;
+}
+
+.elementor-element .swiper .swiper-pagination-bullets.swiper-pagination-horizontal {
+    bottom: 20px!important;
 }

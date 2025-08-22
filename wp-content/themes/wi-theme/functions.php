@@ -185,35 +185,30 @@ function wi_theme_add_inline_styles() {
     $main_font = get_option('wi_theme_main_font', 'Arial');
 	$heading_font = get_option('wi_theme_heading_font', 'Arial');
 	$text_font_size = get_option('wi_theme_text_font_size', '25');
- 
-    echo "<style>
+
+    $inline_css = "
         :root {
             --menu-font: '{$menu_font}';
             --main-font: '{$main_font}';
-			--heading-font: '{$heading_font}';
-            --e-global-typography-text-font-family: '{$main_font}'; /* Elementor Schriftart setzen */
-			--e-global-typography-heading-font-family: '{$heading_font}';
-			--text-font-size: {$text_font_size}px;
-			--color-main-text: #fff;
-        }
-                              
-		body {
-            font-size: var(--text-font-size);
-        }
-    </style>";
+            --heading-font: '{$heading_font}';
+            --text-font-size: {$text_font_size}px;
+            --color-main-text: #fff;
 
-    /* Override elementor fonts */
-    echo "<style>
-        :root {
-            --e-global-typography-primary-font-family: '{$main_font}';
-            --e-global-typography-secondary-font-family: '{$main_font}';
-			--e-global-typography-heading-font-family: '{$heading_font}'; 
             --e-global-typography-text-font-family: '{$main_font}';
+            --e-global-typography-heading-font-family: '{$heading_font}';
+
+            --e-global-typography-primary-font-family: '{$main_font}';
+            --e-global-typography-secondary-font-family: '{$heading_font}';
             --e-global-typography-accent-font-family: '{$main_font}';
         }
-    </style>";
+
+        body {
+            font-size: var(--text-font-size);
+        }
+    ";
+    wp_add_inline_style('wi-style', $inline_css); // hängt es an dein Page-Stylesheet    
 }
-add_action('wp_head', 'wi_theme_add_inline_styles');
+add_action('wp_enqueue_scripts', 'wi_theme_add_inline_styles');
 
 /* chosen theme options color to font color */
 function wi_theme_custom_css() {
@@ -770,7 +765,6 @@ function wi_theme_group_services_into_rows($services) {
     return $rows;
 }
 
-
 // === Jobs ===
 
 function wi_theme_register_jobs_cpt() {
@@ -900,11 +894,15 @@ add_action('admin_notices', 'wi_theme_options_page_save_feedback');
 
 function wi_theme_settings_init() {
     // register options
-    register_setting('wi_theme_options_group', 'wi_theme_logo_light');
-    register_setting('wi_theme_options_group', 'wi_theme_logo_dark');
+    register_setting('wi_theme_options_group', 'wi_theme_logo');
     register_setting('wi_theme_options_group', 'wi_theme_background_color');
     register_setting('wi_theme_options_group', 'wi_theme_main_font_color');
-	register_setting('wi_theme_options_group', 'wi_theme_menu_font');
+    register_setting('wi_theme_options_group', 'wi_theme_headline_font_family');
+    register_setting('wi_theme_options_group', 'wi_theme_headline_font_size');    
+    register_setting('wi_theme_options_group', 'wi_theme_text_font_family');
+    register_setting('wi_theme_options_group', 'wi_theme_text_font_size');
+    register_setting('wi_theme_options_group', 'wi_theme_hover_color');
+    register_setting('wi_theme_options_group', 'wi_theme_menu_font_family');    
 
     add_settings_section(
         'wi_theme_settings_section',
@@ -914,17 +912,9 @@ function wi_theme_settings_init() {
     );
 
     add_settings_field(
-        'wi_theme_logo_light',
-        __('Light Logo:', 'wi-theme'),
-        'wi_theme_logo_light_render',
-        'wi-theme-options',
-        'wi_theme_settings_section'
-    );
-
-    add_settings_field(
-        'wi_theme_logo_dark',
-        __('Dark Logo:', 'wi-theme'),
-        'wi_theme_logo_dark_render',
+        'wi_theme_logo',
+        __('Logo:', 'wi-theme'),
+        'wi_theme_logo_render',
         'wi-theme-options',
         'wi_theme_settings_section'
     );
@@ -939,16 +929,56 @@ function wi_theme_settings_init() {
     
     add_settings_field(
         'wi_theme_main_font_color',
-        __('Haupt-Schriftfarbe:', 'wi-theme'),
+        __('Schriftfarbe:', 'wi-theme'),
         'wi_theme_main_font_color_render',
         'wi-theme-options',
         'wi_theme_settings_section'
     );
+
+    add_settings_field(
+        'wi_theme_headline_font_family',
+        __('Schriftart der Überschriften:', 'wi-theme'),
+        'wi_theme_headline_font_family_render',
+        'wi-theme-options',
+        'wi_theme_settings_section'
+    );
+
+    add_settings_field(
+        'wi_theme_headline_font_size',
+        __('Schriftgröße der Überschriften (Desktop):', 'wi-theme'),
+		'wi_theme_headline_font_size_render',
+		'wi-theme-options',
+		'wi_theme_settings_section'
+    ); 
+
+    add_settings_field(
+        'wi_theme_text_font_family',
+        __('Text-Schriftart:', 'wi-theme'),
+        'wi_theme_text_font_family_render',
+        'wi-theme-options',
+        'wi_theme_settings_section'
+	);    
+
+     add_settings_field(
+        'wi_theme_text_font_size',
+        __('Text Schriftgröße (Desktop):', 'wi-theme'),
+		'wi_theme_text_font_size_render',
+		'wi-theme-options',
+		'wi_theme_settings_section'
+    );   
+
+    add_settings_field(
+        'wi_theme_hover_color',
+        __('Hover-Farbe:', 'wi-theme'),
+        'wi_theme_hover_color_render',
+        'wi-theme-options',
+        'wi_theme_settings_section'
+    );     
 	
 	add_settings_field(
-        'wi_theme_menu_font',
+        'wi_theme_menu_font_family',
         __('Menü-Schriftart:', 'wi-theme'),
-        'wi_theme_menu_font_render',
+        'wi_theme_menu_font_family_render',
         'wi-theme-options',
         'wi_theme_settings_section'
     );
@@ -966,33 +996,18 @@ function wi_theme_option_example_render() {
     <?php
 }
 
-function wi_theme_logo_light_render() {
-    $logo_url = get_option('wi_theme_logo_light', '');
+function wi_theme_logo_render() {
+    $logo_url = get_option('wi_theme_logo', '');
     ?>
-    <div id="wi_theme_logo_light_preview" style="margin-bottom: 10px;">
+    <div id="wi_theme_logo_preview" style="margin-bottom: 10px;">
         <?php if ($logo_url): ?>
-            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php _e('Light-Logo Vorschau', 'wi-theme'); ?>" style="max-width: 200px;">
+            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php _e('Logo Vorschau', 'wi-theme'); ?>" style="max-width: 200px;">
         <?php else: ?>
-            <p><?php _e('Kein Light-Logo ausgewählt.', 'wi-theme'); ?></p>
+            <p><?php _e('Kein Logo ausgewählt.', 'wi-theme'); ?></p>
         <?php endif; ?>
     </div>
-    <button type="button" class="button" id="wi_theme_logo_light_button"><?php _e('Light-Logo auswählen', 'wi-theme'); ?></button>
-    <input type="hidden" name="wi_theme_logo_light" id="wi_theme_logo_light" value="<?php echo esc_attr($logo_url); ?>" />
-    <?php
-}
-
-function wi_theme_logo_dark_render() {
-    $logo_url = get_option('wi_theme_logo_dark', '');
-    ?>
-    <div id="wi_theme_logo_dark_preview" style="margin-bottom: 10px;">
-        <?php if ($logo_url): ?>
-            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php _e('Dark-Logo Vorschau', 'wi-theme'); ?>" style="max-width: 200px;">
-        <?php else: ?>
-            <p><?php _e('Kein Dark-Logo ausgewählt.', 'wi-theme'); ?></p>
-        <?php endif; ?>
-    </div>
-    <button type="button" class="button" id="wi_theme_logo_dark_button"><?php _e('Dark-Logo auswählen', 'wi-theme'); ?></button>
-    <input type="hidden" name="wi_theme_logo_dark" id="wi_theme_logo_dark" value="<?php echo esc_attr($logo_url); ?>" />
+    <button type="button" class="button" id="wi_theme_logo_button"><?php _e('Logo auswählen', 'wi-theme'); ?></button>
+    <input type="hidden" name="wi_theme_logo" id="wi_theme_logo" value="<?php echo esc_attr($logo_url); ?>" />
     <?php
 }
 
@@ -1018,7 +1033,118 @@ function wi_theme_main_font_color_render() {
     <?php
 }
 
-function wi_theme_menu_font_render() {
+function wi_theme_headline_font_family_render() {
+    $selected_font = get_option('wi_theme_headline_font_family', 'Arial'); // Standard: Arial
+    ?>
+    <select name="wi_theme_headline_font_family" id="wi_theme_headline_font_family">
+        <option value="Arial" <?php selected($selected_font, 'Arial'); ?>>Arial</option>
+    </select>
+ 
+    <script>
+        (function($) {
+            $(document).ready(function () {
+                $.get("https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyATmmcX979w_HSsbnbLuMJd7EX2ehOozMw", function (data) {
+                    var select = $("#wi_theme_headline_font_family");
+                    data.items.forEach(function (font) {
+                        var selected = "<?php echo esc_js($selected_font); ?>" === font.family ? "selected" : "";
+                        select.append('<option value="' + font.family + '" ' + selected + '>' + font.family + '</option>');
+                    });
+                });
+            });
+        })(jQuery);
+    </script>
+    <?php
+}
+
+function wi_theme_headline_font_size_render() {
+    $font_size = get_option('wi_theme_headline_font_size', '75'); // Standard: 75px
+    ?>
+    <div class="slider-container">
+        <input type="range" id="fontSizeSlider" name="wi_theme_headline_font_size" min="10" max="100" value="<?php echo esc_attr($font_size); ?>">
+        <input type="number" id="fontSizeInput" value="<?php echo esc_attr($font_size); ?>" min="10" max="100">
+        <span>px</span>
+    </div>
+    
+    <style>
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+        }
+        
+        input[type="number"] {
+            width: 75px;
+            text-align: center;
+        }
+    </style>
+ 
+    <?php
+}
+
+function wi_theme_text_font_family_render() {
+    $selected_font = get_option('wi_theme_text_font_family', 'Arial'); // Standard: Arial
+    ?>
+    <select name="wi_theme_text_font_family" id="wi_theme_text_font_family">
+        <option value="Arial" <?php selected($selected_font, 'Arial'); ?>>Arial</option>
+    </select>
+ 
+    <script>
+        (function($) {
+            $(document).ready(function () {
+                $.get("https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyATmmcX979w_HSsbnbLuMJd7EX2ehOozMw", function (data) {
+                    var select = $("#wi_theme_text_font_family");
+                    data.items.forEach(function (font) {
+                        var selected = "<?php echo esc_js($selected_font); ?>" === font.family ? "selected" : "";
+                        select.append('<option value="' + font.family + '" ' + selected + '>' + font.family + '</option>');
+                    });
+                });
+            });
+        })(jQuery);
+    </script>
+    <?php
+}
+ 
+function wi_theme_text_font_size_render() {
+    $font_size = get_option('wi_theme_text_font_size', '25'); // Standard: 25px
+    ?>
+    <div class="slider-container">
+        <input type="range" id="fontSizeSlider" name="wi_theme_text_font_size" min="10" max="100" value="<?php echo esc_attr($font_size); ?>">
+        <input type="number" id="fontSizeInput" value="<?php echo esc_attr($font_size); ?>" min="10" max="100">
+        <span>px</span>
+    </div>
+    
+    <style>
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+        }
+        
+        input[type="number"] {
+            width: 75px;
+            text-align: center;
+        }
+    </style>
+ 
+    <?php
+}
+
+function wi_theme_hover_color_render() {
+    $font_color = get_option('wi_theme_hover_color', '#333333'); // Standardfarbe festlegen
+    ?>
+    <input type="text" name="wi_theme_hover_color" value="<?php echo esc_attr($font_color); ?>" class="my-color-field" data-default-color="#333333" />
+    <?php
+}
+
+function wi_theme_menu_font_family_render() {
     $selected_font = get_option('wi_theme_menu_font', 'Arial'); // default: Arial
     $fonts = array('Arial', 'Verdana', 'Times New Roman', 'Georgia', 'Courier New', 'Roboto', 'Open Sans'); // list of availiable font families
     ?>
