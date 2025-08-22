@@ -14,15 +14,6 @@ if (have_posts()) :
     </header>
 
     <div class="service-content-wrapper">
-      <div class="service-thumbnail-wrapper">
-        <?php
-        if (has_post_thumbnail()) {
-          $full_image_url = get_the_post_thumbnail_url(get_the_ID(), 'full');
-          echo '<img src="' . esc_url($full_image_url) . '" alt="">';
-        }
-        ?>
-      </div>
-
       <div class="service-editor-content">
         <?php the_content(); // <-- Call Elementor Content ?>
       </div>
