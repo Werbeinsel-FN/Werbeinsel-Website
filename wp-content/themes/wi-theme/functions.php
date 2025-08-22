@@ -180,6 +180,60 @@ function wi_enqueue_service_styles() {
     wi_enqueue_page_style('wi-services-style', '/css/pages/services.css', array_keys($service_styles));
 }
 
+function wi_theme_add_inline_styles() {
+    $menu_font = get_option('wi_theme_menu_font', 'Arial');
+    $main_font = get_option('wi_theme_main_font', 'Arial');
+	$heading_font = get_option('wi_theme_heading_font', 'Arial');
+	$text_font_size = get_option('wi_theme_text_font_size', '25');
+ 
+    echo "<style>
+        :root {
+            --menu-font: '{$menu_font}';
+            --main-font: '{$main_font}';
+			--heading-font: '{$heading_font}';
+            --e-global-typography-text-font-family: '{$main_font}'; /* Elementor Schriftart setzen */
+			--e-global-typography-heading-font-family: '{$heading_font}';
+			--text-font-size: {$text_font_size}px;
+			--color-main-text: #fff;
+        }
+                              
+		body {
+            font-size: var(--text-font-size);
+        }
+    </style>";
+
+    /* Override elementor fonts */
+    echo "<style>
+        :root {
+            --e-global-typography-primary-font-family: '{$main_font}';
+            --e-global-typography-secondary-font-family: '{$main_font}';
+			--e-global-typography-heading-font-family: '{$heading_font}'; 
+            --e-global-typography-text-font-family: '{$main_font}';
+            --e-global-typography-accent-font-family: '{$main_font}';
+        }
+    </style>";
+}
+add_action('wp_head', 'wi_theme_add_inline_styles');
+
+/* chosen theme options color to font color */
+function wi_theme_custom_css() {
+    $main_font_color = esc_attr(get_option('wi_theme_main_font_color', '#333333'));
+    ?>
+    <style>
+        body {
+            color: <?php echo $main_font_color; ?>;
+        }
+        a {
+            color: <?php echo $main_font_color; ?>;
+        }
+        a:hover {
+            color: <?php echo adjust_color_brightness($main_font_color, -30); ?>;
+        }
+    </style>
+    <?php
+}
+add_action('wp_head', 'wi_theme_custom_css');
+
 /* ========================================
     Register JS
 ======================================== */
@@ -237,8 +291,22 @@ function wi_theme_enqueue_roboto_font() {
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
 
 /* ========================================
+    Register Mediathek Upload Types
+======================================== */
+
+//Allow (.js, ).svg & .ico upload to Mediathek
+function wi_theme_allowed_upload_types($mimes) {
+    //$mimes['js'] = 'application/javascript';
+    $mimes['svg'] = 'image/svg+xml';
+ 	$mimes['ico'] = 'image/vnd.microsoft.icon';		
+    return $mimes;
+}
+add_filter('upload_mimes', 'wi_theme_allowed_upload_types');
+
+/* ========================================
     Register Shortcodes
 ======================================== */
+
 // [primary_menu]
 function wi_theme_register_primary_menu_shortcode() {
     ob_start();
@@ -434,81 +502,6 @@ function wi_theme_register_services_post_type() {
     //flush_rewrite_rules();
 }
 add_action('init', 'wi_theme_register_services_post_type');
-
-// Register Custom Post Type "Jobs"
-function wi_register_jobs_cpt() {
-    $labels = array(
-        'name'                  => _x('Jobs', 'Post Type General Name', 'wi-theme'),
-        'singular_name'         => _x('Job', 'Post Type Singular Name', 'wi-theme'),
-        'menu_name'             => __('Jobs', 'wi-theme'),
-        'name_admin_bar'        => __('Job', 'wi-theme'),
-        'add_new_item'          => __('Add New Job', 'wi-theme'),
-        'edit_item'             => __('Edit Job', 'wi-theme'),
-        'new_item'              => __('New Job', 'wi-theme'),
-        'view_item'             => __('View Job', 'wi-theme'),
-        'all_items'             => __('All Jobs', 'wi-theme'),
-    );
-
-    $args = array(
-        'label'                 => __('Job', 'wi-theme'),
-        'labels'                => $labels,
-        'supports'              => array('title', 'editor', 'custom-fields'),
-        'public'                => true,
-        'has_archive'           => true,
-        'show_in_rest'          => true,
-        'menu_position'         => 5,
-        'menu_icon'             => 'dashicons-businessperson',
-        'rewrite'               => array('slug' => 'jobs'),
-    );
-
-    register_post_type('job', $args);
-}
-add_action('init', 'wi_register_jobs_cpt');
-
-function wi_add_job_meta_boxes() {
-    add_meta_box(
-        'job_details',
-        'Job Details',
-        'wi_job_meta_box_callback',
-        'job',
-        'normal',
-        'high'
-    );
-}
-add_action('add_meta_boxes', 'wi_add_job_meta_boxes');
-
-function wi_job_meta_box_callback($post) {
-    $standort = get_post_meta($post->ID, '_job_standort', true);
-    $arbeitszeit = get_post_meta($post->ID, '_job_arbeitszeit', true);
-    $erfahrung = get_post_meta($post->ID, '_job_erfahrung', true);
-    ?>
-    <p>
-        <label>Standort:</label><br>
-        <input type="text" name="job_standort" value="<?php echo esc_attr($standort); ?>" style="width:100%;">
-    </p>
-    <p>
-        <label>Arbeitszeit:</label><br>
-        <input type="text" name="job_arbeitszeit" value="<?php echo esc_attr($arbeitszeit); ?>" style="width:100%;">
-    </p>
-    <p>
-        <label>Erfahrung:</label><br>
-        <input type="text" name="job_erfahrung" value="<?php echo esc_attr($erfahrung); ?>" style="width:100%;">
-    </p>
-    <?php
-}
-
-function wi_save_job_meta($post_id) {
-    if (array_key_exists('job_standort', $_POST)) {
-        update_post_meta($post_id, '_job_standort', sanitize_text_field($_POST['job_standort']));
-    }
-    if (array_key_exists('job_arbeitszeit', $_POST)) {
-        update_post_meta($post_id, '_job_arbeitszeit', sanitize_text_field($_POST['job_arbeitszeit']));
-    }
-    if (array_key_exists('job_erfahrung', $_POST)) {
-        update_post_meta($post_id, '_job_erfahrung', sanitize_text_field($_POST['job_erfahrung']));
-    }
-}
-add_action('save_post', 'wi_save_job_meta');
 
 function wi_theme_services_post_type_link($post_link, $post) {
     if ($post->post_type === 'services') {
@@ -777,6 +770,83 @@ function wi_theme_group_services_into_rows($services) {
     return $rows;
 }
 
+
+// === Jobs ===
+
+function wi_theme_register_jobs_cpt() {
+    $labels = array(
+        'name'                  => _x('Jobs', 'Post Type General Name', 'wi-theme'),
+        'singular_name'         => _x('Job', 'Post Type Singular Name', 'wi-theme'),
+        'menu_name'             => __('Jobs', 'wi-theme'),
+        'name_admin_bar'        => __('Job', 'wi-theme'),
+        'add_new_item'          => __('Add New Job', 'wi-theme'),
+        'edit_item'             => __('Edit Job', 'wi-theme'),
+        'new_item'              => __('New Job', 'wi-theme'),
+        'view_item'             => __('View Job', 'wi-theme'),
+        'all_items'             => __('All Jobs', 'wi-theme'),
+    );
+
+    $args = array(
+        'label'                 => __('Job', 'wi-theme'),
+        'labels'                => $labels,
+        'supports'              => array('title', 'editor', 'custom-fields'),
+        'public'                => true,
+        'has_archive'           => true,
+        'show_in_rest'          => true,
+        'menu_position'         => 5,
+        'menu_icon'             => 'dashicons-businessperson',
+        'rewrite'               => array('slug' => 'jobs'),
+    );
+
+    register_post_type('job', $args);
+}
+add_action('init', 'wi_theme_register_jobs_cpt');
+
+function wi_theme_add_job_meta_boxes() {
+    add_meta_box(
+        'job_details',
+        'Job Details',
+        'wi_job_meta_box_callback',
+        'job',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'wi_theme_add_job_meta_boxes');
+
+function wi_theme_job_meta_box_callback($post) {
+    $standort = get_post_meta($post->ID, '_job_standort', true);
+    $arbeitszeit = get_post_meta($post->ID, '_job_arbeitszeit', true);
+    $erfahrung = get_post_meta($post->ID, '_job_erfahrung', true);
+    ?>
+    <p>
+        <label>Standort:</label><br>
+        <input type="text" name="job_standort" value="<?php echo esc_attr($standort); ?>" style="width:100%;">
+    </p>
+    <p>
+        <label>Arbeitszeit:</label><br>
+        <input type="text" name="job_arbeitszeit" value="<?php echo esc_attr($arbeitszeit); ?>" style="width:100%;">
+    </p>
+    <p>
+        <label>Erfahrung:</label><br>
+        <input type="text" name="job_erfahrung" value="<?php echo esc_attr($erfahrung); ?>" style="width:100%;">
+    </p>
+    <?php
+}
+
+function wi_theme_save_job_meta($post_id) {
+    if (array_key_exists('job_standort', $_POST)) {
+        update_post_meta($post_id, '_job_standort', sanitize_text_field($_POST['job_standort']));
+    }
+    if (array_key_exists('job_arbeitszeit', $_POST)) {
+        update_post_meta($post_id, '_job_arbeitszeit', sanitize_text_field($_POST['job_arbeitszeit']));
+    }
+    if (array_key_exists('job_erfahrung', $_POST)) {
+        update_post_meta($post_id, '_job_erfahrung', sanitize_text_field($_POST['job_erfahrung']));
+    }
+}
+add_action('save_post', 'wi_theme_save_job_meta');
+
 /* ========================================
     Theme Options
 ======================================== */
@@ -962,49 +1032,6 @@ function wi_theme_menu_font_render() {
     <?php
 }
 
-function wi_theme_add_inline_styles() {
-    $menu_font = get_option('wi_theme_menu_font', 'Arial');
-    $main_font = get_option('wi_theme_main_font', 'Arial');
-	$heading_font = get_option('wi_theme_heading_font', 'Arial');
-	$text_font_size = get_option('wi_theme_text_font_size', '25');
- 
-    echo "<style>
-        :root {
-            --menu-font: '{$menu_font}';
-            --main-font: '{$main_font}';
-			--heading-font: '{$heading_font}';
-            --e-global-typography-text-font-family: '{$main_font}'; /* Elementor Schriftart setzen */
-			--e-global-typography-heading-font-family: '{$heading_font}';
-			--text-font-size: {$text_font_size}px;
-			--color-main-text: #fff;
-        }
-                              
-		body {
-            font-size: var(--text-font-size);
-        }
-    </style>";
-}
-add_action('wp_head', 'wi_theme_add_inline_styles');
-
-/* chosen color to font color */
-function wi_theme_custom_css() {
-    $main_font_color = esc_attr(get_option('wi_theme_main_font_color', '#333333'));
-    ?>
-    <style>
-        body {
-            color: <?php echo $main_font_color; ?>;
-        }
-        a {
-            color: <?php echo $main_font_color; ?>;
-        }
-        a:hover {
-            color: <?php echo adjust_color_brightness($main_font_color, -30); ?>;
-        }
-    </style>
-    <?php
-}
-add_action('wp_head', 'wi_theme_custom_css');
-
 /**
  * helper-function for color brightness adjustment
  *
@@ -1039,15 +1066,6 @@ function wi_theme_admin_scripts($hook) {
     wp_enqueue_script('wp-color-picker'); // color picker script
 }
 add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
-
-//Allow (.js, ).svg & .ico upload to Mediathek
-function wi_theme_allowed_upload_types($mimes) {
-    //$mimes['js'] = 'application/javascript';
-    $mimes['svg'] = 'image/svg+xml';
- 	$mimes['ico'] = 'image/vnd.microsoft.icon';		
-    return $mimes;
-}
-add_filter('upload_mimes', 'wi_theme_allowed_upload_types');
 
 /* ========================================
     Register Leaflet (free contact map)
