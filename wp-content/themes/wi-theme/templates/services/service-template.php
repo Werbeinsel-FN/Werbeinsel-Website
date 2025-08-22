@@ -16,7 +16,7 @@ if (have_posts()) : while (have_posts()) : the_post();
 		<div class="service-content-wrapper">
 			<div class="quote-wrapper">
 				<div class="msg-wrapper">
-					"Plakatieren ist meine Leidenschaft, die mir Spaß und Freude schafft."
+					"Plakatieren ist meine Leidenschaft, die mir Spaß und Freude macht."
 				</div>
 				<div class="author-wrapper">
 					(Maurizio Lakovara, Plakatierer)
