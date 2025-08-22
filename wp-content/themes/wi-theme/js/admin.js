@@ -26,10 +26,7 @@ jQuery(document).ready(function ($) {
     }
 
     // Für Light-Logo
-    handleMediaUpload('#wi_theme_logo_light_button', '#wi_theme_logo_light', '#wi_theme_logo_light_preview');
-
-    // Für Dark-Logo
-    handleMediaUpload('#wi_theme_logo_dark_button', '#wi_theme_logo_dark', '#wi_theme_logo_dark_preview');
+    handleMediaUpload('#wi_theme_logo_button', '#wi_theme_logo', '#wi_theme_logo_preview');
     
     $('.my-color-field').wpColorPicker();
 });
