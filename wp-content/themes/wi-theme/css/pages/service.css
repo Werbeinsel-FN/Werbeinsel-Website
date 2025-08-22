@@ -19,7 +19,7 @@
 }
 
 .service-main .e-con-inner {
-    max-width: inherit;
+    max-width: inherit!important;
 }
 
 /* .quote-wrapper {
