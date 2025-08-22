@@ -435,6 +435,81 @@ function wi_theme_register_services_post_type() {
 }
 add_action('init', 'wi_theme_register_services_post_type');
 
+// Register Custom Post Type "Jobs"
+function wi_register_jobs_cpt() {
+    $labels = array(
+        'name'                  => _x('Jobs', 'Post Type General Name', 'wi-theme'),
+        'singular_name'         => _x('Job', 'Post Type Singular Name', 'wi-theme'),
+        'menu_name'             => __('Jobs', 'wi-theme'),
+        'name_admin_bar'        => __('Job', 'wi-theme'),
+        'add_new_item'          => __('Add New Job', 'wi-theme'),
+        'edit_item'             => __('Edit Job', 'wi-theme'),
+        'new_item'              => __('New Job', 'wi-theme'),
+        'view_item'             => __('View Job', 'wi-theme'),
+        'all_items'             => __('All Jobs', 'wi-theme'),
+    );
+
+    $args = array(
+        'label'                 => __('Job', 'wi-theme'),
+        'labels'                => $labels,
+        'supports'              => array('title', 'editor', 'custom-fields'),
+        'public'                => true,
+        'has_archive'           => true,
+        'show_in_rest'          => true,
+        'menu_position'         => 5,
+        'menu_icon'             => 'dashicons-businessperson',
+        'rewrite'               => array('slug' => 'jobs'),
+    );
+
+    register_post_type('job', $args);
+}
+add_action('init', 'wi_register_jobs_cpt');
+
+function wi_add_job_meta_boxes() {
+    add_meta_box(
+        'job_details',
+        'Job Details',
+        'wi_job_meta_box_callback',
+        'job',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'wi_add_job_meta_boxes');
+
+function wi_job_meta_box_callback($post) {
+    $standort = get_post_meta($post->ID, '_job_standort', true);
+    $arbeitszeit = get_post_meta($post->ID, '_job_arbeitszeit', true);
+    $erfahrung = get_post_meta($post->ID, '_job_erfahrung', true);
+    ?>
+    <p>
+        <label>Standort:</label><br>
+        <input type="text" name="job_standort" value="<?php echo esc_attr($standort); ?>" style="width:100%;">
+    </p>
+    <p>
+        <label>Arbeitszeit:</label><br>
+        <input type="text" name="job_arbeitszeit" value="<?php echo esc_attr($arbeitszeit); ?>" style="width:100%;">
+    </p>
+    <p>
+        <label>Erfahrung:</label><br>
+        <input type="text" name="job_erfahrung" value="<?php echo esc_attr($erfahrung); ?>" style="width:100%;">
+    </p>
+    <?php
+}
+
+function wi_save_job_meta($post_id) {
+    if (array_key_exists('job_standort', $_POST)) {
+        update_post_meta($post_id, '_job_standort', sanitize_text_field($_POST['job_standort']));
+    }
+    if (array_key_exists('job_arbeitszeit', $_POST)) {
+        update_post_meta($post_id, '_job_arbeitszeit', sanitize_text_field($_POST['job_arbeitszeit']));
+    }
+    if (array_key_exists('job_erfahrung', $_POST)) {
+        update_post_meta($post_id, '_job_erfahrung', sanitize_text_field($_POST['job_erfahrung']));
+    }
+}
+add_action('save_post', 'wi_save_job_meta');
+
 function wi_theme_services_post_type_link($post_link, $post) {
     if ($post->post_type === 'services') {
         $terms = get_the_terms($post->ID, 'service_category');

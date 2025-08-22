@@ -14,32 +14,41 @@ get_header(); ?>
   </section>
 
   <section class="job-listings">
-    <article class="job-card">
-      <h2>PLAKATIERER M/W/D</h2>
-      <ul class="job-info">
-        <li><strong>Standort:</strong> Berlin</li>
-        <li><strong>Arbeitszeit:</strong> Vollzeit</li>
-        <li><strong>Erfahrung:</strong> 2+ Jahre</li>
-      </ul>
-      <p>
-        Sie sind verantwortlich für die professionelle Anbringung von Plakaten und Werbemitteln im Außenbereich. Erfahrung im Umgang mit verschiedenen Untergründen und Befestigungstechniken ist erforderlich.
-      </p>
-      <a href="#" class="btn-apply">JETZT BEWERBEN</a>
-    </article>
+    <?php
+    $jobs = new WP_Query(array(
+        'post_type' => 'job',
+        'posts_per_page' => -1
+    ));
+    if ($jobs->have_posts()) :
+        while ($jobs->have_posts()) : $jobs->the_post();
+            $standort = get_post_meta(get_the_ID(), '_job_standort', true);
+            $arbeitszeit = get_post_meta(get_the_ID(), '_job_arbeitszeit', true);
+            $erfahrung = get_post_meta(get_the_ID(), '_job_erfahrung', true);
+    ?>
+      <article class="job-card">
+  <h2><?php the_title(); ?></h2>
+  <ul class="job-info">
+    <li><strong>Standort:</strong> <?php echo esc_html($standort); ?></li>
+    <li><strong>Arbeitszeit:</strong> <?php echo esc_html($arbeitszeit); ?></li>
+    <li><strong>Erfahrung:</strong> <?php echo esc_html($erfahrung); ?></li>
+  </ul>
 
-    <article class="job-card">
-      <h2>PROGRAMMIERER M/W/D</h2>
-      <ul class="job-info">
-        <li><strong>Standort:</strong> Berlin / Remote</li>
-        <li><strong>Arbeitszeit:</strong> Vollzeit</li>
-        <li><strong>Erfahrung:</strong> 3+ Jahre</li>
-      </ul>
-      <p>
-        Entwicklung von modernen Webanwendungen und digitalen Werbeplattformen. Kenntnisse in React, Node.js und modernen Entwicklungstools sind erwünscht.
-      </p>
-      <a href="#" class="btn-apply">JETZT BEWERBEN</a>
-    </article>
+  <!-- Job description -->
+  <p class="job-description">
+    <?php the_content(); ?>
+  </p>
+
+  <a href="#" class="btn-apply">JETZT BEWERBEN</a>
+</article>
+    <?php
+        endwhile;
+        wp_reset_postdata();
+    else :
+        echo '<p>Derzeit sind keine Jobs verfügbar.</p>';
+    endif;
+    ?>
   </section>
 </main>
+
 
 <?php get_footer(); ?>
