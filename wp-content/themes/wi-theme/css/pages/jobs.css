@@ -1,6 +1,6 @@
 body {
   font-family: var(--secondary-font-family);
-  max-width: var(--max-content-size);
+  width: 100%;
 }
 /* Intro Section */
 .intro-section {
