@@ -1146,15 +1146,24 @@ function wi_theme_hover_color_render() {
 
 function wi_theme_menu_font_family_render() {
     $selected_font = get_option('wi_theme_menu_font', 'Arial'); // default: Arial
-    $fonts = array('Arial', 'Verdana', 'Times New Roman', 'Georgia', 'Courier New', 'Roboto', 'Open Sans'); // list of availiable font families
     ?>
-    <select name="wi_theme_menu_font">
-        <?php foreach ($fonts as $font): ?>
-            <option value="<?php echo esc_attr($font); ?>" <?php selected($selected_font, $font); ?>>
-                <?php echo esc_html($font); ?>
-            </option>
-        <?php endforeach; ?>
+    <select name="wi_theme_menu_font_family" id="wi_theme_menu_font_family">
+        <option value="Arial" <?php selected($selected_font, 'Arial'); ?>>Arial</option>
     </select>
+ 
+    <script>
+        (function($) {
+            $(document).ready(function () {
+                $.get("https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyATmmcX979w_HSsbnbLuMJd7EX2ehOozMw", function (data) {
+                    var select = $("#wi_theme_menu_font_family");
+                    data.items.forEach(function (font) {
+                        var selected = "<?php echo esc_js($selected_font); ?>" === font.family ? "selected" : "";
+                        select.append('<option value="' + font.family + '" ' + selected + '>' + font.family + '</option>');
+                    });
+                });
+            });
+        })(jQuery);
+    </script>
     <?php
 }
 
