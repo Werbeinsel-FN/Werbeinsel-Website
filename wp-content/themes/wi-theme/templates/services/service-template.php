@@ -10,6 +10,9 @@ if (have_posts()) :
 <main id="service-main" class="service-main">
   <div class="inner-wrapper">
     <header class="service-title-wrapper">
+
+      <?php wi_theme_service_breadcrumbs(); ?>
+
       <h1 class="service-title"><?php the_title(); ?></h1>
     </header>
 

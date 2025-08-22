@@ -181,25 +181,34 @@ function wi_enqueue_service_styles() {
 }
 
 function wi_theme_add_inline_styles() {
-    $menu_font = get_option('wi_theme_menu_font', 'Arial');
-    $main_font = get_option('wi_theme_main_font', 'Arial');
-	$heading_font = get_option('wi_theme_heading_font', 'Arial');
+    $menu_font = get_option('wi_theme_menu_font_family', 'Poppins');
+    $main_font_color = get_option('wi_theme_main_font_color', '#000000');   
+    $main_spacing_size = get_option('wi_theme_main_spacing_size', '5'); 
+	$headline_font_family = get_option('wi_theme_headline_font_family', 'Unbounded'); 
+	$headline_font_size = get_option('wi_theme_headline_font_size', '75');    
+    $text_font_family = get_option('wi_theme_text_font_family', 'Poppins');
 	$text_font_size = get_option('wi_theme_text_font_size', '25');
-
+    $hover_color = get_option('holi_theme_hover_color', '#333333');
+ 
     $inline_css = "
         :root {
-            --menu-font: '{$menu_font}';
-            --main-font: '{$main_font}';
-            --heading-font: '{$heading_font}';
+            --menu-font-family: '{$menu_font}';
+            --main-spacing-size: {$main_spacing_size}vh;
+            --main-font-color: '{$main_font_color}';
+            --headline-font-family: '{$headline_font_family}';
+            --headline-font-size: {$headline_font_size}px;
+            --text-font-family: '{$text_font_family}';
             --text-font-size: {$text_font_size}px;
-            --color-main-text: #fff;
+            --hover-color: {$hover_color};            
 
-            --e-global-typography-text-font-family: '{$main_font}';
-            --e-global-typography-heading-font-family: '{$heading_font}';
+            --e-global-typography-text-font-family: '{$text_font_family}';
+            --e-global-typography-heading-font-family: '{$headline_font_family}';
 
-            --e-global-typography-primary-font-family: '{$main_font}';
-            --e-global-typography-secondary-font-family: '{$heading_font}';
-            --e-global-typography-accent-font-family: '{$main_font}';
+            --e-global-typography-primary-font-family: '{$headline_font_family}';
+            --e-global-typography-primary-font-weight: 800;
+            --e-global-typography-primary-text-transform: uppercase;
+            --e-global-typography-secondary-font-family: '{$headline_font_family}';
+            --e-global-typography-accent-font-family: '{$headline_font_family}';
         }
 
         body {
@@ -765,6 +774,74 @@ function wi_theme_group_services_into_rows($services) {
     return $rows;
 }
 
+function wi_theme_service_breadcrumbs() {
+    global $post;
+
+    $sep = ' <span class="bc-sep" aria-hidden="true">›</span> '; // instead of &raquo wich displays as »
+
+    echo '<div class="breadcrumbs" role="navigation" aria-label="Breadcrumb">';
+    echo '<a href="' . esc_url(home_url('/')) . '">Home</a>' . $sep;
+
+    if ( is_singular('services') ) {
+        // Link to services overview
+        echo '<a href="' . esc_url( home_url('/services/') ) . '">Services</a>' . $sep;
+
+        $terms = get_the_terms($post->ID, 'service_category');
+
+        if ($terms && ! is_wp_error($terms)) {
+            // take the first category as primary term
+            $term = array_shift($terms);
+
+            // link ancestors
+            $ancestors = array_reverse( get_ancestors($term->term_id, 'service_category') );
+            foreach ($ancestors as $ancestor_id) {
+                $ancestor = get_term($ancestor_id, 'service_category');
+                if ($ancestor && !is_wp_error($ancestor)) {
+                    echo '<a href="' . esc_url(get_term_link($ancestor)) . '">' . esc_html($ancestor->name) . '</a>' . $sep;
+                }
+            }
+
+            // link current category
+            echo '<a href="' . esc_url(get_term_link($term)) . '">' . esc_html($term->name) . '</a>' . $sep;
+        }
+
+        // service title
+        echo esc_html( get_the_title() );
+
+    } elseif ( is_tax('service_category') ) {
+        // category archive
+        $term = get_queried_object();
+
+        echo '<a href="' . esc_url( home_url('/services/') ) . '">Services</a>' . $sep;
+
+        if ($term && !is_wp_error($term)) {
+            $ancestors = array_reverse( get_ancestors($term->term_id, 'service_category') );
+            foreach ($ancestors as $ancestor_id) {
+                $ancestor = get_term($ancestor_id, 'service_category');
+                if ($ancestor && !is_wp_error($ancestor)) {
+                    echo '<a href="' . esc_url(get_term_link($ancestor)) . '">' . esc_html($ancestor->name) . '</a>' . $sep;
+                }
+            }
+            // current category (without separator after)
+            echo '<a href="' . esc_url(get_term_link($term)) . '">' . esc_html($term->name) . '</a>';
+        }
+
+    } elseif ( is_page() ) {
+        if ($post->post_parent) {
+            $parents = array_reverse(get_post_ancestors($post->ID));
+            foreach ($parents as $pid) {
+                echo '<a href="' . esc_url(get_permalink($pid)) . '">' . esc_html(get_the_title($pid)) . '</a>' . $sep;
+            }
+        }
+        echo esc_html(get_the_title());
+
+    } else {
+        echo esc_html(get_the_title());
+    }
+
+    echo '</div>';
+}
+
 // === Jobs ===
 
 function wi_theme_register_jobs_cpt() {
@@ -897,6 +974,7 @@ function wi_theme_settings_init() {
     register_setting('wi_theme_options_group', 'wi_theme_logo');
     register_setting('wi_theme_options_group', 'wi_theme_background_color');
     register_setting('wi_theme_options_group', 'wi_theme_main_font_color');
+    register_setting('wi_theme_options_group', 'wi_theme_main_spacing_size');
     register_setting('wi_theme_options_group', 'wi_theme_headline_font_family');
     register_setting('wi_theme_options_group', 'wi_theme_headline_font_size');    
     register_setting('wi_theme_options_group', 'wi_theme_text_font_family');
@@ -934,6 +1012,14 @@ function wi_theme_settings_init() {
         'wi-theme-options',
         'wi_theme_settings_section'
     );
+
+     add_settings_field(
+        'wi_theme_main_spacing_size',
+        __('Abstand zwischen den Elementen (Desktop):', 'wi-theme'),
+		'wi_theme_main_spacing_size_render',
+		'wi-theme-options',
+		'wi_theme_settings_section'
+    );     
 
     add_settings_field(
         'wi_theme_headline_font_family',
@@ -1030,6 +1116,58 @@ function wi_theme_main_font_color_render() {
     $font_color = get_option('wi_theme_main_font_color', '#333333'); // set default color
     ?>
     <input type="text" name="wi_theme_main_font_color" value="<?php echo esc_attr($font_color); ?>" class="my-color-field" data-default-color="#333333" />
+    <?php
+}
+
+function wi_theme_main_spacing_size_render() {
+    $spacing = get_option('wi_theme_main_spacing_size', '5'); // Default: 5vh
+    ?>
+    <div class="slider-container">
+        <input type="range"
+               id="spacingSlider"
+               name="wi_theme_main_spacing_size"
+               min="0"
+               max="50"
+               step="0.1"
+               value="<?php echo esc_attr($spacing); ?>">
+        <input type="number"
+               id="spacingInput"
+               name="wi_theme_main_spacing_size"
+               value="<?php echo esc_attr($spacing); ?>"
+               min="0"
+               max="50"
+               step="0.1">
+        <span>vh</span>
+    </div>
+
+    <style>
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        input[type="range"] {
+            width: 150px;
+        }
+        input[type="number"] {
+            width: 75px;
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        (function($){
+            $(function(){
+                // Sync slider <-> input
+                $('#spacingSlider').on('input change', function(){
+                    $('#spacingInput').val(this.value);
+                });
+                $('#spacingInput').on('input change', function(){
+                    $('#spacingSlider').val(this.value);
+                });
+            });
+        })(jQuery);
+    </script>
     <?php
 }
 

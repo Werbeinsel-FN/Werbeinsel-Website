@@ -1,6 +1,6 @@
 .service-main > div {
     min-height: 100vh;
-
+    max-width: var(--max-content-size);
     display: flex;
     flex-direction: column;
 
@@ -12,6 +12,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.service-editor-content {
+    width: 100%;
 }
 
 /* .quote-wrapper {
@@ -31,8 +35,34 @@
     flex-grow: 1;
 } */
 
+/* Breadcrumbs linksbündig, kein Flex */
+.service-title-wrapper .breadcrumbs {
+    display: block;       /* überschreibt display:flex vom globalen Nav-Style */
+    font-family: var(--text-font-family);
+    font-weight: var(--e-global-typography-primary-font-weight);
+    color: var(--main-font-color);
+}
+
+.service-title-wrapper .breadcrumbs a {
+    color: var(--main-font-color);
+}
+
+.service-title-wrapper .breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+
+
+.service-title-wrapper h1 {
+    padding-top: var(--main-spacing-size);
+}
+
+
 .elementor-image-carousel figure {
     height: 500px;
+    max-width: var(--max-content-size);
+    /* padding: 0 calc(var(--main-spacing-size) * 2) */
+
 }
 
 .elementor-image-carousel figure img {
@@ -46,15 +76,13 @@
 
 .service-content-wrapper .elementor-heading-title {
     text-align: center;
-    font-family: var(--heading-font)!important;
-    font-weight: 800;
-    text-transform: uppercase;
+    padding: var(--main-spacing-size) 0;
 }
 
 .elementor-element .swiper .elementor-swiper-button {
     background-color: black;
 border-radius: 50%;
-  margin: 0 2.5%;
+  margin: 0 7.5%;
 }
 
 .elementor-element .swiper .elementor-swiper-button svg {
