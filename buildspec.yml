@@ -3,14 +3,13 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 16
+      nodejs: 16   # kann so bleiben; 18 wäre aktueller
     commands:
-      - echo "Installiere ssh und aws-cli falls nötig"
       - apt-get update && apt-get install -y openssh-client awscli
-
 
   pre_build:
     commands:
+      - set -euo pipefail
       - echo "Lese privaten SSH-Schlüssel aus SSM"
       - mkdir -p ~/.ssh
       - aws ssm get-parameter --name "/werbeinsel/ssh_private_key" --with-decryption --query "Parameter.Value" --output text > ~/.ssh/id_rsa
@@ -21,15 +20,22 @@ phases:
         User deploy
         IdentityFile ~/.ssh/id_rsa
         StrictHostKeyChecking=no" > ~/.ssh/config
-
+      # Sanity-Checks (brechen mit sauberer Meldung ab, falls ein Pfad fehlt)
+      - test -d wp-content/themes/wi-theme || (echo "FEHLT: wp-content/themes/wi-theme" && exit 1)
+      - test -d wp-content/plugins/wi-forms || (echo "FEHLT: wp-content/plugins/wi-forms" && exit 1)
 
   build:
     commands:
-      - echo "Erstelle Deploy-Archiv mit Themes & Plugins"
-      - tar czf deploy-package.tar.gz wp-content/themes/wi-theme wp-content/plugins/wi-forms wp-content/plugins/testplugin
-      - scp -i ~/.ssh/id_rsa deploy-package.tar.gz lightsail:/home/bitnami/
+      - echo "Erstelle Deploy-Archiv (Theme + Plugin)"
+      - tar czf deploy-package.tar.gz wp-content/themes/wi-theme wp-content/plugins/wi-forms
+      - scp deploy-package.tar.gz lightsail:/home/bitnami/
       - ssh lightsail "
           tar xzf /home/bitnami/deploy-package.tar.gz -C /opt/bitnami/wordpress &&
           rm /home/bitnami/deploy-package.tar.gz &&
           sudo /opt/bitnami/ctlscript.sh restart apache
         "
+
+artifacts:
+  files:
+    - wp-content/themes/wi-theme/**/*
+    - wp-content/plugins/wi-forms/**/*
