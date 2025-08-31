@@ -5,7 +5,6 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      # Paketmanager robust (apt oder yum):
       - if command -v apt-get >/dev/null; then apt-get update -y && apt-get install -y openssh-client awscli; else yum install -y openssh-clients awscli; fi
 
   pre_build:
@@ -15,21 +14,20 @@ phases:
       - mkdir -p ~/.ssh
       - aws ssm get-parameter --name "/werbeinsel/ssh_private_key" --with-decryption --query "Parameter.Value" --output text > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
-      # <<< ersetzt den fehlerträchtigen - | Block >>>
-      - printf "Host lightsail\nHostName 3.126.252.21\nUser deploy\nIdentityFile ~/.ssh/id_rsa\nStrictHostKeyChecking=no\n" > ~/.ssh/config
+      - 'printf "Host lightsail\nHostName 3.126.252.21\nUser deploy\nIdentityFile ~/.ssh/id_rsa\nStrictHostKeyChecking=no\n" > ~/.ssh/config'
       - chmod 600 ~/.ssh/config
-      # Sanity-Checks
-      - test -d wp-content/themes/wi-theme || { echo "FEHLT: wp-content/themes/wi-theme"; exit 1; }
-      - test -d wp-content/plugins/wi-forms || { echo "FEHLT: wp-content/plugins/wi-forms"; exit 1; }
+      # Sanity-Checks (JETZT GEQUOTET!)
+      - '[ -d wp-content/themes/wi-theme ] || ( echo "FEHLT: wp-content/themes/wi-theme" && exit 1 )'
+      - '[ -d wp-content/plugins/wi-forms ] || ( echo "FEHLT: wp-content/plugins/wi-forms" && exit 1 )'
 
   build:
     commands:
       - echo "Packe & deploeye Theme + Plugin"
-      - tar czf deploy-package.tar.gz wp-content/themes/wi-theme wp-content/plugins/wi-forms
-      - scp deploy-package.tar.gz lightsail:/home/bitnami/
-      - ssh lightsail "tar xzf /home/bitnami/deploy-package.tar.gz -C /opt/bitnami/wordpress && rm /home/bitnami/deploy-package.tar.gz && sudo /opt/bitnami/ctlscript.sh restart apache"
+      - 'tar czf deploy-package.tar.gz wp-content/themes/wi-theme wp-content/plugins/wi-forms'
+      - 'scp deploy-package.tar.gz lightsail:/home/bitnami/'
+      - 'ssh lightsail "tar xzf /home/bitnami/deploy-package.tar.gz -C /opt/bitnami/wordpress && rm /home/bitnami/deploy-package.tar.gz && sudo /opt/bitnami/ctlscript.sh restart apache"'
 
 artifacts:
   files:
-    - wp-content/themes/wi-theme/**/*
-    - wp-content/plugins/wi-forms/**/*
+    - 'wp-content/themes/wi-theme/**/*'
+    - 'wp-content/plugins/wi-forms/**/*'
