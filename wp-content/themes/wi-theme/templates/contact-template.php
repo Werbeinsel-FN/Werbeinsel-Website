@@ -1,32 +1,78 @@
 <?php
 /**
- * Template Name: Kontakt
- * Description: Template for the contact page
+ * Template Name: Kontakt (Next static)
  */
+get_header();
 
-get_header(); ?>
-
-<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/contact.css?v=<?php echo filemtime(get_template_directory() . '/css/home.css'); ?>">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
-
+// Ako server ne servira index.html automatski, koristi
+// $next_url = content_url('uploads/next-contact/kontakt/index.html');
+$next_url = content_url('uploads/next-contact');
+?>
 <main id="contact-main" class="contact-main">
-    <div class="contact-main-container">
-        <h3 class="contact-main-container headline">Kontakt</h3>
-        <div class="contact-main-container subline">Einfach das Formular ausfüllen - wir freuen uns auf Sie!</div>
-        <!-- Live site -->
-        <?php echo do_shortcode('[wi_form id="22"]'); ?>
-        <!-- Sam local site -->
-        <!-- <?php echo do_shortcode('[wi_form id="22"]'); ?> -->
-    </div>
+  <div class="contact-main-container">
+    <iframe
+      id="wi-next-contact"
+      src="<?php echo esc_url($next_url); ?>"
+      style="width:100%; border:0; display:block; border-radius:24px; overflow:hidden; height:1px; min-height:400px"
+      scrolling="no"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      allow="clipboard-write"
+    ></iframe>
+  </div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/js/foundation.min.js"></script>
+
 <script>
-  jQuery(document).ready(function($){
-    $(document).foundation();
+(function () {
+  const iframe = document.getElementById('wi-next-contact');
+  let last = 0, raf = 0;
+
+  function setH(h) {
+    const clamped = Math.max(400, Math.ceil(h));
+    if (Math.abs(clamped - last) > 3) {
+      last = clamped;
+      iframe.style.height = clamped + 'px';
+    }
+  }
+
+  // 1) postMessage iz Next-a (IframeAutosize)
+  window.addEventListener('message', function (e) {
+    const d = e.data;
+    if (d && d.type === 'wi-iframe-height' && typeof d.height === 'number') {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setH(d.height));
+    }
+  }, false);
+
+  // 2) Fallback: meri direktno DOM iFrame-a (same-origin)
+  function fitFromDOM() {
+    try {
+      const doc = iframe.contentWindow && iframe.contentWindow.document;
+      if (!doc) return;
+      const bodyH = doc.body ? doc.body.scrollHeight : 0;
+      const htmlH = doc.documentElement ? doc.documentElement.scrollHeight : 0;
+      const h = Math.max(bodyH, htmlH);
+      if (h) setH(h);
+    } catch (err) {
+      // drugačiji origin -> ignoriši (postMessage će odraditi posao)
+    }
+  }
+
+  iframe.addEventListener('load', () => {
+    fitFromDOM();
+    try {
+      const doc = iframe.contentWindow && iframe.contentWindow.document;
+      if (doc && 'ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => fitFromDOM());
+        ro.observe(doc.documentElement);
+      }
+    } catch {}
   });
+
+  window.addEventListener('resize', () => requestAnimationFrame(fitFromDOM));
+  // inicijalni fallback (fontovi/slike kasne)
+  setTimeout(fitFromDOM, 300);
+})();
 </script>
-<?php get_footer();
+
+<?php get_footer(); ?>
