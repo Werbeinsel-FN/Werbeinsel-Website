@@ -21,16 +21,16 @@
 
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define( 'DB_NAME', 'local' );
+define( 'DB_NAME', 'bitnami_wordpress' );
 
 /** Database username */
-define( 'DB_USER', 'root' );
+define( 'DB_USER', 'bn_wordpress' );
 
 /** Database password */
-define( 'DB_PASSWORD', 'root' );
+define( 'DB_PASSWORD', 'Vp/Lu1tdMK9nas3k1QaSux23iLp4EVCM' );
 
 /** Database hostname */
-define( 'DB_HOST', 'localhost' );
+define( 'DB_HOST', '127.0.0.1' );
 
 /** Database charset to use in creating database tables. */
 define( 'DB_CHARSET', 'utf8' );
