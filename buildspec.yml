@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    LIGHTSAIL_HOST: "3.126.252.21"   # po potrebi promeni ili prepiši varijablom u CodeBuild-u
+    LIGHTSAIL_HOST: "3.126.252.21"  # promeni ako treba
     GIT_BRANCH: "main"
 
 phases:
@@ -17,7 +17,7 @@ phases:
         elif command -v yum >/dev/null 2>&1; then
           yum install -y openssh-clients awscli
         else
-          echo "Nepoznat paket menadžer; pretpostavljam da su openssh i awscli već instalirani."
+          echo "Preskačem instalaciju: paket menadžer nije apt/yum."
         fi
 
   pre_build:
@@ -30,61 +30,42 @@ phases:
       - echo ">> Dodajem Lightsail host key u known_hosts"
       - ssh-keyscan -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
 
-      - echo ">> Podešavam SSH alias 'lightsail' (user=bitnami)"
+      - echo ">> Pravim SSH config sa aliasom 'lightsail' (user=bitnami)"
       - |
-        cat > ~/.ssh/config <<EOF
-        Host lightsail
-          HostName $LIGHTSAIL_HOST
-          User bitnami
-          IdentityFile ~/.ssh/id_rsa
-          IdentitiesOnly yes
-          BatchMode yes
-          ServerAliveInterval 60
-          ServerAliveCountMax 10
-EOF
+        printf '%s\n' \
+        "Host lightsail" \
+        "  HostName ${LIGHTSAIL_HOST}" \
+        "  User bitnami" \
+        "  IdentityFile ~/.ssh/id_rsa" \
+        "  IdentitiesOnly yes" \
+        "  BatchMode yes" \
+        "  ServerAliveInterval 60" \
+        "  ServerAliveCountMax 10" > ~/.ssh/config
       - chmod 600 ~/.ssh/config
 
       - echo ">> Testiram SSH konekciju"
-      - ssh -o StrictHostKeyChecking=yes -vvv lightsail 'echo OK-SSH && whoami && hostname'
+      - ssh -o BatchMode=yes -o StrictHostKeyChecking=yes lightsail 'echo OK-SSH && whoami && hostname'
 
   build:
     commands:
       - echo ">> Deploy na Lightsail (grana: $GIT_BRANCH)"
       - |
-        ssh lightsail 'bash -lc "
+        ssh -o BatchMode=yes -o StrictHostKeyChecking=yes lightsail "bash -lc '
           set -euo pipefail
-
-          # 1) Idi u WP dir (neki Bitnami buildovi koriste /htdocs)
           cd /opt/bitnami/wordpress || cd /opt/bitnami/wordpress/htdocs
-
-          # 2) Sačuvaj server-specifični wp-config.php (da ga ne pregazimo)
-          if [ -f wp-config.php ]; then
-            cp wp-config.php /tmp/wp-config.server.backup.\$(date +%F-%H%M%S)
-          fi
-
-          # 3) Ako je wp-config.php pod Git-om, ignorisi lokalne izmene ubuduće
+          if [ -f wp-config.php ]; then cp wp-config.php /tmp/wp-config.server.backup.\$(date +%F-%H%M%S); fi
           git update-index --skip-worktree wp-config.php || true
-
-          # 4) Poravnaj radnu kopiju na remote granu
           git fetch origin
           git checkout $GIT_BRANCH || git checkout -b $GIT_BRANCH
           git reset --hard origin/$GIT_BRANCH
-
-          # (opciono) Očisti macOS meta fajlove iz radne kopije
-          find . -name \".DS_Store\" -delete || true
-          find . -name \"._*\" -delete || true
-
-          # 5) Vrati poslednji bekap wp-config.php ako postoji
+          # Očisti macOS meta fajlove (nije obavezno)
+          find . -name .DS_Store -delete || true
+          find . -name '._*' -delete || true
           LATEST_BACKUP=\$(ls -1t /tmp/wp-config.server.backup.* 2>/dev/null | head -n 1 || true)
-          if [ -n \"\${LATEST_BACKUP:-}\" ]; then
-            cp \"\${LATEST_BACKUP}\" wp-config.php
-          fi
-
-          # 6) Restartuj Apache
+          if [ -n \"\${LATEST_BACKUP:-}\" ]; then cp \${LATEST_BACKUP} wp-config.php; fi
           sudo /opt/bitnami/ctlscript.sh restart apache || sudo /opt/bitnami/ctlscript.sh restart
-
-          echo \"Deploy završen.\"
-        "'
+          echo Deploy završen.
+        '"
 
 artifacts:
   files:
