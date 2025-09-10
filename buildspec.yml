@@ -1,44 +1,29 @@
 version: 0.2
 
-env:
-  variables:
-    LIGHTSAIL_HOST: "3.126.252.21"
-    GIT_BRANCH: "main"
-
 phases:
   install:
     runtime-versions:
       nodejs: 16
     commands:
-      - echo ">> Instaliram SSH i AWS CLI (ako treba)"
-      - "if command -v apt-get >/dev/null 2>&1; then apt-get update && apt-get install -y openssh-client awscli; elif command -v yum >/dev/null 2>&1; then yum install -y openssh-clients awscli; else echo 'Preskačem instalaciju'; fi"
+      - echo "Installiere ssh und aws-cli falls nötig"
+      - apt-get update && apt-get install -y openssh-client awscli
+
 
   pre_build:
     commands:
-      - echo ">> Učitavam privatni SSH ključ iz SSM"
-      - "mkdir -p ~/.ssh"
-      - "aws ssm get-parameter --name '/werbeinsel/ssh_private_key' --with-decryption --query 'Parameter.Value' --output text > ~/.ssh/id_rsa"
-      - "tr -d '\r' < ~/.ssh/id_rsa > ~/.ssh/id_rsa.clean && mv ~/.ssh/id_rsa.clean ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa"
+      - echo "Lese privaten SSH-Schlüssel aus SSM"
+      - mkdir -p ~/.ssh
+      - aws ssm get-parameter --name "/werbeinsel/ssh_private_key" --with-decryption --query "Parameter.Value" --output text > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - |
+        echo "Host lightsail
+        HostName 3.126.252.21
+        User deploy
+        IdentityFile ~/.ssh/id_rsa
+        StrictHostKeyChecking=no" > ~/.ssh/config
 
-      - echo ">> Dodajem host key"
-      - "ssh-keyscan -H \"$LIGHTSAIL_HOST\" >> ~/.ssh/known_hosts"
-
-      - echo ">> SSH alias"
-      - "printf 'Host lightsail\n  HostName %s\n  User bitnami\n  IdentityFile ~/.ssh/id_rsa\n  IdentitiesOnly yes\n  BatchMode yes\n' \"$LIGHTSAIL_HOST\" > ~/.ssh/config"
-      - "chmod 600 ~/.ssh/config"
-
-      - echo ">> PUBLIC key koji MORA biti u authorized_keys na serveru:"
-      - "ssh-keygen -y -f ~/.ssh/id_rsa > /tmp/codebuild.pub && cat /tmp/codebuild.pub"
-
-      - echo ">> Test SSH konekcije"
-      - "ssh -vvv -o BatchMode=yes -o StrictHostKeyChecking=yes lightsail 'echo OK-SSH && whoami && hostname'"
 
   build:
     commands:
-      - echo ">> Deploy na Lightsail (grana: $GIT_BRANCH)"
-      - "ssh -o BatchMode=yes -o StrictHostKeyChecking=yes lightsail 'cd /opt/bitnami/wordpress || cd /opt/bitnami/wordpress/htdocs; if [ -f wp-config.php ]; then cp wp-config.php /tmp/wp-config.server-backup.$(date +%F-%H%M%S); fi; git update-index --skip-worktree wp-config.php || true; git fetch origin; git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}; git reset --hard origin/${GIT_BRANCH}; find . -name .DS_Store -delete || true; find . -name \"._*\" -delete || true; LATEST_BACKUP=$(ls -1t /tmp/wp-config.server-backup.* 2>/dev/null | head -n 1 || true); if [ -n \"${LATEST_BACKUP:-}\" ]; then cp ${LATEST_BACKUP} wp-config.php; fi; sudo /opt/bitnami/ctlscript.sh restart apache || sudo /opt/bitnami/ctlscript.sh restart; echo Deploy završen.'"
-
-artifacts:
-  files:
-    - '**/*'
-  discard-paths: yes
+      - echo "Verbinde mit Lightsail und ziehe neues GitHub-Repo"
+      - ssh lightsail "sudo -u bitnami git -C /opt/bitnami/wordpress pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"
