@@ -1,6 +1,11 @@
+<<<<<<< Updated upstream
 ﻿wp-config.php
 wp-content/uploads/
 wp-content/cache/
 wp-content/upgrade/
 .DS_Store
 ._*
+=======
+
+wp-config.php
+>>>>>>> Stashed changes
