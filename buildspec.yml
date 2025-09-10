@@ -5,25 +5,80 @@ phases:
     runtime-versions:
       nodejs: 16
     commands:
-      - echo "Installiere ssh und aws-cli falls nötig"
-      - apt-get update && apt-get install -y openssh-client awscli
-
+      - echo ">> Instaliram SSH klijent i AWS CLI (u zavisnosti od OS-a build okruženja)"
+      - |
+        if command -v apt-get >/dev/null 2>&1; then
+          apt-get update && apt-get install -y openssh-client awscli
+        elif command -v yum >/dev/null 2>&1; then
+          yum install -y openssh-clients awscli
+        else
+          echo "Nepoznat paket menadžer; pretpostavljam da su openssh i awscli već instalirani."
+        fi
 
   pre_build:
     commands:
-      - echo "Lese privaten SSH-Schlüssel aus SSM"
+      - echo ">> Učitavam privatni SSH ključ iz SSM i pripremam SSH"
       - mkdir -p ~/.ssh
       - aws ssm get-parameter --name "/werbeinsel/ssh_private_key" --with-decryption --query "Parameter.Value" --output text > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
-      - |
-        echo "Host lightsail
-        HostName 3.126.252.21
-        User deploy
-        IdentityFile ~/.ssh/id_rsa
-        StrictHostKeyChecking=no" > ~/.ssh/config
 
+      # (Preporučeno) Definiši IP/DNS Lightsail host-a kao promenljivu okruženja u CodeBuild-u (npr. LIGHTSAIL_HOST).
+      # Ako nemaš varijablu, koristi direktno IP (kao ispod).
+      - export LIGHTSAIL_HOST="3.126.252.21"
+
+      # Unapred dodaj host key (umesto StrictHostKeyChecking=no)
+      - ssh-keyscan -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
+
+      # SSH config – koristimo 'bitnami' korisnika na Bitnami WordPress instanci
+      - |
+        cat > ~/.ssh/config <<'EOF'
+        Host lightsail
+          HostName 3.126.252.21
+          User bitnami
+          IdentityFile ~/.ssh/id_rsa
+          ServerAliveInterval 60
+          ServerAliveCountMax 10
+        EOF
+      - chmod 600 ~/.ssh/config
 
   build:
     commands:
-      - echo "Verbinde mit Lightsail und ziehe neues GitHub-Repo"
-      - ssh lightsail "sudo -u bitnami git -C /opt/bitnami/wordpress pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"
+      - echo ">> Povezujem se na Lightsail i deploy-ujem novu verziju"
+      - |
+        ssh lightsail 'bash -lc "
+          set -euo pipefail
+
+          # 1) Idi u WP dir (neki Bitnami buildovi koriste /opt/bitnami/wordpress/htdocs)
+          cd /opt/bitnami/wordpress || cd /opt/bitnami/wordpress/htdocs
+
+          # 2) Sačuvaj server-specifični wp-config.php (da ga ne pregazimo)
+          if [ -f wp-config.php ]; then
+            cp wp-config.php /tmp/wp-config.server.backup.$(date +%F-%H%M%S)
+          fi
+
+          # 3) (opciono) Reci gitu da zanemari lokalne izmene wp-config-a (ako je već u repo-u)
+          git update-index --skip-worktree wp-config.php || true
+
+          # 4) Povuci i poravnaj stanje sa origin/main
+          git fetch origin
+          git checkout main || git checkout -b main
+          git config pull.ff only || true
+
+          # Ako želiš da izbegneš merge/konflikte i uvek poravnaš na stanje remote-a:
+          # (ovo će pregaziti lok. izmene - ali ćemo vratiti wp-config ispod)
+          git reset --hard origin/main
+
+          # 5) Vrati server-čuvani wp-config.php ako postoji
+          if [ -f /tmp/wp-config.server.backup.* ]; then
+            # Uzmi najskoriju bekap datoteku
+            LATEST_BACKUP=$(ls -1t /tmp/wp-config.server.backup.* | head -n 1 || true)
+            if [ -n \"${LATEST_BACKUP:-}\" ]; then
+              cp \"${LATEST_BACKUP}\" wp-config.php
+            fi
+          fi
+
+          # 6) Restartuj Apache
+          sudo /opt/bitnami/ctlscript.sh restart apache || sudo /opt/bitnami/ctlscript.sh restart
+
+          echo \"Deploy završen.\"
+        "'
