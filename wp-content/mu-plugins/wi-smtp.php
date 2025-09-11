@@ -4,6 +4,7 @@
  * Description: Forsira SMTP i loguje detalje kad slanje padne (za dijagnostiku).
  * Version: 1.1.0
  */
+if (defined('WPMS_PLUGIN_VER')) { return; }
 if (!defined('ABSPATH')) exit;
 
 // Učitaj SMTP konstante ako fajl postoji (drži lozinku van wp-config.php)
