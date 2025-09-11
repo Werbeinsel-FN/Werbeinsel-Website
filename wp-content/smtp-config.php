@@ -1,6 +1,6 @@
 <?php
 // === SMTP / Mailbox konfiguracija ===
-define('SMTP_HOST', 'smtp.ionos.de');  // ili smtp.strato.de / email-smtp.<region>.amazonaws.com ...
+define('SMTP_HOST', 'smtp.office365.com');  // ili smtp.strato.de / email-smtp.<region>.amazonaws.com ...
 define('SMTP_PORT', 587);
 define('SMTP_SECURE', 'tls');
 define('SMTP_USER', 'hallo@werbeinsel.de');     // najčešće cela adresa
