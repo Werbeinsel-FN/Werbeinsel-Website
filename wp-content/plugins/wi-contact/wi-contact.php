@@ -2,23 +2,35 @@
 /**
  * Plugin Name: WI Contact Endpoint
  * Description: Prima JSON iz Next.js forme i šalje email na hallo@werbeinsel.de
- * Version: 1.0.0
+ * Version: 1.1.0
  */
-
 if (!defined('ABSPATH')) exit;
 
+// (Opcionalno) CORS ako šalješ sa drugog origin-a (ako je forma na drugom domenu)
+add_action('rest_api_init', function () {
+  remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+  add_filter('rest_pre_serve_request', function ($value) {
+    $origin = defined('WI_ALLOWED_ORIGIN') ? WI_ALLOWED_ORIGIN : '*';
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Access-Control-Allow-Credentials: true');
+    return $value;
+  });
+}, 15);
+
+// REST ruta
 add_action('rest_api_init', function () {
   register_rest_route('wi/v1', '/contact', array(
     'methods'  => 'POST',
     'callback' => 'wi_handle_contact',
-    'permission_callback' => '__return_true', // po potrebi postroži
+    'permission_callback' => '__return_true',
   ));
 });
 
 function wi_handle_contact(WP_REST_Request $request) {
   $data = $request->get_json_params();
 
-  // Polja iz tvoje forme
   $name     = isset($data['name'])     ? sanitize_text_field($data['name']) : '';
   $email    = isset($data['email'])    ? sanitize_email($data['email']) : '';
   $company  = isset($data['company'])  ? sanitize_text_field($data['company']) : '';
@@ -28,15 +40,13 @@ function wi_handle_contact(WP_REST_Request $request) {
   $medium   = isset($data['medium'])   ? sanitize_text_field($data['medium']) : '';
   $message  = isset($data['message'])  ? wp_kses_post($data['message']) : '';
 
-  // Osnovna validacija
   if (empty($name) || empty($email) || !is_email($email)) {
     return new WP_Error('bad_request', 'Name und gültige E-Mail sind erforderlich.', array('status' => 400));
   }
 
-  // Pripremi sadržaj
-  $to = 'hallo@werbeinsel.de';
-
+  $to = apply_filters('wi_contact_to', 'hallo@werbeinsel.de');
   $subject = 'Neue Anfrage über Kontaktformular';
+
   $body  = '<h2>Neue Kontaktanfrage</h2>';
   $body .= '<p><strong>Name:</strong> ' . esc_html($name) . '</p>';
   $body .= '<p><strong>E-Mail:</strong> ' . esc_html($email) . '</p>';
@@ -47,14 +57,13 @@ function wi_handle_contact(WP_REST_Request $request) {
   if ($timeline) $body .= '<p><strong>Zeitrahmen:</strong> ' . esc_html($timeline) . '</p>';
   if ($message)  $body .= '<p><strong>Nachricht:</strong><br>' . nl2br(wp_kses_post($message)) . '</p>';
 
-  // Bitno zbog isporučivosti (DMARC/SPF): From je sa tvog domena, Reply-To je korisnik
-  $headers = array();
-  $headers[] = 'Content-Type: text/html; charset=UTF-8';
-  $headers[] = 'From: Werbeinsel Kontakt <no-reply@werbeinsel.de>'; // koristi adresu sa tvog domena
-  $headers[] = 'Reply-To: ' . $name . ' <' . $email . '>';
+  // From setuje MU-plugin; ovde samo Content-Type + Reply-To:
+  $headers = array(
+    'Content-Type: text/html; charset=UTF-8',
+    'Reply-To: ' . $name . ' <' . $email . '>',
+  );
 
   $sent = wp_mail($to, $subject, $body, $headers);
-
   if (!$sent) {
     return new WP_Error('mail_failed', 'Senden fehlgeschlagen.', array('status' => 500));
   }
