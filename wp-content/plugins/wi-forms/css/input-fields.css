@@ -1,0 +1,104 @@
+/**************************************/
+/* Inputs                             */
+/**************************************/
+
+#contactForm input[type="text"],
+#contactForm input[type="email"],
+#contactForm input[type="tel"],
+#contactForm textarea {
+  background-color: #f2f2f5;
+}
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea {
+  display: block;
+  width: var(--textarea-width);
+  height: var(--textarea-height);
+  border: var(--main-border);
+  outline: none;
+  background-color: transparent;
+  border-radius: var(--max-border-radius);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+textarea::placeholder {
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 1;
+}
+
+input[type="text"]:not(:placeholder-shown) ~ .control-label,
+input[type="email"]:not(:placeholder-shown) ~ .control-label,
+textarea:not(:placeholder-shown) ~ .control-label {
+  opacity: 0;
+}
+
+button,
+input {
+  overflow: visible;
+}
+
+input:not(
+    [type="image" i],
+    [type="range" i],
+    [type="checkbox" i],
+    [type="radio" i]
+  ) {
+  overflow-clip-margin: 0px;
+  overflow: clip;
+}
+
+.content-form .control-group .control-label {
+  position: absolute;
+  bottom: 1.3em;
+  left: 2.7em;
+  opacity: 1;
+  transition: opacity 0.4s;
+  z-index: 1;
+}
+@media only screen and (max-width: 1150px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  textarea {
+    border-width: 6px;
+    font-size: 29px;
+  }
+  .content-form .control-group .control-label {
+    font-size: 15px;
+  }
+}
+@media (max-width: 659px) {
+  .content-form .control-group input[type="text"] + .control-label,
+  .content-form .control-group input[type="email"] + .control-label,
+  .content-form .control-group input[type="tel"] + .control-label,
+  .content-form .control-group textarea + .control-label {
+    display: none;
+  }
+  .content-form .control-group .control-label {
+    display: none;
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"] {
+    font-size: 25px;
+    border-width: 4px;
+    text-align: center;
+    padding-bottom: 0.5rem;
+  }
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder,
+  input[type="tel"]::placeholder,
+  textarea::placeholder {
+    opacity: 1;
+  }
+}

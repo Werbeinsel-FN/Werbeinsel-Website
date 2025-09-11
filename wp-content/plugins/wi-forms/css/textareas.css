@@ -1,0 +1,47 @@
+/**************************************/
+/* Textarea                           */
+/**************************************/
+.content-form .control-group textarea {
+  height: 270px;
+}
+textarea[rows] {
+  height: 195px;
+}
+textarea {
+  width: 100%;
+  max-width: 100%;
+  border: var(--main-border);
+  border-radius: var(--main-border-radius);
+  background-color: field;
+  resize: vertical;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  overflow: auto;
+  text-align: start;
+  appearance: none;
+  cursor: text;
+}
+.content-form .control-group textarea + .control-label {
+  left: 2.3em;
+}
+@media only screen and (max-width: 730px) {
+  textarea,
+  textarea[rows] {
+    max-width: inherit;
+    height: 297px;
+  }
+}
+@media only screen and (max-width: 659px) {
+  textarea {
+    font-size: 25px;
+    border-width: 4px;
+    border-radius: 20px;
+    padding: 1em;
+  }
+  #contact-form textarea {
+    margin-top: 0;
+  }
+  .content-form .control-group textarea {
+    height: 315px;
+  }
+}

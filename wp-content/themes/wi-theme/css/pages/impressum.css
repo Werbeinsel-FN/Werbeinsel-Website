@@ -1,71 +1,22 @@
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
+.impressum-container {
+  background-color: var(--main-color);
+  max-width: var(--max-content-size);
+  margin: 0 auto;
 }
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.impressum-header h1,
+.impressum-container article {
+  padding: 10px 150px 100px 150px;
 }
-.impressum-main {
-  width: 100;
-  background-color: black;
-  color: white;
-  padding-bottom: 10%;
-  padding-top: 10%;
-}
-.impressum-main a:hover {
-  color: white;
-}
-.impressum-main h1 {
-  font-family: Unbounded;
-  text-transform: uppercase;
-  padding-top: 10%;
-  margin-left: 5%;
-  font-size: 9vh;
-}
-.impressum-section {
-  font-family: Poppins;
-  max-width: 1100px;
-  margin-left: 5%;
-}
-.impressum-section a {
-  color: white;
-}
-.impressum-section h3 {
-  margin-bottom: -15px;
-  font-size: 1.4rem;
-  margin-top: 6%;
+.impressum-section h2 {
+  padding-bottom: calc(var(--main-spacing-size) / 5);
 }
 .impressum-section p {
-  margin-bottom: 20px;
-  margin-top: 20px;
-  font-size: 1.4rem;
+  padding-bottom: calc(var(--main-spacing-size) * 1.7);
 }
-
 @media (max-width: 768px) {
-  .impressum-main {
-    padding: 10px;
-    max-width: 100%;
-  }
-
-  .impressum-main header h1 {
-    font-size: 1.8rem;
-    margin-bottom: 15px;
-  }
-
-  .impressum-section h2 {
-    font-size: 1.1rem;
-  }
-
-  .impressum-section h3 {
-    font-size: 1rem;
-  }
-
-  .impressum-section p,
-  .impressum-section a {
-    font-size: 0.85rem;
-    line-height: 1.4;
+  .impressum-header h1,
+  .impressum-container article {
+    padding-left: 30px;
+    padding-right: 30px;
   }
 }

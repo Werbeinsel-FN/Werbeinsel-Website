@@ -1,0 +1,75 @@
+/**************************************/
+/* Submit Button Styles               */
+/**************************************/
+
+/* Main Button Styles using variables */
+.send-button-wrapper > button {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--main-border-radius);
+  background-color: var(--main-color);
+  /* box-shadow: var(--submit-box-shadow); */
+  transform: var(--main-font-text-transform-value);
+  transition: var(--submit-transition);
+  border: var(--main-border);
+
+  padding: calc(var(--main-spacing-size) / 5 * 2) calc(var(--main-spacing-size) * 1.25);
+}
+/* Hover effect with variable override */
+.send-button-wrapper > button:hover {
+  /* box-shadow: var(--submit-box-shadow-hover);
+  transform: var(--submit-transform-hover);
+  transition: var(--submit-transition-hover); */
+  text-decoration: none;
+
+  color: white;
+  background-color: black;
+
+  transition: background-color 0.3s ease, color 0.3s ease;  
+}
+
+
+/**************************************/
+/* Input/Button Reset (cross-browser) */
+/**************************************/
+input[type="submit"],
+input[type="button"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border-radius: 0;
+}
+/**************************************/
+/* Base Pseudo-Element Layer Support  */
+/**************************************/
+/* Used for layered effects or border overlays */
+.border-box:before,
+.text-container .border-box:before,
+p.readmore a:before,
+.button:before,
+.btn:before,
+input[type="submit"]:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+/* Mobile: center align */
+@media (max-width: 659px) {
+  .content-form .button-wrapper .send-button-wrapper {
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+/* Tablet/small desktop: order adjustment */
+@media (max-width: 1023px) {
+  .content-form .button-wrapper .send-button-wrapper {
+    order: 90;
+  }
+}

@@ -1,25 +1,54 @@
 :root {
   /* Typography */
-  --main-font-family: 'Unbounded', sans-serif;
+  --main-font-family: "Unbounded", sans-serif;
   --main-font-text-transform-value: uppercase;
   --main-font-weight-value: 800;
-  --main-font-line-height-value: 0.88em;            /* tighter line height */
-  --main-font-letter-spacing-value: -0.04em;        /* slightly tighter letter spacing */
+  --main-font-line-height-value: 0.88em; /* tighter line height */
+  --main-font-letter-spacing-value: -0.04em; /* slightly tighter letter spacing */
 
-  --secondary-font-family: 'Poppins', sans-serif;
+  --secondary-font-family: "Poppins", sans-serif;
 
+  --submit-font-size-min: 18px;
+  --submit-font-size-max: 29px;
+  --submit-font-size-clamp: clamp(
+    var(--submit-font-size-min),
+    calc(var(--submit-font-size-min) + (11 * ((100vw - 430px) / (1570)))),
+    var(--submit-font-size-max)
+  );
+
+  --main-font-size: 1.739em;
   /* Colors */
   --main-color: #ffed00;
   --overlay-default-color: #000;
   --invert-color: invert(1);
 
   --main-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --submit-box-shadow: inset 0 -0.275em 0.1px 0 var(--overlay-default-color);
+  --submit-box-shadow-hover: inset 0 0 0 0 var(--overlay-default-color);
 
   /* Content */
   --max-content-size: 1780px;
 
   --main-spacing-size: 5vh;
-  --main-border-radius: 40px;
 
+  --main-border: 8px solid #000;
+  --main-border-radius: 40px;
+  --max-border-radius: 100px;
   --overlay-height: 30%;
+
+  --submit-padding: 1em 2.07em 1.05em;
+  --textarea-padding: 0.5em 1.17em 0.2em;
+  --label-padding: 0.8em 0;
+  --zero-padding: 0;
+
+  --main-gap: 1rem;
+
+  --textarea-width: calc(100% - 2px);
+
+  --textarea-height: 112px;
+  /* Transform and Transition */
+  --submit-transform-hover: translateY(0.27em);
+
+  --submit-transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
+  --submit-transition-hover: box-shadow 0.15s ease-out, transform 0.15s ease-out;
 }

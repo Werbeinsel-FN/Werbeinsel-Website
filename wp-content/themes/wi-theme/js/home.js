@@ -37,30 +37,5 @@ document.addEventListener("DOMContentLoaded", function () {
   smoothAnimate();
 });
 
-// Always show 4 items per row, but scale width accordingly
-function adjustCellWidth() {
-  document.querySelectorAll(".carousel").forEach((carousel) => {
-    const carouselWidth = carousel.offsetWidth;
-    const cells = carousel.querySelectorAll(".carousel-cell");
-
-    let itemsToShow;
-    let increaseFactor;
-
-    if (carouselWidth >= 1024) {
-      itemsToShow = 4;
-      increaseFactor = 1.4;
-    } else {
-      itemsToShow = 2.5;
-      increaseFactor = 1.2;
-    }
-
-    const newWidthPercent = (100 / itemsToShow) * increaseFactor;
-
-    cells.forEach((cell) => {
-      cell.style.width = `${newWidthPercent}%`;
-    });
-  });
-}
-
 window.addEventListener("resize", adjustCellWidth);
 document.addEventListener("DOMContentLoaded", adjustCellWidth);

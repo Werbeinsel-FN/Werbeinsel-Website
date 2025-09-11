@@ -1,12 +1,17 @@
+:where(figure) {
+  margin: 0;
+}
+
 /**************************************/
 /* General                            */
 /**************************************/
 
 .home-main-container {
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
   width: 100%;
+}
+
+.home-services-container .service-category-section.is-dark > div {
+  max-width: var(--max-content-size);
 }
 
 /**************************************/
@@ -30,14 +35,6 @@
 /* Carousel Wrapper                   */
 /**************************************/
 
-.home-customer-logos .partner-list {
-  margin-top: 35px;
-}
-
-.home-customer-logos .partner-list-wrapper .partner-list:first-child {
-  margin-top: 0;
-}
-
 @media (max-width: 659px) {
   .home-customer-logos .partner-list {
     margin-top: 15px;
@@ -50,7 +47,7 @@
 
 .carousel-cell {
   box-sizing: border-box;
-  padding: 0 clamp(6px, 1.2vw, 16px); /* control horizontal spacing */
+  padding: calc(var(--main-spacing-size)/2);
 }
 
 /* Logo box */
@@ -64,6 +61,8 @@
   overflow: hidden;
   padding: 0;
   width: 100%;
+  aspect-ratio: 2 / 1;
+  max-width: calc(var(--main-spacing-size) * 10);
 }
 
 /**************************************/

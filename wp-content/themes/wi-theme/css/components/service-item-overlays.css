@@ -18,9 +18,13 @@
 }
 
 .services-grid-row.three-columns-row .service-overlay {
-  padding: calc(var(--main-spacing-size) / 4 * 3) var(--main-spacing-size);
+  padding: calc(var(--main-spacing-size) / 4 * 3) calc(var(--main-spacing-size) / 5 * 4);
 }
 
 .service-category-section.is-dark .service-overlay {
   background: linear-gradient(to top, var(--main-color), transparent);
+}
+
+.service-overlay .service-subtitle {
+  margin-bottom: calc(var(--main-spacing-size) * 3 / 20);
 }
