@@ -1,17 +1,8 @@
-# Alles ignorieren ...
-*
+<<<<<<< Updated upstream
+﻿wp-config.php
+.DS_Store
+._*
+=======
 
-# .DS_Store-Dateien immer ignorieren, egal wo sie liegen
-**/.DS_Store
-
-# ... außer diese Ordner und Dateien (mit ! erlauben)
-!.gitignore
-!buildspec.yml
-!wp-content/
-!wp-content/themes/
-!wp-content/themes/wi-theme/
-!wp-content/themes/wi-theme/**
-
-!wp-content/plugins/
-!wp-content/plugins/wi-forms/
-!wp-content/plugins/wi-forms/**
+wp-config.php
+>>>>>>> Stashed changes

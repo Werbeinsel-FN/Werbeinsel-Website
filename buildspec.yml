@@ -25,11 +25,5 @@ phases:
 
   build:
     commands:
-      - echo "Erstelle Deploy-Archiv mit Themes & Plugins"
-      - tar czf deploy-package.tar.gz wp-content/themes/wi-theme wp-content/plugins/wi-forms wp-content/plugins/testplugin
-      - scp -i ~/.ssh/id_rsa deploy-package.tar.gz lightsail:/home/bitnami/
-      - ssh lightsail "
-          tar xzf /home/bitnami/deploy-package.tar.gz -C /opt/bitnami/wordpress &&
-          rm /home/bitnami/deploy-package.tar.gz &&
-          sudo /opt/bitnami/ctlscript.sh restart apache
-        "
+      - echo "Verbinde mit Lightsail und ziehe neues GitHub-Repo"
+      - ssh lightsail "sudo -u bitnami git -C /opt/bitnami/wordpress pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"

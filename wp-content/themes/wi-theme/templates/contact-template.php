@@ -1,122 +1,78 @@
 <?php
 /**
- * Template Name: Kontakt
- * Description: Template for the contact page
+ * Template Name: Kontakt (Next static)
  */
+get_header();
 
-global $wp;
-
-get_header(); ?>
-
-<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/foundation-sites@6.7.5/dist/css/foundation.min.css"> -->
-<!-- <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet"> -->
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- FontAwesome 5 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<!-- FontAwesome 6 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-
-<main id="wi-contact-main" class="wi-contact-main">
-    <div id="contact-form" class="content-form contact-form">
-	
-        <div class="content row loaded">
-        
-            <h1 class="contact-form headline text-center">
-                Kontakt
-            </h1>
-            <h2 class="contact-form subline text-center">
-                Einfach das Formular ausfüllen - wir freuen uns auf Sie!
-            </h2>
-
-            <!-- <?php echo do_shortcode('[wi_form id="30"]'); ?>  -->
-        <?php 
-        $current_url = home_url( add_query_arg( array(), $wp->request ) );
-
-        if ($current_url === 'https://werbeinsel.de/kontakt') {
-            echo do_shortcode('[wi_form id="24793"]');
-        } 
-        else if ($current_url === 'http://werbeinsel.local/kontakt') {
-            echo do_shortcode('[wi_form id="30"]');
-        } else {
-            echo do_shortcode('[wi_form id="39"]');
-        }
-        ?>             
-        </div>
-    </div>
-    <div class="contact-bottom-wrapper">
-        <div class="contact-address-wrapper">
-            <div class="address">
-                <div class="icon-outer-wrapper">
-                    <div class="icon-wrapper">
-                        <i class="fa fa-map-marker"></i>
-                    </div>
-                </div>
-                <div class="data-wrapper">
-                    <div class="data-head-wrapper">
-                        <h5>Adresse</h5>
-                    </div>
-                    <div class="data-content-wrapper">
-                        Am Flugplatz 76/3<br />
-                        88045 Friedrichshafen
-                    </div>
-                </div>
-            </div>
-            <div class="email">
-                <div class="icon-outer-wrapper">
-                    <div class="icon-wrapper">
-                    <i class="fas fa-map"></i>
-                    </div>
-                </div>
-                <div class="data-wrapper">
-                    <div class="data-head-wrapper">
-                        <h5>E-Mail</h5>
-                    </div>
-                    <div class="data-content-wrapper">
-                        <a href="mailto:hallo@werbeinsel.de">hallo@werbeinsel.de</a>
-                    </div>
-                </div>
-            </div>
-            <div class="phone">
-                <div class="icon-outer-wrapper">
-                    <div class="icon-wrapper">
-                        <i class="fa-solid fa-phone"></i>
-                    </div>
-                </div>
-                <div class="data-wrapper">
-                    <div class="data-head-wrapper">
-                        <h5>Telefon</h5>
-                    </div>
-                    <div class="data-content-wrapper">
-                        <a href="tel:+4975417005744">+49 7541 700 57 44</a>
-                    </div>
-                </div>                
-            </div>
-        </div>
-        <div class="contact-map-outer-wrapper">
-            <div id="mapid" class="contact-map-wrapper">
-
-            </div>
-        </div>
-    </div>
+// Ako server ne servira index.html automatski, koristi
+// $next_url = content_url('uploads/next-contact/kontakt/index.html');
+$next_url = content_url('uploads/next-contact');
+?>
+<main id="contact-main" class="contact-main">
+  <div class="contact-main-container">
+    <iframe
+      id="wi-next-contact"
+      src="<?php echo esc_url($next_url); ?>"
+      style="width:100%; border:0; display:block; border-radius:24px; overflow:hidden; height:1px; min-height:400px"
+      scrolling="no"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      allow="clipboard-write"
+    ></iframe>
+  </div>
 </main>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const map = L.map('mapid').setView([47.6543, 9.4797], 10); // Koordinaten: Bodensee-Region z. B.
+(function () {
+  const iframe = document.getElementById('wi-next-contact');
+  let last = 0, raf = 0;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Leaflet | © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
-        maxZoom: 18,
-    }).addTo(map);
+  function setH(h) {
+    const clamped = Math.max(400, Math.ceil(h));
+    if (Math.abs(clamped - last) > 3) {
+      last = clamped;
+      iframe.style.height = clamped + 'px';
+    }
+  }
 
-});
+  // 1) postMessage iz Next-a (IframeAutosize)
+  window.addEventListener('message', function (e) {
+    const d = e.data;
+    if (d && d.type === 'wi-iframe-height' && typeof d.height === 'number') {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setH(d.height));
+    }
+  }, false);
+
+  // 2) Fallback: meri direktno DOM iFrame-a (same-origin)
+  function fitFromDOM() {
+    try {
+      const doc = iframe.contentWindow && iframe.contentWindow.document;
+      if (!doc) return;
+      const bodyH = doc.body ? doc.body.scrollHeight : 0;
+      const htmlH = doc.documentElement ? doc.documentElement.scrollHeight : 0;
+      const h = Math.max(bodyH, htmlH);
+      if (h) setH(h);
+    } catch (err) {
+      // drugačiji origin -> ignoriši (postMessage će odraditi posao)
+    }
+  }
+
+  iframe.addEventListener('load', () => {
+    fitFromDOM();
+    try {
+      const doc = iframe.contentWindow && iframe.contentWindow.document;
+      if (doc && 'ResizeObserver' in window) {
+        const ro = new ResizeObserver(() => fitFromDOM());
+        ro.observe(doc.documentElement);
+      }
+    } catch {}
+  });
+
+  window.addEventListener('resize', () => requestAnimationFrame(fitFromDOM));
+  // inicijalni fallback (fontovi/slike kasne)
+  setTimeout(fitFromDOM, 300);
+})();
 </script>
 
-
-<?php get_footer();
+<?php get_footer(); ?>
