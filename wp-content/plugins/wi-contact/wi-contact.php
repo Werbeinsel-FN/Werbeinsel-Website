@@ -4,7 +4,13 @@
  * Description: Prima JSON iz Next.js forme i šalje email na hallo@werbeinsel.de
  * Version: 1.1.0
  */
+// TEMP debug: uhvati poslednju mail grešku
+$GLOBALS['WI_LAST_MAIL_ERROR'] = null;
+add_action('wp_mail_failed', function($err){
+  $GLOBALS['WI_LAST_MAIL_ERROR'] = $err;
+});
 if (!defined('ABSPATH')) exit;
+
 // === Test endpoint za slanje maila i čitanje greške (privremeno) ===
 add_action('rest_api_init', function () {
   register_rest_route('wi/v1', '/mailtest', array(
@@ -89,8 +95,9 @@ function wi_handle_contact(WP_REST_Request $request) {
 
   $sent = wp_mail($to, $subject, $body, $headers);
   if (!$sent) {
-    return new WP_Error('mail_failed', 'Senden fehlgeschlagen.', array('status' => 500));
-  }
-
-  return new WP_REST_Response(array('ok' => true), 200);
+  $err = isset($GLOBALS['WI_LAST_MAIL_ERROR']) && is_wp_error($GLOBALS['WI_LAST_MAIL_ERROR'])
+    ? $GLOBALS['WI_LAST_MAIL_ERROR']->get_error_messages()
+    : array('unknown error');
+  return new WP_REST_Response(array('ok' => false, 'error' => $err), 500);
+}
 }
