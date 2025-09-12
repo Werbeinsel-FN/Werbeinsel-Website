@@ -1,0 +1,63 @@
+/* ====== izgled kao u Next-u ====== */
+#wp-form-slot .wi-contact-form {
+  margin: 0;
+}
+
+#wp-form-slot .wi-contact-form .wi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px 32px; /* razmak između polja */
+}
+
+/* sakrij label ispis iznad polja – koristimo samo placeholder u inputu */
+#wp-form-slot .wi-contact-form label span {
+  display: none !important;
+}
+
+/* inputi/textarea kao u Next-u */
+#wp-form-slot .wi-contact-form input,
+#wp-form-slot .wi-contact-form textarea {
+  width: 100%;
+  background: #fff;
+  border: 2px solid #111; /* ista debljina okvira */
+  border-radius: 40px; /* jako zaobljeno */
+  padding: 24px 24px; /* „p-6“ osećaj */
+  outline: none;
+  box-shadow: none;
+  font: inherit; /* koristi font iz stranice (poppins) */
+  color: #000;
+}
+
+/* placeholder ton kao neutral-500 */
+#wp-form-slot .wi-contact-form input::placeholder,
+#wp-form-slot .wi-contact-form textarea::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+/* fokus bez obojenog halo-a, ostaje crni okvir */
+#wp-form-slot .wi-contact-form input:focus,
+#wp-form-slot .wi-contact-form textarea:focus {
+  border-color: #111;
+  outline: none;
+  box-shadow: none;
+}
+
+/* textarea ako koristiš iz plugina (ako ne, ignoriši) */
+#wp-form-slot .wi-contact-form textarea {
+  min-height: 160px;
+  resize: vertical;
+  border-radius: 40px;
+}
+
+/* sakrij plugin dugme – koristiš svoj ANFRAGE SENDEN */
+#wp-form-slot .wi-contact-form .wi-submit {
+  display: none !important;
+}
+
+/* mobilno: jedna kolona */
+@media (max-width: 900px) {
+  #wp-form-slot .wi-contact-form .wi-grid {
+    grid-template-columns: 1fr;
+  }
+}

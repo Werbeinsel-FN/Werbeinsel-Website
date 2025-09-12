@@ -37,36 +37,8 @@
               </h1>
             </section>
             <section class="content-container mt-16">
-              <form class="space-y-12">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <input
-                    type="text"
-                    placeholder="Name *"
-                    required=""
-                    class="p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black poppins"
-                    name="name"
-                    value=""
-                  /><input
-                    type="email"
-                    placeholder="E-Mail *"
-                    required=""
-                    class="p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black poppins"
-                    name="email"
-                    value=""
-                  /><input
-                    type="text"
-                    placeholder="Unternehmen"
-                    class="p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black poppins"
-                    name="company"
-                    value=""
-                  /><input
-                    type="tel"
-                    placeholder="Telefon"
-                    class="p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black poppins"
-                    name="phone"
-                    value=""
-                  />
-                </div>
+              <div class="space-y-12" id="wp-form-shell">
+                <div id="wp-form-slot"></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div>
                     <label
@@ -178,8 +150,44 @@
                   >
                     ANFRAGE SENDEN
                   </button>
+                  <script>
+                    // sakrij Submit dugme iz plugina (da ne bude duplo)
+                    document.addEventListener("DOMContentLoaded", function () {
+                      const hidePluginBtn = () => {
+                        const btn = document.querySelector(
+                          ".wi-contact-form .wi-submit"
+                        );
+                        if (btn) btn.style.display = "none";
+                      };
+                      hidePluginBtn();
+                      // i ako DOM menja visinu posle injekcije:
+                      const ro = new MutationObserver(hidePluginBtn);
+                      ro.observe(document.body, {
+                        subtree: true,
+                        childList: true,
+                      });
+                    });
+
+                    // Veži tvoj gumb da šalje WI Contact formu
+                    (function () {
+                      const sendBtn =
+                        document.querySelector(
+                          'button[type="submit"].unbounded-bold, button[aria-label="ANFRAGE SENDEN"]'
+                        ) ||
+                        document.querySelector(
+                          'button:contains("ANFRAGE SENDEN")'
+                        );
+                      if (!sendBtn) return;
+                      sendBtn.type = "button";
+                      sendBtn.addEventListener("click", function () {
+                        const frm = document.querySelector(".wi-contact-form");
+                        if (frm && frm.requestSubmit) frm.requestSubmit();
+                        else if (frm) frm.submit();
+                      });
+                    })();
+                  </script>
                 </div>
-              </form>
+              </div>
             </section>
             <section class="relative mt-16">
               <div class="relative w-full">

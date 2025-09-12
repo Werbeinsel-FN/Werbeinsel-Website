@@ -1,0 +1,8 @@
+#wi-forms-table input[type="text"],
+#wi-forms-table select {
+  width: 100%;
+}
+.button-danger {
+  background: #d63638;
+  color: #fff;
+}

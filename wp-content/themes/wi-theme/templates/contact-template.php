@@ -25,6 +25,7 @@ $next_url = content_url('uploads/next-contact/index.html?v=5');
   /* za svaki slučaj dozvoli „curenje“ iz roditelja ako tema to guši */
   .site, .site-main, .content-area, .entry-content { overflow: visible !important; }
 </style>
+
 <main id="contact-main" class="contact-main">
   <div class="contact-main-container full-bleed">
     <iframe
@@ -89,6 +90,56 @@ $next_url = content_url('uploads/next-contact/index.html?v=5');
   window.addEventListener('resize', () => requestAnimationFrame(fitFromDOM));
   // inicijalni fallback (fontovi/slike kasne)
   setTimeout(fitFromDOM, 300);
+})();
+</script>
+<?php
+// 1) HTML forme iz plugina
+$form_html = do_shortcode('[wi_contact_form]');
+
+// 2) URL na CSS unutar plugina (ubacićemo ga u iframe head)
+$plugin_css_url = plugins_url('assets/front.css', WP_CONTENT_DIR . '/plugins/wi-contact/wi-contact.php');
+?>
+<script>
+(function () {
+  const iframe = document.getElementById('wi-next-contact');
+  const FORM_HTML = <?php echo wp_json_encode($form_html); ?>;
+  const CSS_URL   = <?php echo wp_json_encode($plugin_css_url); ?>;
+
+  function injectForm() {
+    try {
+      const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+      if (!doc) return;
+
+      // 1) Ubaci CSS (ako već nije ubačen)
+      if (!doc.getElementById('wi-contact-front-css')) {
+        const link = doc.createElement('link');
+        link.id = 'wi-contact-front-css';
+        link.rel = 'stylesheet';
+        link.href = CSS_URL;
+        doc.head.appendChild(link);
+      }
+
+      // 2) Nađi slot ili fallback na body
+      let slot = doc.getElementById('wp-form-slot');
+      if (!slot) slot = doc.body;
+
+      // 3) Ubaci HTML forme (zamenjuje postojeći sadržaj slota)
+      slot.innerHTML = FORM_HTML;
+
+    } catch (e) {
+      // ako je cross-origin (ne bi trebalo), samo preskoči
+      console.warn('Form injection skipped:', e);
+    }
+  }
+
+  // Kad se iframe učita, ubacujemo formu
+  iframe.addEventListener('load', injectForm);
+
+  // Ako se već učitao (edge slučaj)
+  if (iframe.complete) {
+    // mali delay da DOM unutra bude spreman
+    setTimeout(injectForm, 100);
+  }
 })();
 </script>
 
