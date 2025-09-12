@@ -54,7 +54,85 @@
 #wp-form-slot .wi-contact-form .wi-submit {
   display: none !important;
 }
+/* === ACTIVE pill izgled (žuto, crni okvir) === */
+#wp-pills-root button.wi-pill-active {
+  background: #ffed00 !important; /* brand žuta */
+  color: #000 !important;
+  border-color: #000 !important;
+  border-width: 3px !important;
+} /* ====== izgled kao u Next-u (form) ====== */
+#wp-form-slot .wi-contact-form {
+  margin: 0;
+}
 
+#wp-form-slot .wi-contact-form .wi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px 32px;
+}
+
+#wp-form-slot .wi-contact-form label span {
+  display: none !important;
+}
+
+#wp-form-slot .wi-contact-form input,
+#wp-form-slot .wi-contact-form textarea {
+  width: 100%;
+  background: #fff;
+  border: 2px solid #111;
+  border-radius: 40px;
+  padding: 24px 24px;
+  outline: none;
+  box-shadow: none;
+  font: inherit;
+  color: #000;
+}
+
+#wp-form-slot .wi-contact-form input::placeholder,
+#wp-form-slot .wi-contact-form textarea::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+#wp-form-slot .wi-contact-form input:focus,
+#wp-form-slot .wi-contact-form textarea:focus {
+  border-color: #111;
+  outline: none;
+  box-shadow: none;
+}
+
+#wp-form-slot .wi-contact-form textarea {
+  min-height: 160px;
+  resize: vertical;
+  border-radius: 40px;
+}
+
+/* sakrij plugin submit – koristimo tvoj CTA */
+#wp-form-slot .wi-contact-form .wi-submit {
+  display: none !important;
+}
+
+/* ====== PILLS: aktivni stil (žuto sa crnim okvirom) ====== */
+.wi-pill.wi-pill-active {
+  background: #ffed00 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+  border-width: 3px !important;
+}
+.wi-pill.wi-pill-active:hover {
+  background: #ffed00 !important;
+}
+
+/* mobilno: jedna kolona */
+@media (max-width: 900px) {
+  #wp-form-slot .wi-contact-form .wi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+#wp-pills-root button.wi-pill-active:hover {
+  background: #ffed00 !important;
+}
 /* mobilno: jedna kolona */
 @media (max-width: 900px) {
   #wp-form-slot .wi-contact-form .wi-grid {
