@@ -90,7 +90,7 @@ if (!is_array($pills) || empty($pills)) {
 
   /* --------- WP forma + pills iz plugina --------- */
   const FORM_HTML = <?php echo wp_json_encode($form_html); ?>;
-  const CSS_URL   = <?php echo wp_json_encode($plugin_css_url . '?v=6'); ?>;
+  const CSS_URL   = <?php echo wp_json_encode($plugin_css_url . '?v=7'); ?>;
   const PILLS     = <?php echo wp_json_encode($pills); ?>;
 
   function injectAssets(doc){
@@ -188,14 +188,32 @@ if (!is_array($pills) || empty($pills)) {
     try { ref.value = doc.location.href; } catch(e) { ref.value = '<?php echo esc_js($next_url); ?>'; }
   }
 
-  /* === Fullscreen "Danke!" sa animiranim thumbs-up, centrirano + auto-hide === */
+  /* obavezna polja + HTML5 validacija */
+  function ensureRequiredFields(doc){
+    const frm = doc.querySelector('.wi-contact-form');
+    if (!frm) return;
+
+    frm.removeAttribute('novalidate');
+
+    const nameEl = frm.querySelector('input[name="name"]');
+    const mailEl = frm.querySelector('input[name="email"]');
+
+    if (nameEl) nameEl.setAttribute('required','');
+
+    if (mailEl) {
+      mailEl.setAttribute('required','');
+      if (!mailEl.getAttribute('type')) mailEl.setAttribute('type','email');
+      mailEl.setAttribute('pattern','[^\\s@]+@[^\\s@]+\\.[^\\s@]+');
+    }
+  }
+
+  /* === Fullscreen "Danke!" (thumbs-up), centrirano + auto-hide + scroll u kadar === */
   function showResultNotice(doc){
     const qs = new URLSearchParams((doc.location && doc.location.search) || '');
     const ok  = qs.get('wi_ok');
     const err = qs.get('wi_error');
 
     if (ok) {
-      // CSS (jednom)
       if (!doc.getElementById('wi-thanks-style')) {
         const st = doc.createElement('style');
         st.id = 'wi-thanks-style';
@@ -227,7 +245,6 @@ if (!is_array($pills) || empty($pills)) {
       const old = doc.getElementById('wi-thanks-overlay');
       if (old) old.remove();
 
-      // Thumbs-up SVG (ikonica kao na tvojoj dobroj slici)
       const ov = doc.createElement('div');
       ov.id = 'wi-thanks-overlay';
       ov.setAttribute('role','status');
@@ -241,20 +258,15 @@ if (!is_array($pills) || empty($pills)) {
       `;
       doc.body.appendChild(ov);
 
-      // skini wi_ok iz URL-a da se overlay ne vraća na refresh
       try {
         const url = new URL(doc.location.href);
         url.searchParams.delete('wi_ok');
         doc.defaultView.history.replaceState({}, '', url.toString());
       } catch(e){}
 
-      // ispravno dovedi parent viewport do iFrame-a (vidi se overlay)
       try { iframe.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-
-      // prilagodi visinu iFrame-a
       try { parent.postMessage({type:'wi-iframe-height', height: doc.documentElement.clientHeight }, '*'); } catch(e){}
 
-      // auto-hide posle 5s
       setTimeout(() => {
         ov.classList.add('hidden');
         setTimeout(() => {
@@ -264,11 +276,9 @@ if (!is_array($pills) || empty($pills)) {
           } catch(e){}
         }, 400);
       }, 5000);
-
       return;
     }
 
-    // === Greška: mali notice ispod forme + scroll u kadar ===
     if (err) {
       const frm = doc.querySelector('.wi-contact-form');
       if (!frm) return;
@@ -287,7 +297,6 @@ if (!is_array($pills) || empty($pills)) {
       div.textContent = msg || 'Es gab einen Fehler. Bitte versuchen Sie es erneut.';
       frm.appendChild(div);
 
-      // scroll parenta do iFrame-a i forme u iFrame-u u kadar
       try { iframe.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
       try { frm.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
       try { parent.postMessage({type:'wi-iframe-height', height: Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight) }, '*'); } catch(e){}
@@ -308,11 +317,19 @@ if (!is_array($pills) || empty($pills)) {
       ev.stopImmediatePropagation();
       ev.stopPropagation();
 
-      ensureRefererField(doc);
-      syncHidden(doc);
-
+      ensureRequiredFields(doc);
       const frm = doc.querySelector('.wi-contact-form');
       if (!frm) return;
+
+      // HTML5 validacija
+      if (typeof frm.checkValidity === 'function' && !frm.checkValidity()) {
+        try { frm.reportValidity(); } catch(e){}
+        try { frm.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+        return;
+      }
+
+      syncHidden(doc);
+      ensureRefererField(doc);
       frm.setAttribute('target','_self');
       frm.setAttribute('method','post');
 
@@ -331,6 +348,9 @@ if (!is_array($pills) || empty($pills)) {
     let slot = doc.getElementById('wp-form-slot');
     if (!slot) slot = doc.body;
     slot.innerHTML = FORM_HTML;
+
+    // 1b) obavezna polja
+    ensureRequiredFields(doc);
 
     // 2) sakrij plugin dugme – koristimo Next CTA
     const submitBtn = doc.querySelector('.wi-contact-form .wi-submit');
