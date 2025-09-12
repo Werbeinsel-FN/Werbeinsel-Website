@@ -29,9 +29,14 @@ if (!is_array($pills) || empty($pills)) {
 ?>
 <style>
   /* Full-bleed za main wrapper (kao ranije) */
-  #contact-main { --bleed: calc(50vw - 50%); width: calc(100% + 2 * var(--bleed));
-    margin-left: calc(-1 * var(--bleed)); margin-right: calc(-1 * var(--bleed));
-    padding:0 !important; overflow:visible !important; }
+  #contact-main {
+    --bleed: calc(50vw - 50%);
+    width: calc(100% + 2 * var(--bleed));
+    margin-left: calc(-1 * var(--bleed));
+    margin-right: calc(-1 * var(--bleed));
+    padding:0 !important;
+    overflow:visible !important;
+  }
   .contact-main-container { margin:0 !important; padding:0 !important; }
   #wi-next-contact { border-radius:0 !important; display:block; width:100%; border:0; }
   .site, .site-main, .content-area, .entry-content { overflow:visible !important; }
@@ -130,22 +135,22 @@ if (!is_array($pills) || empty($pills)) {
       const box = doc.createElement('div');
       box.className = 'space-y-2';
       (group.items || []).forEach(item => {
-    const btn = doc.createElement('button');
-btn.type = 'button';
-btn.className = 'wi-pill w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800';
-btn.textContent = item;
-btn.dataset.group = key;
-btn.dataset.value = item;
-btn.addEventListener('click', () => {
-  if (group.multiple) {
-    btn.classList.toggle('wi-pill-active');
-  } else {
-    box.querySelectorAll('button').forEach(b => b.classList.remove('wi-pill-active'));
-    btn.classList.add('wi-pill-active');
-  }
-  syncHidden(doc);
-  fitFromDOM();
-});
+        const btn = doc.createElement('button');
+        btn.type = 'button';
+        btn.className = 'wi-pill w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800';
+        btn.textContent = item;
+        btn.dataset.group = key;
+        btn.dataset.value = item;
+        btn.addEventListener('click', () => {
+          if (group.multiple) {
+            btn.classList.toggle('wi-pill-active');
+          } else {
+            box.querySelectorAll('button').forEach(b => b.classList.remove('wi-pill-active'));
+            btn.classList.add('wi-pill-active');
+          }
+          syncHidden(doc);
+          fitFromDOM();
+        });
         box.appendChild(btn);
       });
       col.appendChild(box);
@@ -158,10 +163,19 @@ btn.addEventListener('click', () => {
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
     Object.keys(PILLS).forEach(key => {
-    const sel = doc.querySelectorAll('[data-group="'+key+'"].wi-pill-active');
+      const sel = doc.querySelectorAll('[data-group="'+key+'"].wi-pill-active');
       const values = Array.from(sel).map(b => b.dataset.value);
       const hid = frm.querySelector('input[name="pill_'+key+'"]');
       if (hid) hid.value = values.join(', ');
+    });
+  }
+
+  function neutralizeOuterForms(doc){
+    // ugasi bilo koji Next <form> da ne presreće submit
+    const forms = doc.querySelectorAll('form:not(.wi-contact-form)');
+    forms.forEach(f => {
+      f.setAttribute('novalidate','novalidate');
+      f.addEventListener('submit', (e) => { e.preventDefault(); e.stopPropagation(); return false; }, true);
     });
   }
 
@@ -169,17 +183,27 @@ btn.addEventListener('click', () => {
     // koristi postojeći CTA "ANFRAGE SENDEN" da pošalje WP formu
     let cta = doc.querySelector('button[type="submit"]');
     if (!cta) {
-      const buttons = doc.querySelectorAll('button');
-      cta = Array.from(buttons).find(b => /anfrage\s*senden/i.test(b.textContent || ''));
+      const btns = Array.from(doc.querySelectorAll('button'));
+      cta = btns.find(b => /anfrage\s*senden/i.test((b.textContent||'').trim()));
     }
-    if (cta) {
-      cta.type = 'button';
-      cta.addEventListener('click', function(){
-        syncHidden(doc);
-        const frm = doc.querySelector('.wi-contact-form');
-        if (frm && frm.requestSubmit) frm.requestSubmit(); else if (frm) frm.submit();
-      });
-    }
+    if (!cta) return;
+
+    cta.type = 'button';
+    cta.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      ev.stopPropagation();
+
+      syncHidden(doc); // osveži hidden polja
+
+      const frm = doc.querySelector('.wi-contact-form');
+      if (!frm) return;
+      frm.setAttribute('target','_self');
+      frm.setAttribute('method','post');
+
+      if (typeof frm.requestSubmit === 'function') frm.requestSubmit();
+      else frm.submit();
+    }, true);
   }
 
   function injectForm(){
@@ -197,15 +221,18 @@ btn.addEventListener('click', () => {
     const submitBtn = doc.querySelector('.wi-contact-form .wi-submit');
     if (submitBtn) submitBtn.style.display = 'none';
 
-    // 3) iscrtaj kolone dugmadi i poveži CTA
+    // 3) iscrtaj kolone dugmadi
     renderPills(doc);
-    hookCTA(doc);
-    syncHidden(doc);
 
-    // 4) resize posle injekcije
+    // 4) neutralizuj sve spoljne forme i veži CTA da šalje WP formu
+    neutralizeOuterForms(doc);
+    hookCTA(doc);
+
+    // 5) upiši vrednosti i resize
+    syncHidden(doc);
     fitFromDOM();
 
-    // 5) posmatraj promene visine u iFrame-u (kad korisnik klika)
+    // 6) posmatraj promene visine u iFrame-u (kad korisnik klika)
     try {
       if ('ResizeObserver' in window) {
         const ro = new ResizeObserver(() => fitFromDOM());
@@ -219,7 +246,6 @@ btn.addEventListener('click', () => {
   iframe.addEventListener('load', injectForm);
   if (iframe.complete) setTimeout(injectForm, 120);
 
-  // dodatni fallbacki
   window.addEventListener('resize', () => requestAnimationFrame(fitFromDOM));
   setTimeout(fitFromDOM, 350);
 })();
