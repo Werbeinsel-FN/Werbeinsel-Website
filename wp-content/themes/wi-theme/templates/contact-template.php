@@ -28,7 +28,7 @@ if (!is_array($pills) || empty($pills)) {
 }
 ?>
 <style>
-  /* Full-bleed za main wrapper (kao ranije) */
+  /* Full-bleed wrapper */
   #contact-main {
     --bleed: calc(50vw - 50%);
     width: calc(100% + 2 * var(--bleed));
@@ -90,7 +90,7 @@ if (!is_array($pills) || empty($pills)) {
 
   /* --------- WP forma + pills iz plugina --------- */
   const FORM_HTML = <?php echo wp_json_encode($form_html); ?>;
-  const CSS_URL   = <?php echo wp_json_encode($plugin_css_url . '?v=4'); ?>;
+  const CSS_URL   = <?php echo wp_json_encode($plugin_css_url . '?v=6'); ?>;
   const PILLS     = <?php echo wp_json_encode($pills); ?>;
 
   function injectAssets(doc){
@@ -111,7 +111,6 @@ if (!is_array($pills) || empty($pills)) {
   }
 
   function renderPills(doc){
-    // 1) nadji root gde idu kolone (preporučeno #wp-pills-root; fallback prvi 3-col grid posle #wp-form-slot)
     let root = doc.getElementById('wp-pills-root');
     if (!root) {
       const slot = doc.getElementById('wp-form-slot');
@@ -121,7 +120,6 @@ if (!is_array($pills) || empty($pills)) {
     }
     if (!root) return;
 
-    // 2) iscrtaj tri kolone iz PILLS
     root.innerHTML = '';
     Object.keys(PILLS).forEach(key => {
       const group = PILLS[key];
@@ -159,7 +157,6 @@ if (!is_array($pills) || empty($pills)) {
   }
 
   function syncHidden(doc){
-    // upisuje izabrane vrednosti u hidden inpute unutar .wi-contact-form
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
     Object.keys(PILLS).forEach(key => {
@@ -171,7 +168,6 @@ if (!is_array($pills) || empty($pills)) {
   }
 
   function neutralizeOuterForms(doc){
-    // ugasi bilo koji Next <form> da ne presreće submit
     const forms = doc.querySelectorAll('form:not(.wi-contact-form)');
     forms.forEach(f => {
       f.setAttribute('novalidate','novalidate');
@@ -180,7 +176,6 @@ if (!is_array($pills) || empty($pills)) {
   }
 
   function ensureRefererField(doc){
-    // dodaj hidden _wp_http_referer = trenutni URL iFrame-a (da WP zna gde da vrati posle submit-a)
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
     let ref = frm.querySelector('input[name="_wp_http_referer"]');
@@ -190,12 +185,116 @@ if (!is_array($pills) || empty($pills)) {
       ref.name = '_wp_http_referer';
       frm.appendChild(ref);
     }
-    // koristi stvarni URL iFrame dokumenta (sa query stringom)
     try { ref.value = doc.location.href; } catch(e) { ref.value = '<?php echo esc_js($next_url); ?>'; }
   }
 
+  /* === Fullscreen "Danke!" sa animiranim thumbs-up, centrirano + auto-hide === */
+  function showResultNotice(doc){
+    const qs = new URLSearchParams((doc.location && doc.location.search) || '');
+    const ok  = qs.get('wi_ok');
+    const err = qs.get('wi_error');
+
+    if (ok) {
+      // CSS (jednom)
+      if (!doc.getElementById('wi-thanks-style')) {
+        const st = doc.createElement('style');
+        st.id = 'wi-thanks-style';
+        st.textContent = `
+          @keyframes wi-bob { 0%{transform:translateY(0)} 50%{transform:translateY(-14px)} 100%{transform:translateY(0)} }
+          @keyframes wi-fade { to{ opacity:0; visibility:hidden } }
+          #wi-thanks-overlay{
+            position:fixed; inset:0; background:#ffed00;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            text-align:center; z-index:2147483647; padding:24px;
+          }
+          #wi-thanks-overlay.hidden{ animation:wi-fade .4s ease forwards; }
+          #wi-thanks-overlay .wi-hand{
+            width:clamp(96px,12vw,160px); height:auto; color:#000;
+            animation:wi-bob 1.05s ease-in-out 6;
+          }
+          #wi-thanks-overlay h1{
+            margin:20px 0 0; font-weight:900; letter-spacing:1px;
+            font-size:clamp(40px,6vw,96px);
+          }
+          #wi-thanks-overlay p{
+            max-width:960px; margin:14px auto 0;
+            font-size:clamp(16px,1.8vw,22px); line-height:1.45;
+          }
+        `;
+        doc.head.appendChild(st);
+      }
+
+      const old = doc.getElementById('wi-thanks-overlay');
+      if (old) old.remove();
+
+      // Thumbs-up SVG (ikonica kao na tvojoj dobroj slici)
+      const ov = doc.createElement('div');
+      ov.id = 'wi-thanks-overlay';
+      ov.setAttribute('role','status');
+      ov.setAttribute('aria-live','polite');
+      ov.innerHTML = `
+        <svg viewBox="0 0 24 24" class="wi-hand" fill="#000" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M2 10h4v12H2zM22 10a2 2 0 0 0-2-2h-6.31l.95-4.57.03-.32A1.5 1.5 0 0 0 13.2 2H12l-4 9v11h9a2 2 0 0 0 2-2l1-7z"/>
+        </svg>
+        <h1>DANKE!</h1>
+        <p>Ihre Anfrage wurde erfolgreich gesendet. Wir melden uns in Kürze bei Ihnen.</p>
+      `;
+      doc.body.appendChild(ov);
+
+      // skini wi_ok iz URL-a da se overlay ne vraća na refresh
+      try {
+        const url = new URL(doc.location.href);
+        url.searchParams.delete('wi_ok');
+        doc.defaultView.history.replaceState({}, '', url.toString());
+      } catch(e){}
+
+      // ispravno dovedi parent viewport do iFrame-a (vidi se overlay)
+      try { iframe.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+
+      // prilagodi visinu iFrame-a
+      try { parent.postMessage({type:'wi-iframe-height', height: doc.documentElement.clientHeight }, '*'); } catch(e){}
+
+      // auto-hide posle 5s
+      setTimeout(() => {
+        ov.classList.add('hidden');
+        setTimeout(() => {
+          ov.remove();
+          try {
+            parent.postMessage({type:'wi-iframe-height', height: Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight) }, '*');
+          } catch(e){}
+        }, 400);
+      }, 5000);
+
+      return;
+    }
+
+    // === Greška: mali notice ispod forme + scroll u kadar ===
+    if (err) {
+      const frm = doc.querySelector('.wi-contact-form');
+      if (!frm) return;
+      const prev = doc.getElementById('wi-contact-notice');
+      if (prev) prev.remove();
+      const div = doc.createElement('div');
+      div.id = 'wi-contact-notice';
+      div.className = 'wi-alert err';
+      div.style.marginTop = '16px';
+      div.style.padding   = '12px 16px';
+      div.style.border    = '2px solid #c53030';
+      div.style.background= '#fff';
+      let msg = err;
+      try { msg = decodeURIComponent(msg); } catch(e){}
+      try { msg = decodeURIComponent(msg); } catch(e){}
+      div.textContent = msg || 'Es gab einen Fehler. Bitte versuchen Sie es erneut.';
+      frm.appendChild(div);
+
+      // scroll parenta do iFrame-a i forme u iFrame-u u kadar
+      try { iframe.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+      try { frm.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+      try { parent.postMessage({type:'wi-iframe-height', height: Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight) }, '*'); } catch(e){}
+    }
+  }
+
   function hookCTA(doc){
-    // koristi postojeći CTA "ANFRAGE SENDEN" da pošalje WP formu
     let cta = doc.querySelector('button[type="submit"]');
     if (!cta) {
       const btns = Array.from(doc.querySelectorAll('button'));
@@ -209,8 +308,8 @@ if (!is_array($pills) || empty($pills)) {
       ev.stopImmediatePropagation();
       ev.stopPropagation();
 
-      ensureRefererField(doc); // <<< ključno
-      syncHidden(doc);         // osveži hidden polja
+      ensureRefererField(doc);
+      syncHidden(doc);
 
       const frm = doc.querySelector('.wi-contact-form');
       if (!frm) return;
@@ -244,14 +343,15 @@ if (!is_array($pills) || empty($pills)) {
     neutralizeOuterForms(doc);
     hookCTA(doc);
 
-    // 5) pripremi referer polje pre svakog potencijalnog slanja
+    // 5) referer field + prikaži rezultat (ako postoji u URL-u iFrame-a)
     ensureRefererField(doc);
+    showResultNotice(doc);
 
     // 6) upiši vrednosti i resize
     syncHidden(doc);
     fitFromDOM();
 
-    // 7) posmatraj promene visine u iFrame-u (kad korisnik klika)
+    // 7) posmatraj promene visine u iFrame-u
     try {
       if ('ResizeObserver' in window) {
         const ro = new ResizeObserver(() => fitFromDOM());
