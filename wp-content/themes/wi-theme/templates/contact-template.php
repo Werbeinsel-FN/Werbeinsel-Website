@@ -179,6 +179,21 @@ if (!is_array($pills) || empty($pills)) {
     });
   }
 
+  function ensureRefererField(doc){
+    // dodaj hidden _wp_http_referer = trenutni URL iFrame-a (da WP zna gde da vrati posle submit-a)
+    const frm = doc.querySelector('.wi-contact-form');
+    if (!frm) return;
+    let ref = frm.querySelector('input[name="_wp_http_referer"]');
+    if (!ref) {
+      ref = doc.createElement('input');
+      ref.type = 'hidden';
+      ref.name = '_wp_http_referer';
+      frm.appendChild(ref);
+    }
+    // koristi stvarni URL iFrame dokumenta (sa query stringom)
+    try { ref.value = doc.location.href; } catch(e) { ref.value = '<?php echo esc_js($next_url); ?>'; }
+  }
+
   function hookCTA(doc){
     // koristi postojeći CTA "ANFRAGE SENDEN" da pošalje WP formu
     let cta = doc.querySelector('button[type="submit"]');
@@ -194,7 +209,8 @@ if (!is_array($pills) || empty($pills)) {
       ev.stopImmediatePropagation();
       ev.stopPropagation();
 
-      syncHidden(doc); // osveži hidden polja
+      ensureRefererField(doc); // <<< ključno
+      syncHidden(doc);         // osveži hidden polja
 
       const frm = doc.querySelector('.wi-contact-form');
       if (!frm) return;
@@ -228,11 +244,14 @@ if (!is_array($pills) || empty($pills)) {
     neutralizeOuterForms(doc);
     hookCTA(doc);
 
-    // 5) upiši vrednosti i resize
+    // 5) pripremi referer polje pre svakog potencijalnog slanja
+    ensureRefererField(doc);
+
+    // 6) upiši vrednosti i resize
     syncHidden(doc);
     fitFromDOM();
 
-    // 6) posmatraj promene visine u iFrame-u (kad korisnik klika)
+    // 7) posmatraj promene visine u iFrame-u (kad korisnik klika)
     try {
       if ('ResizeObserver' in window) {
         const ro = new ResizeObserver(() => fitFromDOM());
