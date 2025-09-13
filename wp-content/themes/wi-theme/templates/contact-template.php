@@ -143,6 +143,15 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
       const hid=frm.querySelector('input[name="pill_'+key+'"]'); if(hid) hid.value=values.join(', ');
     });
   }
+function clearLooseFields(doc) {
+  // očisti sve textarea i "slobodne" inpute, i van .wi-contact-form
+  doc.querySelectorAll('textarea').forEach(t => { t.value = ''; });
+  // ako Next-UI koristi floating labele/validaciju, pošalji input event
+  doc.querySelectorAll('input, textarea').forEach(el => {
+    try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch {}
+    try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch {}
+  });
+}
 
   /* -------- Danke / Error UI -------- */
   function ensureDanke(doc){
@@ -221,6 +230,7 @@ async function submitAjax(doc){
 
     try {
       frm.reset();
+      clearLooseFields(doc);
       doc.querySelectorAll('.wi-pill.wi-pill-active').forEach(b => b.classList.remove('wi-pill-active'));
       syncHidden(doc);
     } catch {}
