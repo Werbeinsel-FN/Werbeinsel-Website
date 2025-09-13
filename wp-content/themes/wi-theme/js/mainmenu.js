@@ -1,78 +1,60 @@
-(function($) {
-    $(document).ready(function() {
-        const menuButton = $('#toggle-main-menu');
-        const menu = $('.resp-menu');
-        let lastScrollPosition = 0;
-        let scrollTimeout;
+(function ($) {
+  $(function () {
+    var $btn = $("#toggle-main-menu");
+    var $overlay = $("#menu-overlay");
+    var $close = $(".menu-overlay-close");
+    var $links = $(".overlay-menu a");
 
-        // Menü öffnen
-        menuButton.on('click', function() {
-            menu.addClass('open'); // Menü fährt langsam hoch
-            menuButton.hide(); // Blendet den Button aus
-        });
+    function openMenu() {
+      $("body").addClass("menu-open");
+      $overlay.addClass("open").attr("aria-hidden", "false");
+      $btn.addClass("open");
+    }
 
-        // Menü schließen, wenn außerhalb geklickt wird
-        $(document).on('click', function(event) {
-            if (!$(event.target).closest('.resp-menu, #toggle-main-menu').length) {
-                closeMenu();
-            }
-        });
+    function closeMenu() {
+      $("body").removeClass("menu-open");
+      $overlay.removeClass("open").attr("aria-hidden", "true");
+      $btn.removeClass("open");
+    }
 
-        // Menü schließen, wenn der Nutzer gescrollt hat (aber mit Verzögerung)
-        $(window).on('scroll', function() {
-            if (menu.hasClass('open') && window.innerWidth <= 768) {
-                clearTimeout(scrollTimeout);
-
-                scrollTimeout = setTimeout(function() {
-                    if (Math.abs($(window).scrollTop() - lastScrollPosition) > 50) { // Mindestens 50px Scroll-Distanz
-                        closeMenu();
-                    }
-                }, 300); // Verzögertes Schließen nach 300ms
-            }
-            lastScrollPosition = $(window).scrollTop();
-        });
-
-        // Funktion zum Schließen des Menüs
-        function closeMenu() {
-            menu.removeClass('open');
-            menuButton.show();
-        }
-
-        // Funktion zum Scrollen oder Weiterleiten
-        function handleMenuClick(menuItem, targetURL, scrollTarget) {
-            menuItem.on('click', function(event) {
-                event.preventDefault(); // Standard Link-Verhalten verhindern
-
-                const isHomePage = window.location.pathname === "/" || window.location.pathname.includes("index");
-
-                if (isHomePage && scrollTarget.length) {
-                    $('html, body').animate({ scrollTop: scrollTarget.offset().top }, 800);
-                } else {
-                    window.location.href = targetURL;
-                }
-                closeMenu(); // Menü nach Klick schließen
-            });
-        }
-
-        // Scroll-Handling für den "Line-Up"-Menüpunkt
-        handleMenuClick($('.lineup-main-menu-item'), "/#lineup", $('.lineup-container'));
-
-        // Scroll-Handling für den "Area"-Menüpunkt
-        handleMenuClick($('.area-main-menu-item'), "/#area", $('.area-container'));
-
-        // Scroll-Handling für den "Home"-Menüpunkt (Back-to-Top-Funktion)
-        handleMenuClick($('.home-main-menu-item'), "/", $('html, body'));
-
-        // Falls die Seite mit #lineup oder #area geöffnet wird -> Smooth Scroll nach Laden
-        function checkHashAndScroll(hash, target) {
-            if (window.location.hash === hash && target.length) {
-                setTimeout(function() {
-                    $('html, body').animate({ scrollTop: target.offset().top }, 800);
-                }, 300);
-            }
-        }
-
-        checkHashAndScroll("#lineup", $('.lineup-container'));
-        checkHashAndScroll("#area", $('.area-container'));
+    // Otvori
+    $btn.on("click", function (e) {
+      e.preventDefault();
+      openMenu();
     });
+
+    // Zatvori na X
+    $close.on("click", function (e) {
+      e.preventDefault();
+      closeMenu();
+    });
+
+    // Zatvori klikom na praznu pozadinu
+    $overlay.on("click", function (e) {
+      if (e.target === this) {
+        closeMenu();
+      }
+    });
+
+    // Zatvori na Escape
+    $(document).on("keydown", function (e) {
+      if (e.key === "Escape") closeMenu();
+    });
+
+    // Zatvori posle klika na link (pa idi na destinaciju)
+    $links.on("click", function () {
+      closeMenu();
+      // Ako su to anchor linkovi na istoj strani i želiš smooth scroll:
+      // setTimeout da ne preseče transition
+      var href = $(this).attr("href") || "";
+      if (href.startsWith("#") && href.length > 1) {
+        var $t = $(href);
+        if ($t.length) {
+          setTimeout(function () {
+            $("html, body").animate({ scrollTop: $t.offset().top }, 800);
+          }, 50);
+        }
+      }
+    });
+  });
 })(jQuery);
