@@ -8,18 +8,19 @@
     function openMenu() {
       $("body").addClass("menu-open");
       $overlay.addClass("open").attr("aria-hidden", "false");
-      $btn.addClass("open");
+      $btn.addClass("open").attr("aria-expanded", "true");
     }
 
     function closeMenu() {
       $("body").removeClass("menu-open");
       $overlay.removeClass("open").attr("aria-hidden", "true");
-      $btn.removeClass("open");
+      $btn.removeClass("open").attr("aria-expanded", "false");
     }
 
     // Otvori
     $btn.on("click", function (e) {
       e.preventDefault();
+      e.stopImmediatePropagation();
       openMenu();
     });
 
@@ -29,32 +30,21 @@
       closeMenu();
     });
 
-    // Zatvori klikom na praznu pozadinu
+    // Zatvori klikom na pozadinu
     $overlay.on("click", function (e) {
       if (e.target === this) {
         closeMenu();
       }
     });
 
-    // Zatvori na Escape
+    // ESC
     $(document).on("keydown", function (e) {
       if (e.key === "Escape") closeMenu();
     });
 
-    // Zatvori posle klika na link (pa idi na destinaciju)
+    // Klik na link zatvara overlay
     $links.on("click", function () {
       closeMenu();
-      // Ako su to anchor linkovi na istoj strani i želiš smooth scroll:
-      // setTimeout da ne preseče transition
-      var href = $(this).attr("href") || "";
-      if (href.startsWith("#") && href.length > 1) {
-        var $t = $(href);
-        if ($t.length) {
-          setTimeout(function () {
-            $("html, body").animate({ scrollTop: $t.offset().top }, 800);
-          }, 50);
-        }
-      }
     });
   });
 })(jQuery);

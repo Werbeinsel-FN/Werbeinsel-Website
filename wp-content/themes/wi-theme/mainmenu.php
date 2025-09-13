@@ -9,15 +9,6 @@
 
         <!-- (Opciono) Klasičan WP meni markup koji tema već koristi.
              Ostavljamo ga zbog kompatibilnosti / SEO-a, ali overlay koristi svoj spisak ispod. -->
-        <ul class="mod-menu">
-            <?php
-            wp_nav_menu(array(
-                'theme_location' => 'primary',
-                'container'      => false,
-                'items_wrap'     => '%3$s' // ispiše samo <li> stavke
-            ));
-            ?>
-        </ul>
 
         <!-- Figma MENU dugme (floating, žuto) -->
         <button id="toggle-main-menu" type="button" class="fixed bottom-5p left-1_2 translate-x--1_2 bg-ffed00 border-2-black rounded-full px-9 py-5 flex items-center gap-4 hover-grow z-40" aria-haspopup="true" aria-controls="menu-overlay" aria-expanded="false">

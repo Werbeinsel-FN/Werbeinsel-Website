@@ -122,7 +122,19 @@ function wi_theme_enqueue_js() {
     );
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
+add_action('wp_enqueue_scripts', function () {
+    // CSS (već imaš)
+    wp_enqueue_style('wi-style', get_stylesheet_uri());
 
+    // JS – obavezno učitaj jQuery pa naš fajl
+    wp_enqueue_script(
+        'wi-mainmenu',
+        get_template_directory_uri() . '/js/mainmenu.js',
+        array('jquery'),
+        filemtime(get_template_directory() . '/js/mainmenu.js'),
+        true
+    );
+});
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
