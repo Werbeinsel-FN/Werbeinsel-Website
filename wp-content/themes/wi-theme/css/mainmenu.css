@@ -174,15 +174,6 @@ body.menu-open #toggle-main-menu {
     transition: none !important;
   }
 }
-@media (min-width: 1600px) {
-  .overlay-menu {
-    gap: 32px;
-  }
-  .overlay-menu li a {
-    font-size: 60px;
-    padding: 16px 32px;
-  }
-}
 
 /* Ultra wide */
 @media (min-width: 2000px) {
