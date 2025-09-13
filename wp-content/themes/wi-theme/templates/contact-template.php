@@ -8,18 +8,39 @@ $next_url      = content_url('uploads/next-contact/index.html?v=9');
 $form_html     = do_shortcode('[wi_contact_form]');
 $plugin_css_url= plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
 
-$pills = get_option('wi_contact_pills');
-if (!is_array($pills) || empty($pills)) {
-  if (class_exists('WI_Contact') && method_exists('WI_Contact','defaults_pills')) {
-    $pills = WI_Contact::defaults_pills();
+$pills = null;
+
+if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded')) {
+  // ✅ uzmi dekodirane vrednosti iz plugina
+  $pills = WI_Contact::get_pills_decoded();
+} else {
+  // fallback: uzmi raw iz option i dekodiraj ručno
+  $pills = get_option('wi_contact_pills');
+  if (!is_array($pills) || empty($pills)) {
+    if (class_exists('WI_Contact') && method_exists('WI_Contact','defaults_pills')) {
+      $pills = WI_Contact::defaults_pills();
+    } else {
+      $pills = [
+        'services'  => ['title'=>'SERVICES','multiple'=>true,  'items'=>['Außenwerbung','Beschriftung','Grafikdesign','Webdesign']],
+        'budget'    => ['title'=>'BUDGET',  'multiple'=>false, 'items'=>['< 5.000€','5.000€ - 15.000€','15.000€ - 50.000€','> 50.000€']],
+        'zeitrahmen'=> ['title'=>'ZEITRAHMEN','multiple'=>false,'items'=>['Sofort','Innerhalb 1 Monat','1–3 Monate','> 3 Monate']],
+      ];
+    }
   } else {
-    $pills = [
-      'services'  => ['title'=>'SERVICES','multiple'=>true,  'items'=>['Außenwerbung','Beschriftung','Grafikdesign','Webdesign']],
-      'budget'    => ['title'=>'BUDGET',  'multiple'=>false, 'items'=>['< 5.000€','5.000€ - 15.000€','15.000€ - 50.000€','> 50.000€']],
-      'zeitrahmen'=> ['title'=>'ZEITRAHMEN','multiple'=>false,'items'=>['Sofort','Innerhalb 1 Monat','1–3 Monate','> 3 Monate']],
-    ];
+    // ručno dekodiraj HTML entitete (ako helper ne postoji)
+    foreach ($pills as $k => $g) {
+      if (isset($pills[$k]['title'])) {
+        $pills[$k]['title'] = wp_specialchars_decode($pills[$k]['title'], ENT_QUOTES);
+      }
+      if (!empty($pills[$k]['items']) && is_array($pills[$k]['items'])) {
+        $pills[$k]['items'] = array_map(function($s){
+          return wp_specialchars_decode($s, ENT_QUOTES);
+        }, $pills[$k]['items']);
+      }
+    }
   }
 }
+
 ?>
 <style>
   /* Full-bleed iFrame kao ranije */

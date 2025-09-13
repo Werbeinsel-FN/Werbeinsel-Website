@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WI Contact
  * Description: Custom kontakt forma + “pills” + kontakt info (adresa/email/telefon + mapa).
- * Version: 1.3.2
+ * Version: 1.3.4
  * Author: WI
  */
 
@@ -86,7 +86,20 @@ class WI_Contact {
       if (isset($g['items']) && !is_array($g['items'])) {
         $g['items'] = preg_split('/\r?\n/', (string)$g['items']);
       }
+      // Čistimo unos; entiteti mogu ostati – rešavamo ih pri prikazu.
       $g['items'] = array_values(array_filter(array_map('sanitize_text_field', $g['items'] ?? [])));
+    }
+    return $p;
+  }
+
+  /** FRONTEND helper: vrati “pills” sa dekodiranim HTML entitetima (&lt; -> <) */
+  public static function get_pills_decoded() {
+    $p = self::normalize_pills( get_option(self::OPT_PILLS, self::defaults_pills()) );
+    foreach ($p as &$g) {
+      $g['title'] = wp_specialchars_decode( $g['title'], ENT_QUOTES );
+      $g['items'] = array_map(function($s){
+        return wp_specialchars_decode( $s, ENT_QUOTES );
+      }, $g['items'] ?? []);
     }
     return $p;
   }
@@ -187,13 +200,19 @@ class WI_Contact {
         <h2>B) “Pills” (Services / Budget / Zeitrahmen)</h2>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
           <?php foreach (['services'=>'SERVICES','budget'=>'BUDGET','zeitrahmen'=>'ZEITRAHMEN'] as $key=>$title):
-            $g = $pills[$key] ?? ['title'=>$title,'multiple'=>false,'items'=>[]]; ?>
+            $g = $pills[$key] ?? ['title'=>$title,'multiple'=>false,'items'=>[]];
+
+            // ↓↓↓ ADMIN PRIKAZ: DEKODUJ ENTITETE PA ESCAPEUJ ZA TEXTAREA
+            $items_text = implode("\n", array_map(function($s){
+              return wp_specialchars_decode($s, ENT_QUOTES);
+            }, $g['items'] ?? []));
+          ?>
             <div class="card">
               <h3><?php echo esc_html($title);?></h3>
               <p>Naslov: <input name="pills[<?php echo $key;?>][title]" value="<?php echo esc_attr($g['title']);?>"></p>
               <p><label><input type="checkbox" name="pills[<?php echo $key;?>][multiple]" value="1" <?php checked(!empty($g['multiple']));?>> Dozvoli višestruki izbor</label></p>
               <p>Stavke (po redovima):<br>
-                <textarea name="pills[<?php echo $key;?>][items]" rows="6" style="width:100%;"><?php echo esc_textarea(implode("\n", $g['items']));?></textarea>
+                <textarea name="pills[<?php echo $key;?>][items]" rows="6" style="width:100%;"><?php echo esc_textarea($items_text);?></textarea>
               </p>
             </div>
           <?php endforeach;?>
