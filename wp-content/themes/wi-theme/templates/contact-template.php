@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Kontakt (Next + WP form)
+ * Template Name: Kontakt (Next + WP form + Danke overlay)
  */
 get_header();
 
@@ -28,15 +28,10 @@ if (!is_array($pills) || empty($pills)) {
 }
 ?>
 <style>
-  /* Full-bleed wrapper */
-  #contact-main {
-    --bleed: calc(50vw - 50%);
-    width: calc(100% + 2 * var(--bleed));
-    margin-left: calc(-1 * var(--bleed));
-    margin-right: calc(-1 * var(--bleed));
-    padding:0 !important;
-    overflow:visible !important;
-  }
+  /* Full-bleed za main wrapper (kao ranije) */
+  #contact-main { --bleed: calc(50vw - 50%); width: calc(100% + 2 * var(--bleed));
+    margin-left: calc(-1 * var(--bleed)); margin-right: calc(-1 * var(--bleed));
+    padding:0 !important; overflow:visible !important; }
   .contact-main-container { margin:0 !important; padding:0 !important; }
   #wi-next-contact { border-radius:0 !important; display:block; width:100%; border:0; }
   .site, .site-main, .content-area, .entry-content { overflow:visible !important; }
@@ -101,6 +96,30 @@ if (!is_array($pills) || empty($pills)) {
       link.href = CSS_URL;
       doc.head.appendChild(link);
     }
+
+    // Danke overlay CSS (jednom)
+    if (!doc.getElementById('wi-danke-css')) {
+      const s = doc.createElement('style');
+      s.id = 'wi-danke-css';
+      s.textContent = `
+      @keyframes wi-bob {
+        0%{ transform: translateY(0) }
+        50%{ transform: translateY(-10px) }
+        100%{ transform: translateY(0) }
+      }
+      .wi-danke-overlay{
+        position:fixed; inset:0; background:#ffed00; z-index:999999;
+        display:none; align-items:center; justify-content:center; flex-direction:column;
+        text-align:center; padding:24px;
+      }
+      .wi-danke-hand{ width:min(22vw,180px); height:auto; animation: wi-bob 2s ease-in-out infinite; color:#000; }
+      .wi-danke-title{ font-family: var(--font-unbounded, inherit); font-weight:800;
+        font-size:clamp(38px,7vw,130px); line-height:1; margin:20px 0 12px; color:#000; }
+      .wi-danke-sub{ font-family: var(--font-poppins, inherit); font-size:clamp(14px,2.3vw,24px); color:#111; max-width:1100px; }
+      .wi-danke-overlay *{ box-sizing:border-box }
+      `;
+      doc.head.appendChild(s);
+    }
   }
 
   function isThreeColGrid(el) {
@@ -111,6 +130,7 @@ if (!is_array($pills) || empty($pills)) {
   }
 
   function renderPills(doc){
+    // 1) nađi root gde idu kolone (#wp-pills-root; fallback prvi 3-col grid posle #wp-form-slot)
     let root = doc.getElementById('wp-pills-root');
     if (!root) {
       const slot = doc.getElementById('wp-form-slot');
@@ -120,6 +140,7 @@ if (!is_array($pills) || empty($pills)) {
     }
     if (!root) return;
 
+    // 2) iscrtaj tri kolone iz PILLS
     root.innerHTML = '';
     Object.keys(PILLS).forEach(key => {
       const group = PILLS[key];
@@ -157,6 +178,7 @@ if (!is_array($pills) || empty($pills)) {
   }
 
   function syncHidden(doc){
+    // upisuje izabrane vrednosti u hidden inpute unutar .wi-contact-form
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
     Object.keys(PILLS).forEach(key => {
@@ -167,7 +189,47 @@ if (!is_array($pills) || empty($pills)) {
     });
   }
 
+  // ——— Danke overlay (create/show/hide) ———
+  function ensureDanke(doc){
+    let o = doc.getElementById('wi-danke');
+    if (o) return o;
+
+    o = doc.createElement('div');
+    o.id = 'wi-danke';
+    o.className = 'wi-danke-overlay';
+    o.innerHTML = `
+      <svg viewBox="0 0 64 64" class="wi-danke-hand" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M36 6c-1.7 0-3 1.3-3 3v10l-6.1-.1c-1.6 0-3 1.4-2.9 3l.6 8.7c0 1.6 1.4 3 3 3H34v8c0 1.7 1.3 3 3 3h6c3.3 0 5-2.7 5-6v-16c0-1.7-1.3-3-3-3h-9V9c0-1.7-1.3-3-3-3z"></path>
+      </svg>
+      <div class="wi-danke-title">DANKE!</div>
+      <div class="wi-danke-sub">
+        Ihre Anfrage wurde erfolgreich gesendet. Wir melden uns in Kürze bei Ihnen.
+      </div>
+    `;
+    doc.body.appendChild(o);
+    return o;
+  }
+  function showDanke(doc){
+    const o = ensureDanke(doc);
+    o.style.display = 'flex';
+    // zaključa skrol dok je overlay otvoren
+    const prev = doc.body.style.overflow;
+    doc.body.dataset.wiPrevOverflow = prev || '';
+    doc.body.style.overflow = 'hidden';
+    setTimeout(() => hideDanke(doc), 5000);
+  }
+  function hideDanke(doc){
+    const o = doc.getElementById('wi-danke');
+    if (o) o.style.display = 'none';
+    if (doc.body.dataset.wiPrevOverflow !== undefined) {
+      doc.body.style.overflow = doc.body.dataset.wiPrevOverflow;
+      delete doc.body.dataset.wiPrevOverflow;
+    }
+    fitFromDOM();
+  }
+
   function neutralizeOuterForms(doc){
+    // Ako Next HTML slučajno ima sopstveni <form>, ugasi ga
     const forms = doc.querySelectorAll('form:not(.wi-contact-form)');
     forms.forEach(f => {
       f.setAttribute('novalidate','novalidate');
@@ -175,134 +237,50 @@ if (!is_array($pills) || empty($pills)) {
     });
   }
 
-  function ensureRefererField(doc){
+  // ❶ Submit handler forme (centralno mesto za slanje i Danke)
+  function attachFormHandler(doc){
     const frm = doc.querySelector('.wi-contact-form');
-    if (!frm) return;
-    let ref = frm.querySelector('input[name="_wp_http_referer"]');
-    if (!ref) {
-      ref = doc.createElement('input');
-      ref.type = 'hidden';
-      ref.name = '_wp_http_referer';
-      frm.appendChild(ref);
-    }
-    try { ref.value = doc.location.href; } catch(e) { ref.value = '<?php echo esc_js($next_url); ?>'; }
-  }
+    if (!frm || frm.dataset.wiHandled) return;
+    frm.dataset.wiHandled = '1';
 
-  /* obavezna polja + HTML5 validacija */
-  function ensureRequiredFields(doc){
-    const frm = doc.querySelector('.wi-contact-form');
-    if (!frm) return;
+    frm.addEventListener('submit', async function(e){
+      e.preventDefault(); e.stopPropagation();
 
-    frm.removeAttribute('novalidate');
+      syncHidden(doc);
 
-    const nameEl = frm.querySelector('input[name="name"]');
-    const mailEl = frm.querySelector('input[name="email"]');
-
-    if (nameEl) nameEl.setAttribute('required','');
-
-    if (mailEl) {
-      mailEl.setAttribute('required','');
-      if (!mailEl.getAttribute('type')) mailEl.setAttribute('type','email');
-      mailEl.setAttribute('pattern','[^\\s@]+@[^\\s@]+\\.[^\\s@]+');
-    }
-  }
-
-  /* === Fullscreen "Danke!" (thumbs-up), centrirano + auto-hide + scroll u kadar === */
-  function showResultNotice(doc){
-    const qs = new URLSearchParams((doc.location && doc.location.search) || '');
-    const ok  = qs.get('wi_ok');
-    const err = qs.get('wi_error');
-
-    if (ok) {
-      if (!doc.getElementById('wi-thanks-style')) {
-        const st = doc.createElement('style');
-        st.id = 'wi-thanks-style';
-        st.textContent = `
-          @keyframes wi-bob { 0%{transform:translateY(0)} 50%{transform:translateY(-14px)} 100%{transform:translateY(0)} }
-          @keyframes wi-fade { to{ opacity:0; visibility:hidden } }
-          #wi-thanks-overlay{
-            position:fixed; inset:0; background:#ffed00;
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            text-align:center; z-index:2147483647; padding:24px;
-          }
-          #wi-thanks-overlay.hidden{ animation:wi-fade .4s ease forwards; }
-          #wi-thanks-overlay .wi-hand{
-            width:clamp(96px,12vw,160px); height:auto; color:#000;
-            animation:wi-bob 1.05s ease-in-out 6;
-          }
-          #wi-thanks-overlay h1{
-            margin:20px 0 0; font-weight:900; letter-spacing:1px;
-            font-size:clamp(40px,6vw,96px);
-          }
-          #wi-thanks-overlay p{
-            max-width:960px; margin:14px auto 0;
-            font-size:clamp(16px,1.8vw,22px); line-height:1.45;
-          }
-        `;
-        doc.head.appendChild(st);
+      // HTML5 validacija
+      if (typeof frm.reportValidity === 'function' && !frm.reportValidity()) {
+        const bad = frm.querySelector(':invalid');
+        if (bad && bad.scrollIntoView) bad.scrollIntoView({behavior:'smooth', block:'center'});
+        return false;
       }
 
-      const old = doc.getElementById('wi-thanks-overlay');
-      if (old) old.remove();
-
-      const ov = doc.createElement('div');
-      ov.id = 'wi-thanks-overlay';
-      ov.setAttribute('role','status');
-      ov.setAttribute('aria-live','polite');
-      ov.innerHTML = `
-        <svg viewBox="0 0 24 24" class="wi-hand" fill="#000" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M2 10h4v12H2zM22 10a2 2 0 0 0-2-2h-6.31l.95-4.57.03-.32A1.5 1.5 0 0 0 13.2 2H12l-4 9v11h9a2 2 0 0 0 2-2l1-7z"/>
-        </svg>
-        <h1>DANKE!</h1>
-        <p>Ihre Anfrage wurde erfolgreich gesendet. Wir melden uns in Kürze bei Ihnen.</p>
-      `;
-      doc.body.appendChild(ov);
-
       try {
-        const url = new URL(doc.location.href);
-        url.searchParams.delete('wi_ok');
-        doc.defaultView.history.replaceState({}, '', url.toString());
-      } catch(e){}
+        const fd = new FormData(frm);
+        const res = await fetch(frm.action, {
+          method: 'POST',
+          body: fd,
+          credentials: 'same-origin',
+        });
 
-      try { iframe.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-      try { parent.postMessage({type:'wi-iframe-height', height: doc.documentElement.clientHeight }, '*'); } catch(e){}
-
-      setTimeout(() => {
-        ov.classList.add('hidden');
-        setTimeout(() => {
-          ov.remove();
-          try {
-            parent.postMessage({type:'wi-iframe-height', height: Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight) }, '*');
-          } catch(e){}
-        }, 400);
-      }, 5000);
-      return;
-    }
-
-    if (err) {
-      const frm = doc.querySelector('.wi-contact-form');
-      if (!frm) return;
-      const prev = doc.getElementById('wi-contact-notice');
-      if (prev) prev.remove();
-      const div = doc.createElement('div');
-      div.id = 'wi-contact-notice';
-      div.className = 'wi-alert err';
-      div.style.marginTop = '16px';
-      div.style.padding   = '12px 16px';
-      div.style.border    = '2px solid #c53030';
-      div.style.background= '#fff';
-      let msg = err;
-      try { msg = decodeURIComponent(msg); } catch(e){}
-      try { msg = decodeURIComponent(msg); } catch(e){}
-      div.textContent = msg || 'Es gab einen Fehler. Bitte versuchen Sie es erneut.';
-      frm.appendChild(div);
-
-      try { iframe.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-      try { frm.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-      try { parent.postMessage({type:'wi-iframe-height', height: Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight) }, '*'); } catch(e){}
-    }
+        // uspeh: 2xx/3xx
+        if (res.ok || (res.status >= 300 && res.status < 400)) {
+          frm.reset();
+          doc.querySelectorAll('.wi-pill.wi-pill-active').forEach(b => b.classList.remove('wi-pill-active'));
+          syncHidden(doc);
+          showDanke(doc);
+        } else {
+          alert('Greška pri slanju. Pokušajte ponovo.');
+        }
+      } catch(err){
+        console.error(err);
+        alert('Greška pri slanju. Proverite internet vezu.');
+      }
+      return false;
+    }, true);
   }
 
+  // ❷ CTA dugme iz Next-a – samo poziva requestSubmit na našoj formi
   function hookCTA(doc){
     let cta = doc.querySelector('button[type="submit"]');
     if (!cta) {
@@ -311,30 +289,12 @@ if (!is_array($pills) || empty($pills)) {
     }
     if (!cta) return;
 
-    cta.type = 'button';
+    cta.type = 'button'; // sprečava default submit
     cta.addEventListener('click', function(ev){
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-      ev.stopPropagation();
-
-      ensureRequiredFields(doc);
+      ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation();
       const frm = doc.querySelector('.wi-contact-form');
-      if (!frm) return;
-
-      // HTML5 validacija
-      if (typeof frm.checkValidity === 'function' && !frm.checkValidity()) {
-        try { frm.reportValidity(); } catch(e){}
-        try { frm.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-        return;
-      }
-
-      syncHidden(doc);
-      ensureRefererField(doc);
-      frm.setAttribute('target','_self');
-      frm.setAttribute('method','post');
-
-      if (typeof frm.requestSubmit === 'function') frm.requestSubmit();
-      else frm.submit();
+      if (frm && typeof frm.requestSubmit === 'function') frm.requestSubmit();
+      else if (frm) frm.dispatchEvent(new Event('submit', {cancelable:true, bubbles:true}));
     }, true);
   }
 
@@ -349,29 +309,21 @@ if (!is_array($pills) || empty($pills)) {
     if (!slot) slot = doc.body;
     slot.innerHTML = FORM_HTML;
 
-    // 1b) obavezna polja
-    ensureRequiredFields(doc);
-
     // 2) sakrij plugin dugme – koristimo Next CTA
     const submitBtn = doc.querySelector('.wi-contact-form .wi-submit');
     if (submitBtn) submitBtn.style.display = 'none';
 
-    // 3) iscrtaj kolone dugmadi
+    // 3) iscrtaj kolone dugmadi i veži submit/CTA
     renderPills(doc);
-
-    // 4) neutralizuj sve spoljne forme i veži CTA da šalje WP formu
     neutralizeOuterForms(doc);
+    attachFormHandler(doc); // << ključna linija
     hookCTA(doc);
-
-    // 5) referer field + prikaži rezultat (ako postoji u URL-u iFrame-a)
-    ensureRefererField(doc);
-    showResultNotice(doc);
-
-    // 6) upiši vrednosti i resize
     syncHidden(doc);
+
+    // 4) resize posle injekcije
     fitFromDOM();
 
-    // 7) posmatraj promene visine u iFrame-u
+    // 5) posmatraj promene visine u iFrame-u (klikovi itd.)
     try {
       if ('ResizeObserver' in window) {
         const ro = new ResizeObserver(() => fitFromDOM());

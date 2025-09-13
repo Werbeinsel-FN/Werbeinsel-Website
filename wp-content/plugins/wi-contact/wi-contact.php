@@ -1,357 +1,318 @@
 <?php
 /**
  * Plugin Name: WI Contact
- * Description: Kontakt forma sa podesivim poljima (min. 4) + podesive grupe dugmadi (Services/Budget/Zeitrahmen). Shortcode: [wi_contact_form]
- * Version: 1.2.0
- * Author: Werbeinsel
+ * Description: Custom kontakt forma + “pills” + kontakt info (adresa/email/telefon + mapa).
+ * Version: 1.3.1
+ * Author: WI
  */
 
 if (!defined('ABSPATH')) exit;
 
 class WI_Contact {
-    /** Opcije */
-    const OPT        = 'wi_contact_fields';   // polja forme
-    const OPT_PILLS  = 'wi_contact_pills';    // grupe dugmadi
-    /** Submit */
-    const NONCE  = 'wi_contact_nonce';
-    const ACTION = 'wi_contact_submit';
+  const OPT_FIELDS = 'wi_contact_fields';
+  const OPT_PILLS  = 'wi_contact_pills';
+  const OPT_INFO   = 'wi_contact_info';
 
-    public function __construct() {
-        // Admin
-        add_action('admin_menu',            [$this,'menu']);
-        add_action('admin_init',            [$this,'register_settings']);
-        add_action('admin_enqueue_scripts', [$this,'admin_assets']);
+  public function __construct() {
+    add_action('admin_menu',        [$this, 'admin_menu']);
+    add_action('admin_init',        [$this, 'register_settings']);
+    add_shortcode('wi_contact_form',[$this, 'shortcode_form']);
+  }
 
-        // Front
-        add_action('wp_enqueue_scripts',    [$this,'front_assets']);
-        add_shortcode('wi_contact_form',    [$this,'shortcode']);
+  /* ---------- Defaults ---------- */
 
-        // Submit handler
-        add_action('admin_post_nopriv_' . self::ACTION, [$this,'handle_submit']);
-        add_action('admin_post_'      . self::ACTION,    [$this,'handle_submit']);
+  public static function defaults_fields() {
+    return [
+      ['name'=>'name','label'=>'Name *','type'=>'text','required'=>true],
+      ['name'=>'email','label'=>'E-Mail *','type'=>'email','required'=>true],
+      ['name'=>'company','label'=>'Unternehmen','type'=>'text','required'=>false],
+      ['name'=>'phone','label'=>'Telefon','type'=>'tel','required'=>false],
+    ];
+  }
 
-        // Defaults
-        register_activation_hook(__FILE__,  [$this,'activate_defaults']);
+  public static function defaults_pills() {
+    return [
+      'services'  => ['title'=>'SERVICES','multiple'=>true,  'items'=>['Außenwerbung','Beschriftung','Grafikdesign','Webdesign']],
+      'budget'    => ['title'=>'BUDGET',  'multiple'=>false, 'items'=>['< 5.000€','5.000€ - 15.000€','15.000€ - 50.000€','> 50.000€']],
+      'zeitrahmen'=> ['title'=>'ZEITRAHMEN','multiple'=>false,'items'=>['Sofort','Innerhalb 1 Monat','1–3 Monate','> 3 Monate']],
+    ];
+  }
+
+  public static function defaults_info() {
+    return [
+      'address_lines' => ["Flughafen 76/3", "88046 Friedrichshafen", "Deutschland"],
+      'email' => 'hallo@werbeinsel.de',
+      'phone' => '+49 7541 700 57 44',
+      'map_mode' => 'address', // address | coords
+      'map_address' => 'Flughafen 76/3, 88046 Friedrichshafen, Deutschland',
+      'lat'  => '',
+      'lng'  => '',
+      'zoom' => 15,
+      'hl'   => 'de',
+    ];
+  }
+
+  /* ---------- Helpers: normalization ---------- */
+
+  private static function normalize_fields($arr) {
+    $out = [];
+    if (!is_array($arr)) return self::defaults_fields();
+    foreach ($arr as $f) {
+      $name  = isset($f['name'])  ? (is_array($f['name'])  ? reset($f['name'])  : $f['name'])  : '';
+      $label = isset($f['label']) ? (is_array($f['label']) ? reset($f['label']) : $f['label']) : '';
+      $type  = isset($f['type'])  ? (is_array($f['type'])  ? reset($f['type'])  : $f['type'])  : 'text';
+
+      $type = in_array($type, ['text','email','tel'], true) ? $type : 'text';
+
+      $out[] = [
+        'name'     => sanitize_key($name),
+        'label'    => sanitize_text_field($label),
+        'type'     => $type,
+        'required' => !empty($f['required']),
+      ];
+    }
+    // ako je sve prazno, vrati defaulte
+    if (!$out) $out = self::defaults_fields();
+    return $out;
+  }
+
+  private static function normalize_pills($p) {
+    $def = self::defaults_pills();
+    if (!is_array($p) || !$p) return $def;
+
+    foreach ($p as $k => &$g) {
+      $g = is_array($g) ? $g : [];
+      $g['title']    = sanitize_text_field($g['title'] ?? strtoupper($k));
+      $g['multiple'] = !empty($g['multiple']);
+
+      // items može stići kao textarea string ili kao niz
+      if (isset($g['items']) && !is_array($g['items'])) {
+        $g['items'] = preg_split('/\r?\n/', (string)$g['items']);
+      }
+      $g['items'] = array_values(array_filter(array_map('sanitize_text_field', $g['items'] ?? [])));
+    }
+    return $p;
+  }
+
+  /* ---------- Admin ---------- */
+
+  public function admin_menu() {
+    add_menu_page('WI Contact', 'WI Contact', 'manage_options', 'wi-contact',
+      [$this, 'admin_page'], 'dashicons-email', 56);
+  }
+
+  public function register_settings() {
+    register_setting('wi_contact_group', self::OPT_FIELDS);
+    register_setting('wi_contact_group', self::OPT_PILLS);
+    register_setting('wi_contact_group', self::OPT_INFO);
+
+    if (!get_option(self::OPT_FIELDS)) update_option(self::OPT_FIELDS, self::defaults_fields());
+    if (!get_option(self::OPT_PILLS))  update_option(self::OPT_PILLS,  self::defaults_pills());
+    if (!get_option(self::OPT_INFO))   update_option(self::OPT_INFO,   self::defaults_info());
+  }
+
+  public function admin_page() {
+    if (!current_user_can('manage_options')) return;
+
+    // učitaj & normalizuj pre prikaza (leči stare loše vrednosti)
+    $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
+    $pills  = self::normalize_pills(get_option(self::OPT_PILLS,  self::defaults_pills()));
+    $info   = get_option(self::OPT_INFO,   self::defaults_info());
+    if (!is_array($info)) $info = self::defaults_info();
+
+    // Save
+    if ($_SERVER['REQUEST_METHOD']==='POST' && check_admin_referer('wi_contact_save','wi_contact_nonce')) {
+      // FIELDS
+      $safe_fields = self::normalize_fields($_POST['fields'] ?? []);
+      update_option(self::OPT_FIELDS, $safe_fields);
+
+      // PILLS
+      $new_pills = self::normalize_pills($_POST['pills'] ?? []);
+      update_option(self::OPT_PILLS, $new_pills);
+
+      // INFO
+      $ni = [];
+      $ni['address_lines'] = array_values(array_filter(array_map('sanitize_text_field', preg_split('/\r?\n/', $_POST['info']['address_lines'] ?? ""))));
+      $ni['email']         = sanitize_text_field($_POST['info']['email'] ?? '');
+      $ni['phone']         = sanitize_text_field($_POST['info']['phone'] ?? '');
+      $ni['map_mode']      = in_array(($_POST['info']['map_mode'] ?? 'address'), ['address','coords'], true) ? $_POST['info']['map_mode'] : 'address';
+      $ni['map_address']   = sanitize_text_field($_POST['info']['map_address'] ?? '');
+      $ni['lat']           = sanitize_text_field($_POST['info']['lat'] ?? '');
+      $ni['lng']           = sanitize_text_field($_POST['info']['lng'] ?? '');
+      $ni['zoom']          = intval($_POST['info']['zoom'] ?? 15);
+      $ni['hl']            = sanitize_text_field($_POST['info']['hl'] ?? 'de');
+      if (empty($ni['map_address']) && !empty($ni['address_lines'])) {
+        $ni['map_address'] = implode(', ', $ni['address_lines']);
+      }
+      update_option(self::OPT_INFO, $ni);
+
+      // za prikaz odmah
+      $fields = $safe_fields;
+      $pills  = $new_pills;
+      $info   = $ni;
+
+      echo '<div class="updated notice"><p>Sačuvano.</p></div>';
     }
 
-    /* ===================== DEFAULTS ===================== */
+    ?>
+    <div class="wrap">
+      <h1>WI Contact</h1>
+      <form method="post">
+        <?php wp_nonce_field('wi_contact_save','wi_contact_nonce'); ?>
 
-    /** 4 osnovna polja (kao na slici) */
-    public static function defaults() {
-        return [
-            ['key'=>'name',     'label'=>'Name',        'type'=>'text',  'required'=>true,  'placeholder'=>'', 'enabled'=>true],
-            ['key'=>'email',    'label'=>'E-Mail',      'type'=>'email', 'required'=>true,  'placeholder'=>'', 'enabled'=>true],
-            ['key'=>'company',  'label'=>'Unternehmen', 'type'=>'text',  'required'=>false, 'placeholder'=>'', 'enabled'=>true],
-            ['key'=>'phone',    'label'=>'Telefon',     'type'=>'tel',   'required'=>false, 'placeholder'=>'', 'enabled'=>true],
-        ];
-    }
-
-    /** Grupe dugmadi (kolone) */
-    public static function defaults_pills() {
-        return [
-            'services' => [
-                'title'    => 'SERVICES',
-                'multiple' => true,
-                'items'    => ['Außenwerbung','Beschriftung','Grafikdesign','Webdesign'],
-            ],
-            'budget' => [
-                'title'    => 'BUDGET',
-                'multiple' => false,
-                'items'    => ['< 5.000€','5.000€ - 15.000€','15.000€ - 50.000€','> 50.000€'],
-            ],
-            'zeitrahmen' => [
-                'title'    => 'ZEITRAHMEN',
-                'multiple' => false,
-                'items'    => ['Sofort','Innerhalb 1 Monat','1–3 Monate','> 3 Monate'],
-            ],
-        ];
-    }
-
-    public function activate_defaults() {
-        if (!get_option(self::OPT))       update_option(self::OPT,       self::defaults());
-        if (!get_option(self::OPT_PILLS)) update_option(self::OPT_PILLS, self::defaults_pills());
-    }
-
-    /* ===================== ADMIN ===================== */
-
-    public function menu() {
-        add_menu_page(
-            'WI Contact', 'WI Contact', 'manage_options',
-            'wi-contact', [$this,'settings_page'], 'dashicons-feedback', 58
-        );
-        add_submenu_page('wi-contact','Kontakt polja','Kontakt polja','manage_options','wi-contact',       [$this,'settings_page']);
-        add_submenu_page('wi-contact','Opcije dugmadi','Opcije dugmadi','manage_options','wi-contact-pills',[$this,'pills_page']);
-    }
-
-    public function register_settings() {
-        register_setting('wi_contact_group', self::OPT, [
-            'type' => 'array',
-            'sanitize_callback' => [$this,'sanitize_fields'],
-            'default' => self::defaults(),
-        ]);
-
-        register_setting('wi_contact_group_pills', self::OPT_PILLS, [
-            'type' => 'array',
-            'sanitize_callback' => function($in) {
-                $def = self::defaults_pills(); $out = [];
-                foreach ($def as $key=>$g) {
-                    $row       = isset($in[$key]) ? $in[$key] : [];
-                    $title     = sanitize_text_field($row['title'] ?? $g['title']);
-                    $multiple  = !empty($row['multiple']);
-                    $itemsText = trim($row['items_text'] ?? implode("\n",$g['items']));
-                    $items     = array_values(array_filter(array_map(function($s){
-                        return sanitize_text_field(trim($s));
-                    }, preg_split("/\r\n|\r|\n/",$itemsText))));
-                    if (!$items) $items = $g['items'];
-                    $out[$key] = ['title'=>$title,'multiple'=>$multiple,'items'=>$items];
-                }
-                return $out;
-            },
-            'default' => self::defaults_pills(),
-        ]);
-    }
-
-    public function sanitize_fields($input) {
-        $clean = [];
-        if (!is_array($input)) $input = [];
-        foreach ($input as $row) {
-            if (empty($row['key']) && empty($row['label'])) continue;
-            $key = sanitize_key($row['key'] ?: $row['label']);
-            if (!$key) continue;
-            $clean[] = [
-                'key'        => $key,
-                'label'      => sanitize_text_field($row['label'] ?? $key),
-                'type'       => in_array(($row['type'] ?? 'text'), ['text','email','tel','textarea']) ? $row['type'] : 'text',
-                'required'   => !empty($row['required']),
-                'placeholder'=> sanitize_text_field($row['placeholder'] ?? ''),
-                'enabled'    => !empty($row['enabled']),
-            ];
-        }
-        // uvek zadrži minimum 4
-        while (count($clean) < 4) {
-            $clean[] = ['key'=>'field'.(count($clean)+1),'label'=>'Feld','type'=>'text','required'=>false,'placeholder'=>'','enabled'=>true];
-        }
-        return array_values($clean);
-    }
-
-    public function admin_assets($hook) {
-        $hooks_ok = ['toplevel_page_wi-contact', 'wi-contact_page_wi-contact', 'wi-contact_page_wi-contact-pills'];
-        if (!in_array($hook, $hooks_ok, true)) return;
-        wp_enqueue_style('wi-contact-admin', plugin_dir_url(__FILE__).'assets/admin.css', [], '1.0.0');
-        wp_enqueue_script('wi-contact-admin', plugin_dir_url(__FILE__).'assets/admin.js', ['jquery'], '1.0.0', true);
-    }
-
-    public function settings_page() {
-        $fields = get_option(self::OPT, self::defaults()); ?>
-        <div class="wrap">
-            <h1>Kontakt polja</h1>
-            <p>Menjaj nazive, tip, obaveznost, redosled. Minimalno 4 polja uvek ostaju.</p>
-
-            <form method="post" action="options.php">
-                <?php settings_fields('wi_contact_group'); ?>
-                <table class="widefat fixed striped" id="wi-forms-table">
-                    <thead>
-                        <tr>
-                            <th style="width:18%">Name (slug)</th>
-                            <th style="width:22%">Label</th>
-                            <th style="width:14%">Tip</th>
-                            <th style="width:12%">Obavezno</th>
-                            <th style="width:22%">Placeholder</th>
-                            <th style="width:12%">Akcija</th>
-                        </tr>
-                    </thead>
-                    <tbody id="wi-forms-rows">
-                        <?php foreach ($fields as $i=>$f): ?>
-                        <tr>
-                            <td><input type="text" name="<?php echo self::OPT; ?>[<?php echo $i; ?>][key]" value="<?php echo esc_attr($f['key']); ?>" required></td>
-                            <td><input type="text" name="<?php echo self::OPT; ?>[<?php echo $i; ?>][label]" value="<?php echo esc_attr($f['label']); ?>" required></td>
-                            <td>
-                                <select name="<?php echo self::OPT; ?>[<?php echo $i; ?>][type]">
-                                    <?php foreach (['text'=>'Text','email'=>'E-Mail','tel'=>'Telefon','textarea'=>'Textarea'] as $v=>$t): ?>
-                                        <option value="<?php echo esc_attr($v); ?>" <?php selected($f['type'],$v); ?>><?php echo esc_html($t); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td><label><input type="checkbox" name="<?php echo self::OPT; ?>[<?php echo $i; ?>][required]" <?php checked(!empty($f['required'])); ?>> Obavezno</label></td>
-                            <td><input type="text" name="<?php echo self::OPT; ?>[<?php echo $i; ?>][placeholder]" value="<?php echo esc_attr($f['placeholder']); ?>"></td>
-                            <td>
-                                <button class="button wi-row-up">Gore</button>
-                                <button class="button wi-row-down">Dole</button>
-                                <button class="button button-danger wi-row-del">Obriši</button>
-                            </td>
-                            <input type="hidden" name="<?php echo self::OPT; ?>[<?php echo $i; ?>][enabled]" value="1">
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-
-                <p><button id="wi-add-row" class="button button-primary">+ Dodaj polje</button></p>
-                <?php submit_button('Sačuvaj'); ?>
-            </form>
-
-            <!-- Template reda -->
-            <table style="display:none"><tbody>
-            <tr id="wi-row-template">
-                <td><input type="text" name="<?php echo self::OPT; ?>[__i__][key]" required></td>
-                <td><input type="text" name="<?php echo self::OPT; ?>[__i__][label]" required></td>
+        <h2 style="margin-top:20px;">A) Kontakt polja (forma)</h2>
+        <p>Dodaj/izbriši/izmeni polja forme.</p>
+        <table class="widefat striped">
+          <thead><tr><th>Ime polja (name)</th><th>Label</th><th>Tip</th><th>Required</th><th></th></tr></thead>
+          <tbody id="wi-fields-rows">
+            <?php foreach ($fields as $i=>$f): 
+              $val_name  = isset($f['name'])  ? (string)$f['name']  : '';
+              $val_label = isset($f['label']) ? (string)$f['label'] : '';
+              $val_type  = isset($f['type'])  ? (string)$f['type']  : 'text';
+              $val_req   = !empty($f['required']);
+            ?>
+              <tr>
+                <td><input name="fields[<?php echo $i;?>][name]"   value="<?php echo esc_attr($val_name);?>"  class="regular-text" /></td>
+                <td><input name="fields[<?php echo $i;?>][label]"  value="<?php echo esc_attr($val_label);?>" class="regular-text" /></td>
                 <td>
-                    <select name="<?php echo self::OPT; ?>[__i__][type]">
-                        <option value="text">Text</option>
-                        <option value="email">E-Mail</option>
-                        <option value="tel">Telefon</option>
-                        <option value="textarea">Textarea</option>
-                    </select>
+                  <select name="fields[<?php echo $i;?>][type]">
+                    <?php foreach (['text','email','tel'] as $t): ?>
+                      <option value="<?php echo $t;?>" <?php selected($val_type,$t);?>><?php echo $t;?></option>
+                    <?php endforeach;?>
+                  </select>
                 </td>
-                <td><label><input type="checkbox" name="<?php echo self::OPT; ?>[__i__][required]"> Obavezno</label></td>
-                <td><input type="text" name="<?php echo self::OPT; ?>[__i__][placeholder]"></td>
-                <td>
-                    <button class="button wi-row-up">Gore</button>
-                    <button class="button wi-row-down">Dole</button>
-                    <button class="button button-danger wi-row-del">Obriši</button>
-                </td>
-                <input type="hidden" name="<?php echo self::OPT; ?>[__i__][enabled]" value="1">
-            </tr>
-            </tbody></table>
-        </div>
-    <?php }
-
-    public function pills_page() {
-        $p = get_option(self::OPT_PILLS, self::defaults_pills()); ?>
-        <div class="wrap">
-            <h1>Opcije dugmadi (Services / Budget / Zeitrahmen)</h1>
-            <form method="post" action="options.php">
-                <?php settings_fields('wi_contact_group_pills'); ?>
-                <?php foreach (['services','budget','zeitrahmen'] as $key): $g = $p[$key]; ?>
-                    <h2 style="margin-top:24px;"><?php echo esc_html(strtoupper($key)); ?></h2>
-                    <table class="form-table" role="presentation">
-                        <tr>
-                            <th scope="row"><label>Naslov kolone</label></th>
-                            <td><input type="text" name="<?php echo self::OPT_PILLS; ?>[<?php echo esc_attr($key); ?>][title]" value="<?php echo esc_attr($g['title']); ?>" class="regular-text"></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label>Dozvoli više izbora?</label></th>
-                            <td><label><input type="checkbox" name="<?php echo self::OPT_PILLS; ?>[<?php echo esc_attr($key); ?>][multiple]" <?php checked(!empty($g['multiple'])); ?>> Više izbora</label></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label>Stavke (po jedna u redu)</label></th>
-                            <td>
-                                <textarea rows="6" cols="60" name="<?php echo self::OPT_PILLS; ?>[<?php echo esc_attr($key); ?>][items_text]"><?php echo esc_textarea(implode("\n",$g['items'])); ?></textarea>
-                                <p class="description">Redosled = redosled prikaza.</p>
-                            </td>
-                        </tr>
-                    </table>
-                    <hr>
-                <?php endforeach; ?>
-                <?php submit_button('Sačuvaj'); ?>
-            </form>
-        </div>
-    <?php }
-
-    /* ===================== FRONT ===================== */
-
-    public function front_assets() {
-        // blagi default stil – izgled (rounded, border) je u assets/front.css
-        wp_enqueue_style('wi-contact-front', plugin_dir_url(__FILE__).'assets/front.css', [], '1.0.1');
-    }
-
-    public function shortcode() {
-        $fields = get_option(self::OPT, self::defaults());
-        $groups = get_option(self::OPT_PILLS, self::defaults_pills());
-
-        ob_start(); ?>
-        <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post" novalidate>
-            <input type="hidden" name="action" value="<?php echo esc_attr(self::ACTION); ?>">
-            <?php wp_nonce_field(self::NONCE, self::NONCE); ?>
-
-            <div class="wi-grid">
-            <?php foreach ($fields as $f): if (empty($f['enabled'])) continue;
-                $ph = trim($f['placeholder']) !== '' ? $f['placeholder'] : ($f['label'] . (!empty($f['required']) ? ' *' : '')); ?>
-                <div class="wi-field wi-type-<?php echo esc_attr($f['type']); ?>">
-                    <label>
-                        <span><?php echo esc_html($f['label']); ?><?php echo !empty($f['required']) ? ' *' : ''; ?></span>
-                        <?php if ($f['type']==='textarea'): ?>
-                            <textarea name="<?php echo esc_attr($f['key']); ?>" placeholder="<?php echo esc_attr($ph); ?>" <?php echo !empty($f['required'])?'required':''; ?>></textarea>
-                        <?php else: ?>
-                            <input type="<?php echo esc_attr($f['type']); ?>" name="<?php echo esc_attr($f['key']); ?>" placeholder="<?php echo esc_attr($ph); ?>" <?php echo !empty($f['required'])?'required':''; ?>>
-                        <?php endif; ?>
-                    </label>
-                </div>
+                <td><label><input type="checkbox" name="fields[<?php echo $i;?>][required]" value="1" <?php checked($val_req);?>> Required</label></td>
+                <td><button class="button wi-remove-row" type="button">Obriši</button></td>
+              </tr>
             <?php endforeach; ?>
+          </tbody>
+        </table>
+        <p><button type="button" class="button" id="wi-add-field">+ Dodaj polje</button></p>
+
+        <hr/>
+
+        <h2>B) “Pills” (Services / Budget / Zeitrahmen)</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+          <?php foreach (['services'=>'SERVICES','budget'=>'BUDGET','zeitrahmen'=>'ZEITRAHMEN'] as $key=>$title): 
+            $g = $pills[$key] ?? ['title'=>$title,'multiple'=>false,'items'=>[]]; ?>
+            <div class="card">
+              <h3><?php echo esc_html($title);?></h3>
+              <p>Naslov: <input name="pills[<?php echo $key;?>][title]" value="<?php echo esc_attr($g['title']);?>"></p>
+              <p><label><input type="checkbox" name="pills[<?php echo $key;?>][multiple]" value="1" <?php checked(!empty($g['multiple']));?>> Dozvoli višestruki izbor</label></p>
+              <p>Stavke (po redovima):<br>
+                <textarea name="pills[<?php echo $key;?>][items]" rows="6" style="width:100%;"><?php echo esc_textarea(implode("\n", $g['items']));?></textarea>
+              </p>
             </div>
+          <?php endforeach;?>
+        </div>
 
-            <?php // Hidden polja za grupe dugmadi – puni ih JS u iframe-u ?>
-            <?php foreach ($groups as $k=>$g): ?>
-                <input type="hidden" name="pill_<?php echo esc_attr($k); ?>" value="">
-            <?php endforeach; ?>
+        <hr/>
 
-            <input type="text" name="website" style="position:absolute;left:-9999px;" tabindex="-1" autocomplete="off">
-            <button type="submit" class="wi-submit">Senden</button>
+        <h2>C) Kontakt info (kartica pored mape)</h2>
+        <table class="form-table">
+          <tr>
+            <th scope="row">Adresa (po jedna linija)</th>
+            <td><textarea name="info[address_lines]" rows="4" class="large-text"><?php echo esc_textarea(implode("\n", $info['address_lines'] ?? []));?></textarea></td>
+          </tr>
+          <tr>
+            <th scope="row">E-mail</th>
+            <td><input name="info[email]" class="regular-text" value="<?php echo esc_attr($info['email'] ?? '');?>"></td>
+          </tr>
+          <tr>
+            <th scope="row">Telefon</th>
+            <td><input name="info[phone]" class="regular-text" value="<?php echo esc_attr($info['phone'] ?? '');?>"></td>
+          </tr>
+          <tr>
+            <th scope="row">Mapa – izvor</th>
+            <td>
+              <label><input type="radio" name="info[map_mode]" value="address" <?php checked(($info['map_mode']??'address'),'address');?>> Adresa</label>
+              &nbsp;&nbsp;
+              <label><input type="radio" name="info[map_mode]" value="coords"  <?php checked(($info['map_mode']??'address'),'coords');?>> Koordinate</label>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Map address (ako koristiš “Adresa”)</th>
+            <td><input name="info[map_address]" class="regular-text" value="<?php echo esc_attr($info['map_address'] ?? '');?>"><br>
+              <small>Ostavi prazno da se generiše iz polja Adresa.</small></td>
+          </tr>
+          <tr>
+            <th scope="row">Koordinate (ako koristiš “Koordinate”)</th>
+            <td>
+              Lat: <input name="info[lat]" size="12" value="<?php echo esc_attr($info['lat'] ?? '');?>"> &nbsp;
+              Lng: <input name="info[lng]" size="12" value="<?php echo esc_attr($info['lng'] ?? '');?>"> &nbsp;
+              Zoom: <input name="info[zoom]" size="4" value="<?php echo esc_attr($info['zoom'] ?? 15);?>">
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Jezik mape (hl)</th>
+            <td><input name="info[hl]" size="6" value="<?php echo esc_attr($info['hl'] ?? 'de');?>"> <small>npr. de, en</small></td>
+          </tr>
+        </table>
 
-            <?php if (!empty($_GET['wi_ok'])): ?>
-                <div class="wi-alert ok">Danke! Ihre Nachricht wurde gesendet.</div>
-            <?php elseif (!empty($_GET['wi_error'])): ?>
-                <div class="wi-alert err"><?php echo esc_html($_GET['wi_error']); ?></div>
-            <?php endif; ?>
-        </form>
-        <?php
-        return ob_get_clean();
-    }
+        <?php submit_button('Sačuvaj sve'); ?>
+      </form>
+    </div>
 
-    /* ===================== SUBMIT ===================== */
+    <script>
+      (function(){
+        const tbody = document.getElementById('wi-fields-rows');
+        document.getElementById('wi-add-field')?.addEventListener('click', () => {
+          const i = tbody.querySelectorAll('tr').length;
+          const tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td><input name="fields['+i+'][name]" class="regular-text"></td>'+
+            '<td><input name="fields['+i+'][label]" class="regular-text"></td>'+
+            '<td><select name="fields['+i+'][type]"><option>text</option><option>email</option><option>tel</option></select></td>'+
+            '<td><label><input type="checkbox" name="fields['+i+'][required]" value="1"> Required</label></td>'+
+            '<td><button class="button wi-remove-row" type="button">Obriši</button></td>';
+          tbody.appendChild(tr);
+        });
+        tbody.addEventListener('click', (e) => {
+          if (e.target && e.target.classList.contains('wi-remove-row')) {
+            e.target.closest('tr').remove();
+          }
+        });
+        // Ako textarea za "items" ostane običan tekst – ništa posebno;
+        // server-side normalize_pills će podeliti u niz.
+      })();
+    </script>
+    <?php
+  }
 
-    public function handle_submit() {
-        if (!isset($_POST[self::NONCE]) || !wp_verify_nonce($_POST[self::NONCE], self::NONCE)) wp_die('Invalid request', 400);
-        if (!empty($_POST['website'])) { wp_redirect(wp_get_referer() ?: home_url('/')); exit; }
+  /* ---------- Shortcode: samo HTML forme (bez submit dugmeta – Next ga koristi) ---------- */
+public function shortcode_form($atts=[]) {
+  $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
+  ob_start(); ?>
+  <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+    <input type="hidden" name="action" value="wi_contact_submit">
 
-        $fields = get_option(self::OPT, self::defaults());
-        $data   = []; $errors = [];
+    <div class="wi-grid">
+      <?php foreach ($fields as $f):
+        $name  = esc_attr($f['name'] ?? '');
+        $type  = esc_attr($f['type'] ?? 'text');
+        $label = esc_html($f['label'] ?? '');
+        $req   = !empty($f['required']); ?>
+        <label class="wi-field">
+          <span><?php echo $label; ?></span>
+          <input name="<?php echo $name; ?>" type="<?php echo $type; ?>"
+                 placeholder="<?php echo $label; ?>" <?php echo $req ? 'required' : ''; ?>>
+        </label>
+      <?php endforeach; ?>
+    </div>
 
-        foreach ($fields as $f) {
-            if (empty($f['enabled'])) continue;
-            $key = $f['key'];
-            $val = isset($_POST[$key]) ? trim(wp_unslash($_POST[$key])) : '';
+    <!-- Hidden za pills -->
+    <input type="hidden" name="pill_services">
+    <input type="hidden" name="pill_budget">
+    <input type="hidden" name="pill_zeitrahmen">
 
-            if (!empty($f['required']) && $val==='') $errors[] = sprintf('"%s" ist erforderlich.', $f['label']);
-            if ($f['type']==='email' && $val && !is_email($val)) $errors[] = sprintf('E-Mail in "%s" ist ungültig.', $f['label']);
-
-            $data[$f['label']] = $val;
-        }
-
-        // Uključi i vrednosti iz grupa dugmadi (pills)
-        $gp = get_option(self::OPT_PILLS, self::defaults_pills());
-        foreach ($gp as $k=>$g) {
-            $val = isset($_POST['pill_'.$k]) ? trim(wp_unslash($_POST['pill_'.$k])) : '';
-            if ($val !== '') $data[$g['title']] = $val;
-        }
-
-        if ($errors) {
-            wp_redirect(add_query_arg(['wi_error'=>urlencode(implode(' ', $errors))], wp_get_referer() ?: home_url('/')));
-            exit;
-        }
-
-        // Telo poruke
-        $lines = [];
-        foreach ($data as $label=>$val) $lines[] = $label . ': ' . $val;
-        $body = implode("\n", $lines);
-
-        $to       = get_option('admin_email');
-        $subject  = 'Neue Kontaktanfrage';
-        $headers  = [];
-
-        // Reply-To iz prvog email polja (ako postoji)
-        foreach ($fields as $f) {
-            if ($f['type']==='email') {
-                $reply = isset($_POST[$f['key']]) ? sanitize_email($_POST[$f['key']]) : '';
-                if ($reply) $headers[] = 'Reply-To: '.$reply;
-                break;
-            }
-        }
-
-        wp_mail($to, $subject, $body, $headers);
-
-        wp_redirect(add_query_arg(['wi_ok'=>1], wp_get_referer() ?: home_url('/')));
-        exit;
-    }
+    <!-- Fallback submit (skrivamo ga u šablonu) -->
+    <button type="submit" class="wi-submit">Senden</button>
+  </form>
+  <?php
+  return ob_get_clean();
+}
 }
 
 new WI_Contact();
+
+/* Napomena: handler za admin_post_wi_contact_submit / nopriv varijante treba da postoji u temi/pluginu. */
