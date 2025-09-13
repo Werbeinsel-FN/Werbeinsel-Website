@@ -54,25 +54,32 @@ Version: 1.0
   position: fixed;
   inset: 0;
   background: #ffed00;
-  display: none; /* skriveno dok nije open */
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
+  display: none;
+  /* layout */
+  display: none;
+  align-items: center; /* items-center */
+  justify-content: center; /* justify-center */
+
+  z-index: 50; /* z-50 (umesto 2000 po specifikaciji) */
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transform: translateY(20px); /* start nisko */
+  transition: opacity 0.25s ease, transform 0.3s ease-out; /* slide-up 0.3s ease-out */
   padding: 48px 24px;
 }
 .menu-overlay.open {
   display: flex;
   opacity: 1;
+  transform: translateY(0);
 }
 
 .menu-overlay-close {
   position: absolute;
-  top: 40px;
-  right: 24px;
-  width: 48px; /* fiksna veličina */
-  height: 48px;
+  top: 32px; /* top-8 */
+  right: 32px; /* right-8 */
+
+  /* p-4 (16px) oko ikone w-8/h-8 => 32 + 16*2 = 64 */
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,13 +92,16 @@ Version: 1.0
   transition: background-color 0.2s ease, color 0.2s ease,
     border-color 0.2s ease;
 }
-
 .menu-overlay-close:hover,
 .menu-overlay-close:focus-visible {
   background: #000;
   color: #fff;
   border-color: #000;
 }
+.menu-overlay-close svg {
+  width: 32px;
+  height: 32px;
+} /* w-8 h-8 */
 
 /* Kontejner za listu linkova */
 .menu-overlay-nav {
@@ -100,6 +110,7 @@ Version: 1.0
 }
 
 /* Lista linkova – manji razmak između stavki */
+/* Razmak između stavki = space-y-8 (32px) */
 .overlay-menu {
   list-style: none;
   margin: 0;
@@ -107,21 +118,22 @@ Version: 1.0
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px; /* ranije 24px */
+  gap: 32px; /* 32px */
 }
 
-/* Link – kapsula na hover, manji padding, responsive veličina fonta */
+/* Link kao u specifikaciji: text-6xl (60px), px-8 py-4, rounded-lg (8px) */
 .overlay-menu li a {
   display: inline-block;
   text-decoration: none;
   color: #000;
-  padding: 10px 22px; /* manje vertikalno + horizontalno */
-  border-radius: 9999px; /* kapsula */
+  padding: 16px 32px; /* py-4 px-8 */
+  border-radius: 8px; /* rounded-lg */
   font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   font-weight: 800;
   text-transform: uppercase;
-  font-size: clamp(20px, 4.5vw, 48px); /* smanjeno sa 60px na max 48px */
+  font-size: 60px; /* text-6xl */
   line-height: 1.1;
+  border-radius: 9999px;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 .overlay-menu li a:hover,
@@ -131,6 +143,7 @@ Version: 1.0
   color: #fff;
   transform: translateY(-2px);
 }
+
 .overlay-menu li a:focus-visible {
   outline: 3px solid #000;
   outline-offset: 4px;
@@ -159,5 +172,47 @@ body.menu-open #toggle-main-menu {
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+}
+@media (min-width: 1600px) {
+  .overlay-menu {
+    gap: 40px;
+  } /* veći razmak */
+  .overlay-menu li a {
+    font-size: 72px; /* još veći font */
+    padding: 20px 40px; /* više prostora oko teksta */
+  }
+}
+
+/* Ekrani širi od 2000px (ultra wide) */
+@media (min-width: 2000px) {
+  .overlay-menu {
+    gap: 48px;
+  }
+  .overlay-menu li a {
+    font-size: 84px; /* masivan font */
+    padding: 24px 48px;
+  }
+}
+/* === Responsive fix za male ekrane (<= 480px) === */
+@media (max-width: 480px) {
+  .overlay-menu {
+    gap: 20px;
+  } /* manji razmak između stavki */
+
+  .overlay-menu li a {
+    font-size: 28px; /* manji font */
+    padding: 10px 20px; /* smanjen padding */
+  }
+
+  .menu-overlay-close {
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+  .menu-overlay-close svg {
+    width: 24px;
+    height: 24px;
   }
 }
