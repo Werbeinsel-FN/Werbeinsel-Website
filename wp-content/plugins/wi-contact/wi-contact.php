@@ -23,8 +23,8 @@ class WI_Contact {
 
   public static function defaults_fields() {
     return [
-      ['name'=>'name','label'=>'Name *','type'=>'text','required'=>true],
-      ['name'=>'email','label'=>'E-Mail *','type'=>'email','required'=>true],
+      ['name'=>'name','label'=>'Name','type'=>'text','required'=>true],
+      ['name'=>'email','label'=>'E-Mail','type'=>'email','required'=>true],
       ['name'=>'company','label'=>'Unternehmen','type'=>'text','required'=>false],
       ['name'=>'phone','label'=>'Telefon','type'=>'tel','required'=>false],
     ];
@@ -54,26 +54,31 @@ class WI_Contact {
 
   /* ---------- Helpers: normalization ---------- */
 
-  private static function normalize_fields($arr) {
-    $out = [];
-    if (!is_array($arr)) return self::defaults_fields();
-    foreach ($arr as $f) {
-      $name  = isset($f['name'])  ? (is_array($f['name'])  ? reset($f['name'])  : $f['name'])  : '';
-      $label = isset($f['label']) ? (is_array($f['label']) ? reset($f['label']) : $f['label']) : '';
-      $type  = isset($f['type'])  ? (is_array($f['type'])  ? reset($f['type'])  : $f['type'])  : 'text';
+ private static function normalize_fields($arr) {
+  $out = [];
+  if (!is_array($arr)) return self::defaults_fields();
+  foreach ($arr as $f) {
+    $name  = isset($f['name'])  ? (is_array($f['name'])  ? reset($f['name'])  : $f['name'])  : '';
+    $label = isset($f['label']) ? (is_array($f['label']) ? reset($f['label']) : $f['label']) : '';
+    $type  = isset($f['type'])  ? (is_array($f['type'])  ? reset($f['type'])  : $f['type'])  : 'text';
 
-      $type = in_array($type, ['text','email','tel'], true) ? $type : 'text';
+    $type = in_array($type, ['text','email','tel'], true) ? $type : 'text';
 
-      $out[] = [
-        'name'     => sanitize_key($name),
-        'label'    => sanitize_text_field($label),
-        'type'     => $type,
-        'required' => !empty($f['required']),
-      ];
-    }
-    if (!$out) $out = self::defaults_fields();
-    return $out;
+    // sanitize i skini sve zvezdice sa kraja (radi i ako ih je više)
+    $label = sanitize_text_field($label);
+    $label = preg_replace('/\s*\*+$/', '', (string)$label);
+
+    $out[] = [
+      'name'     => sanitize_key($name),
+      'label'    => $label,
+      'type'     => $type,
+      'required' => !empty($f['required']),
+    ];
   }
+  if (!$out) $out = self::defaults_fields();
+  return $out;
+}
+
 
   private static function normalize_pills($p) {
     $def = self::defaults_pills();
@@ -290,37 +295,51 @@ class WI_Contact {
   }
 
   /* ---------- Shortcode: samo HTML forme (bez submit dugmeta – Next ga koristi) ---------- */
-  public function shortcode_form($atts=[]) {
-    $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
-    ob_start(); ?>
-    <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
-      <input type="hidden" name="action" value="wi_contact_submit">
+ public function shortcode_form($atts = []) {
+  $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
+  ob_start(); ?>
+  <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+    <input type="hidden" name="action" value="wi_contact_submit">
 
-      <div class="wi-grid">
-        <?php foreach ($fields as $f):
-          $name  = esc_attr($f['name'] ?? '');
-          $type  = esc_attr($f['type'] ?? 'text');
-          $label = esc_html($f['label'] ?? '');
-          $req   = !empty($f['required']); ?>
-          <label class="wi-field">
-            <span><?php echo $label; ?></span>
-            <input name="<?php echo $name; ?>" type="<?php echo $type; ?>"
-                   placeholder="<?php echo $label; ?>" <?php echo $req ? 'required' : ''; ?>>
-          </label>
-        <?php endforeach; ?>
-      </div>
+    <div class="wi-grid">
+      <?php foreach ($fields as $f):
+        $name  = sanitize_key($f['name'] ?? '');
+        if (!$name) continue;
+        $type  = in_array(($f['type'] ?? 'text'), ['text','email','tel'], true) ? $f['type'] : 'text';
+        $label = (string)($f['label'] ?? '');
+        // skini eventualne stare zvezdice iz labela
+        $label_plain = trim(preg_replace('/\s*\*+$/', '', $label));
+        $req   = !empty($f['required']);
+        $id    = 'wi_' . $name;
+        $ph    = $label_plain . ($req ? ' *' : '');
+      ?>
+        <!-- VRAĆEN STARI WRAPPER: label oko inputa zbog stilova -->
+        <label class="wi-field" for="<?php echo esc_attr($id); ?>">
+          <span class="wi-label-text"><?php echo esc_html($label_plain); ?></span>
+          <input
+            id="<?php echo esc_attr($id); ?>"
+            name="<?php echo esc_attr($name); ?>"
+            type="<?php echo esc_attr($type); ?>"
+            placeholder="<?php echo esc_attr($ph); ?>"
+            <?php echo $req ? 'required aria-required="true"' : ''; ?>
+          >
+        </label>
+      <?php endforeach; ?>
+    </div>
 
-      <!-- Hidden za pills -->
-      <input type="hidden" name="pill_services">
-      <input type="hidden" name="pill_budget">
-      <input type="hidden" name="pill_zeitrahmen">
+    <!-- Hidden za pills -->
+    <input type="hidden" name="pill_services">
+    <input type="hidden" name="pill_budget">
+    <input type="hidden" name="pill_zeitrahmen">
 
-      <!-- Fallback submit (skrivamo ga u šablonu) -->
-      <button type="submit" class="wi-submit">Senden</button>
-    </form>
-    <?php
-    return ob_get_clean();
-  }
+    <!-- Fallback submit (skriven u šablonu) -->
+    <button type="submit" class="wi-submit">Senden</button>
+  </form>
+  <?php
+  return ob_get_clean();
+}
+
+
 }
 
 new WI_Contact();
