@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WI Contact
  * Description: Custom kontakt forma + “pills” + kontakt info (adresa/email/telefon + mapa).
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: WI
  */
 
@@ -71,7 +71,6 @@ class WI_Contact {
         'required' => !empty($f['required']),
       ];
     }
-    // ako je sve prazno, vrati defaulte
     if (!$out) $out = self::defaults_fields();
     return $out;
   }
@@ -84,8 +83,6 @@ class WI_Contact {
       $g = is_array($g) ? $g : [];
       $g['title']    = sanitize_text_field($g['title'] ?? strtoupper($k));
       $g['multiple'] = !empty($g['multiple']);
-
-      // items može stići kao textarea string ili kao niz
       if (isset($g['items']) && !is_array($g['items'])) {
         $g['items'] = preg_split('/\r?\n/', (string)$g['items']);
       }
@@ -114,7 +111,6 @@ class WI_Contact {
   public function admin_page() {
     if (!current_user_can('manage_options')) return;
 
-    // učitaj & normalizuj pre prikaza (leči stare loše vrednosti)
     $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
     $pills  = self::normalize_pills(get_option(self::OPT_PILLS,  self::defaults_pills()));
     $info   = get_option(self::OPT_INFO,   self::defaults_info());
@@ -122,15 +118,12 @@ class WI_Contact {
 
     // Save
     if ($_SERVER['REQUEST_METHOD']==='POST' && check_admin_referer('wi_contact_save','wi_contact_nonce')) {
-      // FIELDS
       $safe_fields = self::normalize_fields($_POST['fields'] ?? []);
       update_option(self::OPT_FIELDS, $safe_fields);
 
-      // PILLS
       $new_pills = self::normalize_pills($_POST['pills'] ?? []);
       update_option(self::OPT_PILLS, $new_pills);
 
-      // INFO
       $ni = [];
       $ni['address_lines'] = array_values(array_filter(array_map('sanitize_text_field', preg_split('/\r?\n/', $_POST['info']['address_lines'] ?? ""))));
       $ni['email']         = sanitize_text_field($_POST['info']['email'] ?? '');
@@ -141,12 +134,12 @@ class WI_Contact {
       $ni['lng']           = sanitize_text_field($_POST['info']['lng'] ?? '');
       $ni['zoom']          = intval($_POST['info']['zoom'] ?? 15);
       $ni['hl']            = sanitize_text_field($_POST['info']['hl'] ?? 'de');
+
       if (empty($ni['map_address']) && !empty($ni['address_lines'])) {
         $ni['map_address'] = implode(', ', $ni['address_lines']);
       }
       update_option(self::OPT_INFO, $ni);
 
-      // za prikaz odmah
       $fields = $safe_fields;
       $pills  = $new_pills;
       $info   = $ni;
@@ -165,7 +158,7 @@ class WI_Contact {
         <table class="widefat striped">
           <thead><tr><th>Ime polja (name)</th><th>Label</th><th>Tip</th><th>Required</th><th></th></tr></thead>
           <tbody id="wi-fields-rows">
-            <?php foreach ($fields as $i=>$f): 
+            <?php foreach ($fields as $i=>$f):
               $val_name  = isset($f['name'])  ? (string)$f['name']  : '';
               $val_label = isset($f['label']) ? (string)$f['label'] : '';
               $val_type  = isset($f['type'])  ? (string)$f['type']  : 'text';
@@ -193,7 +186,7 @@ class WI_Contact {
 
         <h2>B) “Pills” (Services / Budget / Zeitrahmen)</h2>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-          <?php foreach (['services'=>'SERVICES','budget'=>'BUDGET','zeitrahmen'=>'ZEITRAHMEN'] as $key=>$title): 
+          <?php foreach (['services'=>'SERVICES','budget'=>'BUDGET','zeitrahmen'=>'ZEITRAHMEN'] as $key=>$title):
             $g = $pills[$key] ?? ['title'=>$title,'multiple'=>false,'items'=>[]]; ?>
             <div class="card">
               <h3><?php echo esc_html($title);?></h3>
@@ -272,45 +265,43 @@ class WI_Contact {
             e.target.closest('tr').remove();
           }
         });
-        // Ako textarea za "items" ostane običan tekst – ništa posebno;
-        // server-side normalize_pills će podeliti u niz.
       })();
     </script>
     <?php
   }
 
   /* ---------- Shortcode: samo HTML forme (bez submit dugmeta – Next ga koristi) ---------- */
-public function shortcode_form($atts=[]) {
-  $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
-  ob_start(); ?>
-  <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
-    <input type="hidden" name="action" value="wi_contact_submit">
+  public function shortcode_form($atts=[]) {
+    $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
+    ob_start(); ?>
+    <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+      <input type="hidden" name="action" value="wi_contact_submit">
 
-    <div class="wi-grid">
-      <?php foreach ($fields as $f):
-        $name  = esc_attr($f['name'] ?? '');
-        $type  = esc_attr($f['type'] ?? 'text');
-        $label = esc_html($f['label'] ?? '');
-        $req   = !empty($f['required']); ?>
-        <label class="wi-field">
-          <span><?php echo $label; ?></span>
-          <input name="<?php echo $name; ?>" type="<?php echo $type; ?>"
-                 placeholder="<?php echo $label; ?>" <?php echo $req ? 'required' : ''; ?>>
-        </label>
-      <?php endforeach; ?>
-    </div>
+      <div class="wi-grid">
+        <?php foreach ($fields as $f):
+          $name  = esc_attr($f['name'] ?? '');
+          $type  = esc_attr($f['type'] ?? 'text');
+          $label = esc_html($f['label'] ?? '');
+          $req   = !empty($f['required']); ?>
+          <label class="wi-field">
+            <span><?php echo $label; ?></span>
+            <input name="<?php echo $name; ?>" type="<?php echo $type; ?>"
+                   placeholder="<?php echo $label; ?>" <?php echo $req ? 'required' : ''; ?>>
+          </label>
+        <?php endforeach; ?>
+      </div>
 
-    <!-- Hidden za pills -->
-    <input type="hidden" name="pill_services">
-    <input type="hidden" name="pill_budget">
-    <input type="hidden" name="pill_zeitrahmen">
+      <!-- Hidden za pills -->
+      <input type="hidden" name="pill_services">
+      <input type="hidden" name="pill_budget">
+      <input type="hidden" name="pill_zeitrahmen">
 
-    <!-- Fallback submit (skrivamo ga u šablonu) -->
-    <button type="submit" class="wi-submit">Senden</button>
-  </form>
-  <?php
-  return ob_get_clean();
-}
+      <!-- Fallback submit (skrivamo ga u šablonu) -->
+      <button type="submit" class="wi-submit">Senden</button>
+    </form>
+    <?php
+    return ob_get_clean();
+  }
 }
 
 new WI_Contact();
