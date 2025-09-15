@@ -1,8 +1,36 @@
 /* =========================
-   FOOTER — spec as requested
+   FOOTER — final & symmetric
    ========================= */
 
-/* (opciono) sticky footer struktura – footer ostaje na dnu stranice */
+/* Tokeni (lako menjaš sve iz jednog mesta) */
+:root {
+  --footer-bg: #000; /* crna traka */
+  --footer-fg: #fff; /* bela tipografija */
+  --footer-accent: #ffed00; /* hover akcenat */
+  --footer-pad-y: 32px; /* py-8 -> 32px gore/dole */
+  --footer-pad-x: 32px; /* px-8 -> 32px levo/desno */
+  --footer-max: 1780px; /* maksimalna širina sadržaja */
+
+  --gap-main: 24px; /* gap-6 između glavnih sekcija */
+  --gap-menu-mobile: 16px; /* gap-4 u meniju na mobilu */
+  --gap-menu-desktop: 32px; /* gap-8 u meniju na desktopu */
+  --gap-right-mobile: 16px; /* razmak u desnoj sekciji na mobilu */
+  --gap-right-desktop: 24px; /* razmak u desnoj sekciji na desktopu */
+  --gap-icons: 12px; /* razmak između samih ikonica */
+  --gap-actions: 16px; /* razmak između grupe ikonica i rakete */
+
+  --icon-btn: 40px; /* prečnik belih krugova (socijalne) */
+  --icon-glyph: 20px; /* veličina SVG-a u krugu */
+
+  --rocket-btn-m: 48px; /* raketa dugme — mobil */
+  --rocket-btn-d: 56px; /* raketa dugme — desktop */
+  --rocket-glyph-m: 24px; /* veličina rakete — mobil */
+  --rocket-glyph-d: 28px; /* veličina rakete — desktop */
+
+  --border-top: 2px; /* debljina žute linije gore */
+}
+
+/* (opciono) sticky footer struktura */
 html,
 body {
   height: 100%;
@@ -22,41 +50,60 @@ body {
 
 /* ---------- Footer kontejner ---------- */
 .site-footer {
-  background: #000; /* bg-black */
-  color: #fff; /* text-white */
-  padding: 32px 0; /* py-8 => 32px gore/dole */
+  position: relative;
+  color: var(--footer-fg);
+  background: transparent; /* pozadinu crta ::before da bi bila full-bleed */
+  padding: var(--footer-pad-y) 0; /* simetričan padding gore/dole */
 }
 
+/* Full-bleed crna traka + žuta linija gore */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw; /* razlivanje do ivica ekrana */
+  top: 0;
+  bottom: 0;
+  background: var(--footer-bg);
+  border-top: var(--border-top) solid var(--footer-accent);
+}
+
+/* Unutrašnji container — centriran, limit 1780px */
 .site-footer .content-container {
-  max-width: 1780px; /* content max width */
+  max-width: var(--footer-max);
   margin: 0 auto;
-  padding-left: 32px; /* px-8 => 32px levo/desno */
-  padding-right: 32px;
+  padding-left: var(--footer-pad-x);
+  padding-right: var(--footer-pad-x);
 }
 
-/* ---------- Raspored i razmaci ---------- */
+/* ---------- Raspored i simetrija ---------- */
+/* Mobilno: vertikalno (centar), Desktop: dve jednake kolone oko CENTRA  */
 .footer-bar {
   display: flex;
-  flex-direction: column; /* mobilno vertikalno */
-  gap: 24px; /* gap-6 */
+  flex-direction: column;
   align-items: center;
+  gap: var(--gap-main);
 }
 
-/* desktop: horizontalno, space-between */
+/* ≥640px: GRID sa 2 jednake kolone -> simetrično oko centra */
 @media (min-width: 640px) {
   .footer-bar {
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* leva i desna kolona jednake širine */
     align-items: center;
+    gap: var(--gap-main);
   }
 }
 
-/* ---------- Footer meni sekcija (linkovi) ---------- */
+/* ---------- Leva sekcija (meni) ---------- */
 .footer-left {
   width: 100%;
 }
 
-/* mobilno: vertikalno, centrirano, gap-4 (16px) */
+/* Mobilno: kolona, centrirano */
 .footer-menu {
   list-style: none;
   margin: 0;
@@ -64,44 +111,46 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px; /* gap-4 */
+  gap: var(--gap-menu-mobile);
 }
 
-/* desktop: horizontalno, levo, gap-8 (32px) */
+/* Desktop: red, levo poravnato — prilepljeno levoj ivici svoje kolone */
 @media (min-width: 640px) {
   .footer-menu {
     flex-direction: row;
-    align-items: center;
     justify-content: flex-start;
-    gap: 32px; /* gap-8 */
+    align-items: center;
+    gap: var(--gap-menu-desktop);
   }
 }
 
-/* link stilovi */
 .footer-menu a {
   font-family: Poppins, system-ui, sans-serif;
   font-weight: 800;
-  color: #fff;
+  color: var(--footer-fg);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 .footer-menu a:hover {
-  color: #ffed00;
+  color: var(--footer-accent);
 }
 
-/* ---------- Desna sekcija ---------- */
+/* ---------- Desna sekcija (#agency + ikonice + raketa) ---------- */
+/* Mobilno: kolona, centrirano */
 .footer-right {
   display: flex;
-  flex-direction: column; /* mobilno vertikalno */
+  flex-direction: column;
   align-items: center;
-  gap: 16px; /* gap-4 */
+  gap: var(--gap-right-mobile);
 }
 
-/* desktop: horizontalno, gap-6 (24px) */
+/* Desktop: red, desno poravnato — prilepljeno desnoj ivici svoje kolone */
 @media (min-width: 640px) {
   .footer-right {
     flex-direction: row;
-    gap: 24px; /* gap-6 */
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--gap-right-desktop);
   }
 }
 
@@ -109,33 +158,31 @@ body {
 .footer-hashtag {
   font-family: Poppins, system-ui, sans-serif;
   font-weight: 800;
-  color: #fff;
+  color: var(--footer-fg);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 .footer-hashtag:hover {
-  color: #ffed00;
+  color: var(--footer-accent);
 }
 
-/* grupa: [ikonice] + [raketa] — razmak 16px (gap-4) */
+/* grupa: [ikonice] + [raketa] */
 .footer-actions {
   display: flex;
   align-items: center;
-  gap: 16px; /* gap-4 */
+  gap: var(--gap-actions); /* razmak između grupe ikonica i rakete */
 }
 
-/* same ikonice — razmak 12px (gap-3) */
+/* ikonice u belim krugovima */
 .footer-social {
   display: flex;
   align-items: center;
-  gap: 12px; /* gap-3 */
+  gap: var(--gap-icons);
 }
-
-/* dugme ikone: 40x40, bela pozadina, krug */
 .social-btn {
-  width: 40px; /* w-10 */
-  height: 40px; /* h-10 */
-  border-radius: 9999px; /* rounded-full */
+  width: var(--icon-btn);
+  height: var(--icon-btn);
+  border-radius: 9999px;
   background: #fff;
   display: inline-flex;
   align-items: center;
@@ -144,24 +191,23 @@ body {
   transition: background-color 0.2s ease, transform 0.15s ease;
 }
 .social-btn:hover {
-  background: #ffed00;
+  background: var(--footer-accent);
   transform: translateY(-1px);
 }
 
-/* sama ikona unutar dugmeta: 20x20 (w-5 h-5), crna */
+/* sama ikona u krugu */
 .social-btn svg {
-  width: 20px;
-  height: 20px; /* w-5 h-5 */
+  width: var(--icon-glyph);
+  height: var(--icon-glyph);
 }
 .icon {
   color: #000;
 }
 
 /* ---------- Back-to-Top (raketa) ---------- */
-/* veličina dugmeta: mobilno 48, desktop 56 */
 .rocket-btn {
-  width: 48px; /* w-12 */
-  height: 48px; /* h-12 */
+  width: var(--rocket-btn-m);
+  height: var(--rocket-btn-m);
   border-radius: 9999px;
   background: #fff;
   display: inline-flex;
@@ -171,95 +217,127 @@ body {
 }
 @media (min-width: 640px) {
   .rocket-btn {
-    width: 56px;
-    height: 56px;
-  } /* w-14 h-14 */
+    width: var(--rocket-btn-d);
+    height: var(--rocket-btn-d);
+  }
 }
 .rocket-btn:hover {
-  background: #ffed00;
+  background: var(--footer-accent);
   transform: translateY(-1px);
 }
 
-/* sama ikona rakete: mobilno 24, desktop 28; rotacija -45° */
+/* raketa ikonica + animacija */
 .rocket {
-  width: 24px;
-  height: 24px; /* w-6 h-6 */
+  width: var(--rocket-glyph-m);
+  height: var(--rocket-glyph-m);
   transform: rotate(-45deg);
   color: #000;
   transition: transform 0.28s ease;
 }
 @media (min-width: 640px) {
   .rocket {
-    width: 28px;
-    height: 28px;
-  } /* w-7 h-7 */
+    width: var(--rocket-glyph-d);
+    height: var(--rocket-glyph-d);
+  }
 }
-
-/* ako želiš animaciju na klik, dodaj klasu .launched u JS */
 .rocket.launched {
   transform: rotate(-90deg);
 }
 
-/* (ako postoji) sakrij copyright blok */
+/* (ako postoji) sakrij copyright */
 .footer-copy {
   display: none;
   border: 0;
 }
-/* ===== Tablet fix (1000px → 641px): 2 reda, bez prelivanja ===== */
-@media (max-width: 1000px) and (min-width: 641px) {
-  /* Glavni kontejner: dozvoli prelamanje u 2 reda */
-  .footer-bar {
-    flex-wrap: wrap;
-    row-gap: 16px; /* vertikalni razmak između redova */
-    column-gap: 0;
-    justify-content: space-between;
-    align-items: center;
-  }
 
-  /* RED 1: meni preko cele širine, može da se prelomi */
-  .footer-left {
+/* ---------- Tablet layout (1000 → 641 px) — 2 reda uredno ---------- */
+@media (max-width: 1000px) and (min-width: 641px) {
+  .footer-bar {
+    grid-template-columns: 1fr; /* prelom u 2 reda */
+    row-gap: 16px;
+  }
+  .footer-left,
+  .footer-right {
     width: 100%;
   }
+
   .footer-menu {
-    flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 12px 20px; /* (vert, horiz) malo kompaktnije da sve stane */
+    gap: 12px 20px; /* (vert, horiz) kompaktnije da sve stane */
   }
 
-  /* RED 2: #agency + ikonice + raketa preko cele širine */
   .footer-right {
-    order: 2;
-    width: 100%;
-    margin-left: 0;
     justify-content: space-between; /* #agency levo, akcije desno */
     gap: 16px;
   }
 
-  /* Grupica ikonica + raketa: zbijeniji razmak da ne iskače desno */
   .footer-actions {
     gap: 12px;
   }
   .footer-social {
     gap: 10px;
   }
+}
 
-  /* Malko manja dugmad da stane bez preliva */
-  .social-btn {
-    width: 36px;
-    height: 36px;
-  } /* ~ -10% u odnosu na desktop */
-  .social-btn svg {
-    width: 18px;
-    height: 18px;
+/* ---------- Mobilni ≤ 620 px ---------- */
+@media (max-width: 620px) {
+  .site-footer .content-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .footer-bar {
+    gap: 16px;
   }
 
-  .rocket-btn {
-    width: 52px;
-    height: 52px;
-  } /* i dalje veća od ikonica */
-  .rocket {
-    width: 26px;
-    height: 26px;
-  } /* proporcionalno */
+  .footer-menu {
+    gap: 10px 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-right {
+    width: 100%;
+    justify-content: space-between; /* #agency levo, ikonice+raketa desno */
+    gap: 12px;
+  }
+}
+/* ===== Ultra-wide (≥2000px): simetrija oko centra + veći centralni razmak ===== */
+/* ===== Ultra-wide (≥2000px): leve/desne sekcije više odmaknute ===== */
+/* ===== Ultra-wide (≥2000px): umeren odmak levo/desno + simetrija ===== */
+@media (min-width: 2000px) {
+  .site-footer .content-container {
+    max-width: 2400px; /* širina kontejnera */
+    margin: 0 auto;
+    padding-left: 80px;
+    padding-right: 80px;
+  }
+
+  .footer-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+
+  /* Leva sekcija */
+  .footer-left {
+    justify-self: start;
+    margin-right: 200px; /* gura ulevo od centra */
+  }
+  .footer-menu {
+    gap: 40px;
+  }
+
+  /* Desna sekcija */
+  .footer-right {
+    justify-self: end;
+    margin-left: 200px; /* gura udesno od centra */
+    gap: 40px;
+  }
+
+  .footer-actions {
+    gap: 24px;
+  }
+  .footer-social {
+    gap: 16px;
+  }
 }
