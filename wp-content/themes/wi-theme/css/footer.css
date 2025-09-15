@@ -238,7 +238,7 @@ body {
 .site-footer a,
 .footer-menu a,
 .footer-hashtag {
-  font-size: 14px;
+  font-size: 16px;
 }
 @media (min-width: 640px) {
   .rocket {
