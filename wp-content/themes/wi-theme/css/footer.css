@@ -234,6 +234,12 @@ body {
   color: #000;
   transition: transform 0.28s ease;
 }
+.site-footer,
+.site-footer a,
+.footer-menu a,
+.footer-hashtag {
+  font-size: 14px;
+}
 @media (min-width: 640px) {
   .rocket {
     width: var(--rocket-glyph-d);
