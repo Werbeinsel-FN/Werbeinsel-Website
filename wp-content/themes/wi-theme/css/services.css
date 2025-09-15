@@ -172,7 +172,7 @@
 }
 @media (min-width: 1536px) {
   .svc-container {
-    max-width: 1400px;
+    max-width: 2000px;
   }
   .svc-card__overlay {
     padding: 1.25rem;
