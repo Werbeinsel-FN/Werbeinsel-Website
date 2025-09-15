@@ -1,21 +1,8 @@
 /* =========================
-   FOOTER — compact + equal padding + rocket spin
+   FOOTER — spec as requested
    ========================= */
 
-/* Podesivi tokeni */
-:root {
-  --footer-pad-y: 24px; /* ISTI padding gore/dole */
-  --footer-pad-x: 32px; /* unutrašnji side padding */
-  --footer-link-size: 0.88rem; /* veličina linkova levo */
-  --footer-hash-size: 0.88rem; /* veličina #agency teksta */
-  --footer-icon: 34px; /* PREČNIK belih krugova (socijalne) */
-  --footer-rocket: 44px; /* PREČNIK rakete (veće dugme) */
-  --footer-top-border: 2px; /* žuta linija gore */
-  --social-glyph-scale: 62%; /* VELIČINA ikonica unutar kruga */
-  --rocket-glyph-scale: 72%; /* VELIČINA rakete unutar kruga */
-}
-
-/* Sticky footer struktura */
+/* (opciono) sticky footer struktura – footer ostaje na dnu stranice */
 html,
 body {
   height: 100%;
@@ -33,184 +20,246 @@ body {
   margin-top: auto;
 }
 
-/* Footer wrapper – full-bleed crna traka sa žutom linijom gore */
+/* ---------- Footer kontejner ---------- */
 .site-footer {
-  position: relative;
-  color: #fff;
-  background: transparent;
-  padding: var(--footer-pad-y) 0; /* jednak gore/dole */
-}
-.site-footer::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw; /* razliveno preko cele širine */
-  top: 0;
-  bottom: 0; /* tačno do dna footera */
-  background: #000;
-  border-top: var(--footer-top-border) solid #ffed00;
+  background: #000; /* bg-black */
+  color: #fff; /* text-white */
+  padding: 32px 0; /* py-8 => 32px gore/dole */
 }
 
-/* Unutrašnji kontejner */
 .site-footer .content-container {
-  max-width: 100%;
+  max-width: 1780px; /* content max width */
   margin: 0 auto;
-  padding-left: var(--footer-pad-x);
-  padding-right: var(--footer-pad-x);
+  padding-left: 32px; /* px-8 => 32px levo/desno */
+  padding-right: 32px;
 }
 
-/* Raspored: meni levo, hashtag+ikonice desno */
+/* ---------- Raspored i razmaci ---------- */
 .footer-bar {
   display: flex;
+  flex-direction: column; /* mobilno vertikalno */
+  gap: 24px; /* gap-6 */
   align-items: center;
-  justify-content: space-between;
+}
+
+/* desktop: horizontalno, space-between */
+@media (min-width: 640px) {
+  .footer-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* ---------- Footer meni sekcija (linkovi) ---------- */
+.footer-left {
   width: 100%;
 }
 
-/* LEVO: meni */
+/* mobilno: vertikalno, centrirano, gap-4 (16px) */
 .footer-menu {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px; /* gap-4 */
 }
+
+/* desktop: horizontalno, levo, gap-8 (32px) */
+@media (min-width: 640px) {
+  .footer-menu {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 32px; /* gap-8 */
+  }
+}
+
+/* link stilovi */
 .footer-menu a {
-  color: #fff;
-  text-decoration: none;
   font-family: Poppins, system-ui, sans-serif;
   font-weight: 800;
-  font-size: var(--footer-link-size);
-  line-height: 1.2;
+  color: #fff;
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 .footer-menu a:hover {
   color: #ffed00;
 }
 
-/* DESNO: hashtag + ikonice */
+/* ---------- Desna sekcija ---------- */
 .footer-right {
   display: flex;
+  flex-direction: column; /* mobilno vertikalno */
   align-items: center;
-  gap: 16px;
-  justify-content: flex-end;
-  margin-left: auto;
+  gap: 16px; /* gap-4 */
 }
+
+/* desktop: horizontalno, gap-6 (24px) */
+@media (min-width: 640px) {
+  .footer-right {
+    flex-direction: row;
+    gap: 24px; /* gap-6 */
+  }
+}
+
+/* hashtag */
 .footer-hashtag {
-  color: #fff;
-  text-decoration: none;
   font-family: Poppins, system-ui, sans-serif;
   font-weight: 800;
-  font-size: var(--footer-hash-size);
-  line-height: 1.2;
+  color: #fff;
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 .footer-hashtag:hover {
   color: #ffed00;
 }
 
-/* Ikonice (beli krugovi) — MANJE glyph-ovi unutra */
-.footer-social {
+/* grupa: [ikonice] + [raketa] — razmak 16px (gap-4) */
+.footer-actions {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 16px; /* gap-4 */
 }
 
+/* same ikonice — razmak 12px (gap-3) */
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* gap-3 */
+}
+
+/* dugme ikone: 40x40, bela pozadina, krug */
 .social-btn {
-  width: var(--footer-icon);
-  height: var(--footer-icon);
-  border-radius: 9999px;
+  width: 40px; /* w-10 */
+  height: 40px; /* h-10 */
+  border-radius: 9999px; /* rounded-full */
   background: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  transition: background-color 0.2s, transform 0.15s;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 .social-btn:hover {
   background: #ffed00;
   transform: translateY(-1px);
 }
 
-/* smanji SVG glyph unutar kruga – ovo pregazi width/height atribute na <svg> */
+/* sama ikona unutar dugmeta: 20x20 (w-5 h-5), crna */
 .social-btn svg {
-  width: var(--social-glyph-scale);
-  height: var(--social-glyph-scale);
+  width: 20px;
+  height: 20px; /* w-5 h-5 */
 }
 .icon {
   color: #000;
 }
 
-/* RAKETA — VEĆE dugme i veći glyph */
+/* ---------- Back-to-Top (raketa) ---------- */
+/* veličina dugmeta: mobilno 48, desktop 56 */
 .rocket-btn {
-  width: var(--footer-rocket);
-  height: var(--footer-rocket);
+  width: 48px; /* w-12 */
+  height: 48px; /* h-12 */
   border-radius: 9999px;
   background: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s, transform 0.15s;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+@media (min-width: 640px) {
+  .rocket-btn {
+    width: 56px;
+    height: 56px;
+  } /* w-14 h-14 */
 }
 .rocket-btn:hover {
   background: #ffed00;
   transform: translateY(-1px);
 }
 
-/* raketa ikonica (svg) – malo veća nego obične */
+/* sama ikona rakete: mobilno 24, desktop 28; rotacija -45° */
 .rocket {
+  width: 24px;
+  height: 24px; /* w-6 h-6 */
   transform: rotate(-45deg);
   color: #000;
   transition: transform 0.28s ease;
-  width: var(--rocket-glyph-scale);
-  height: var(--rocket-glyph-scale);
 }
+@media (min-width: 640px) {
+  .rocket {
+    width: 28px;
+    height: 28px;
+  } /* w-7 h-7 */
+}
+
+/* ako želiš animaciju na klik, dodaj klasu .launched u JS */
 .rocket.launched {
   transform: rotate(-90deg);
-} /* rotacija na klik */
+}
 
-/* (ako postoji) sakrij copyright liniju */
+/* (ako postoji) sakrij copyright blok */
 .footer-copy {
   display: none;
   border: 0;
 }
-
-/* =========================
-   Responsive ≤ 620px
-   ========================= */
-@media (max-width: 620px) {
-  :root {
-    --footer-pad-y: 18px;
-    --footer-pad-x: 16px;
-    --footer-link-size: 0.9rem;
-    --footer-hash-size: 0.9rem;
-    --footer-icon: 30px; /* malo veće krug dugmiće na dodir */
-    --footer-rocket: 38px; /* raketa i dalje veća od ostalih */
-    --social-glyph-scale: 60%;
-    --rocket-glyph-scale: 70%;
-  }
-
+/* ===== Tablet fix (1000px → 641px): 2 reda, bez prelivanja ===== */
+@media (max-width: 1000px) and (min-width: 641px) {
+  /* Glavni kontejner: dozvoli prelamanje u 2 reda */
   .footer-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  /* Red 1: meni (može u 2+ reda) */
-  .footer-menu {
     flex-wrap: wrap;
-    gap: 10px 16px;
-  }
-
-  /* Red 2: #agency levo, ikonice desno */
-  .footer-right {
-    width: 100%;
-    gap: 12px;
+    row-gap: 16px; /* vertikalni razmak između redova */
+    column-gap: 0;
     justify-content: space-between;
     align-items: center;
-    margin-left: 0;
   }
+
+  /* RED 1: meni preko cele širine, može da se prelomi */
+  .footer-left {
+    width: 100%;
+  }
+  .footer-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 12px 20px; /* (vert, horiz) malo kompaktnije da sve stane */
+  }
+
+  /* RED 2: #agency + ikonice + raketa preko cele širine */
+  .footer-right {
+    order: 2;
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between; /* #agency levo, akcije desno */
+    gap: 16px;
+  }
+
+  /* Grupica ikonica + raketa: zbijeniji razmak da ne iskače desno */
+  .footer-actions {
+    gap: 12px;
+  }
+  .footer-social {
+    gap: 10px;
+  }
+
+  /* Malko manja dugmad da stane bez preliva */
+  .social-btn {
+    width: 36px;
+    height: 36px;
+  } /* ~ -10% u odnosu na desktop */
+  .social-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .rocket-btn {
+    width: 52px;
+    height: 52px;
+  } /* i dalje veća od ikonica */
+  .rocket {
+    width: 26px;
+    height: 26px;
+  } /* proporcionalno */
 }
