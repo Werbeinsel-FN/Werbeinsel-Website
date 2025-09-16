@@ -131,7 +131,7 @@
 }
 .svc-card__overlay--yellow {
   color: #000;
-  background: linear-gradient(to top, #ffed00 0%, #ffed00 38%, #ffffff 100%);
+  background: linear-gradient(to top, #ffed00 0%, rgba(255, 237, 0, 0) 100%);
 }
 /* Tekst (pojačana specifičnost da pobedi Tailwind text-xl) */
 .svc-card__cat {
