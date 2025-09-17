@@ -4,7 +4,7 @@
  */
 get_header();
 
-$next_url      = content_url('uploads/next-contact/index.html?v=9');
+$next_url      = content_url('uploads/next-contact/index.html?v=10');
 $form_html     = do_shortcode('[wi_contact_form]');
 $plugin_css_url= plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
 
