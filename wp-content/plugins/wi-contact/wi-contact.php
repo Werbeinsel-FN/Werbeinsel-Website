@@ -12,10 +12,12 @@ class WI_Contact {
   const OPT_FIELDS = 'wi_contact_fields';
   const OPT_PILLS  = 'wi_contact_pills';
   const OPT_INFO   = 'wi_contact_info';
+  const OPT_RECAPTCHA_SITE   = 'wi_contact_recaptcha_site';
+  const OPT_RECAPTCHA_SECRET = 'wi_contact_recaptcha_secret';
 
   public function __construct() {
-    add_action('admin_menu',        [$this, 'admin_menu']);
-    add_action('admin_init',        [$this, 'register_settings']);
+    add_action('admin_menu', [$this, 'admin_menu']);
+    add_action('admin_init', [$this, 'register_settings']);
     add_shortcode('wi_contact_form',[$this, 'shortcode_form']);
 
     /* === ADDED: admin-post handleri za slanje forme === */
@@ -36,19 +38,19 @@ class WI_Contact {
 
   public static function defaults_pills() {
     return [
-      'services'  => ['title'=>'SERVICES','multiple'=>true,  'items'=>['Außenwerbung','Beschriftung','Grafikdesign','Webdesign']],
-      'budget'    => ['title'=>'BUDGET',  'multiple'=>false, 'items'=>['< 5.000€','5.000€ - 15.000€','15.000€ - 50.000€','> 50.000€']],
-      'zeitrahmen'=> ['title'=>'ZEITRAHMEN','multiple'=>false,'items'=>['Sofort','Innerhalb 1 Monat','1–3 Monate','> 3 Monate']],
+      'services' => ['title'=>'Services','items'=>["Plakatwerbung","Grafik","Fotografie"]],
+      'budget'   => ['title'=>'Budget','items'=>["<50€","50-200€","200-1000€",">1000€"]],
+      'zeitrahmen'=> ['title'=>'Zeitrahmen','items'=>["Schnell","2-4 Wochen","1-2 Monate","Später"]],
     ];
   }
 
   public static function defaults_info() {
     return [
-      'address_lines' => ["Flughafen 76/3", "88046 Friedrichshafen", "Deutschland"],
-      'email' => 'hallo@werbeinsel.de',
-      'phone' => '+49 7541 700 57 44',
-      'map_mode' => 'address', // address | coords
-      'map_address' => 'Flughafen 76/3, 88046 Friedrichshafen, Deutschland',
+      'address_lines' => [],
+      'email' => '',
+      'phone' => '',
+      'map_mode' => 'address',
+      'map_address' => '',
       'lat'  => '',
       'lng'  => '',
       'zoom' => 15,
@@ -64,29 +66,16 @@ class WI_Contact {
     foreach ($arr as $f) {
       $name  = isset($f['name'])  ? (is_array($f['name'])  ? reset($f['name'])  : $f['name'])  : '';
       $label = isset($f['label']) ? (is_array($f['label']) ? reset($f['label']) : $f['label']) : '';
-      $type  = isset($f['type'])  ? (is_array($f['type'])  ? reset($f['type'])  : $f['type'])  : 'text';
-
-      $type = in_array($type, ['text','email','tel'], true) ? $type : 'text';
-
-      // sanitize i skini sve zvezdice sa kraja (radi i ako ih je više)
-      $label = sanitize_text_field($label);
-      $label = preg_replace('/\s*\*+$/', '', (string)$label);
-
-      $out[] = [
-        'name'     => sanitize_key($name),
-        'label'    => $label,
-        'type'     => $type,
-        'required' => !empty($f['required']),
-      ];
+      $type  = isset($f['type'])  ? (is_array($f['type']) ? reset($f['type']) : $f['type']) : 'text';
+      $required = !empty($f['required']);
+      if (!$name) continue;
+      $out[] = ['name'=>$name,'label'=>$label,'type'=>$type,'required'=>$required];
     }
-    if (!$out) $out = self::defaults_fields();
     return $out;
   }
 
   private static function normalize_pills($p) {
-    $def = self::defaults_pills();
-    if (!is_array($p) || !$p) return $def;
-
+    if (!is_array($p)) return self::defaults_pills();
     foreach ($p as $k => &$g) {
       $g = is_array($g) ? $g : [];
       $g['title']    = sanitize_text_field($g['title'] ?? strtoupper($k));
@@ -120,13 +109,12 @@ class WI_Contact {
   }
 
   public function register_settings() {
-    register_setting('wi_contact_group', self::OPT_FIELDS);
-    register_setting('wi_contact_group', self::OPT_PILLS);
-    register_setting('wi_contact_group', self::OPT_INFO);
-
-    if (!get_option(self::OPT_FIELDS)) update_option(self::OPT_FIELDS, self::defaults_fields());
-    if (!get_option(self::OPT_PILLS))  update_option(self::OPT_PILLS,  self::defaults_pills());
-    if (!get_option(self::OPT_INFO))   update_option(self::OPT_INFO,   self::defaults_info());
+    // not used heavily here, but good to have
+    register_setting('wi_contact_options', self::OPT_FIELDS);
+    register_setting('wi_contact_options', self::OPT_PILLS);
+    register_setting('wi_contact_options', self::OPT_INFO);
+    register_setting('wi_contact_options', self::OPT_RECAPTCHA_SITE);
+    register_setting('wi_contact_options', self::OPT_RECAPTCHA_SECRET);
   }
 
   public function admin_page() {
@@ -161,11 +149,15 @@ class WI_Contact {
       }
       update_option(self::OPT_INFO, $ni);
 
+      // reCAPTCHA keys (optional)
+      $rec_site = sanitize_text_field($_POST['recaptcha_site_key'] ?? '');
+      $rec_sec  = sanitize_text_field($_POST['recaptcha_secret_key'] ?? '');
+      update_option(self::OPT_RECAPTCHA_SITE, $rec_site);
+      update_option(self::OPT_RECAPTCHA_SECRET, $rec_sec);
+
       $fields = $safe_fields;
       $pills  = $new_pills;
       $info   = $ni;
-
-      echo '<div class="updated notice"><p>Sačuvano.</p></div>';
     }
 
     ?>
@@ -186,74 +178,61 @@ class WI_Contact {
               $val_req   = !empty($f['required']);
             ?>
               <tr>
-                <td><input name="fields[<?php echo $i;?>][name]"   value="<?php echo esc_attr($val_name);?>"  class="regular-text" /></td>
-                <td><input name="fields[<?php echo $i;?>][label]"  value="<?php echo esc_attr($val_label);?>" class="regular-text" /></td>
+                <td><input name="fields[<?php echo $i;?>][name]" value="<?php echo esc_attr($val_name);?>"  class="regular-text" /></td>
+                <td><input name="fields[<?php echo $i;?>][label]" value="<?php echo esc_attr($val_label);?>" class="regular-text" /></td>
                 <td>
                   <select name="fields[<?php echo $i;?>][type]">
-                    <?php foreach (['text','email','tel'] as $t): ?>
-                      <option value="<?php echo $t;?>" <?php selected($val_type,$t);?>><?php echo $t;?></option>
-                    <?php endforeach;?>
+                    <?php foreach (['text','email','tel'] as $tt): ?>
+                      <option value="<?php echo esc_attr($tt); ?>" <?php selected($val_type,$tt); ?>><?php echo esc_html($tt); ?></option>
+                    <?php endforeach; ?>
                   </select>
                 </td>
-                <td><label><input type="checkbox" name="fields[<?php echo $i;?>][required]" value="1" <?php checked($val_req);?>> Required</label></td>
-                <td><button class="button wi-remove-row" type="button">Obriši</button></td>
+                <td><input type="checkbox" name="fields[<?php echo $i;?>][required]" <?php checked($val_req); ?>></td>
+                <td><a href="#" class="wi-remove-row">Remove</a></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
-        <p><button type="button" class="button" id="wi-add-field">+ Dodaj polje</button></p>
+        <p><a href="#" id="wi-add-field">+ Add field</a></p>
 
-        <hr/>
+        <h2 style="margin-top:20px;">B) Pills (usluge / budžet / vremenski okvir)</h2>
+        <p>Uredi listu predefinisanih stavki (jedan po liniji).</p>
+        <table class="widefat striped">
+          <thead><tr><th style="width:220px">Grupa</th><th>Stavke</th></tr></thead>
+          <tbody>
+            <?php foreach ($pills as $k=>$g): ?>
+              <tr>
+                <th style="vertical-align: top;"><?php echo esc_html($g['title']); ?></th>
+                <td><textarea name="pills[<?php echo esc_attr($k); ?>][items]" rows="6" style="width:100%"><?php echo esc_textarea(implode("\n",$g['items'] ?? [])); ?></textarea></td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
 
-        <h2>B) “Pills” (Services / Budget / Zeitrahmen)</h2>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
-          <?php foreach (['services'=>'SERVICES','budget'=>'BUDGET','zeitrahmen'=>'ZEITRAHMEN'] as $key=>$title):
-            $g = $pills[$key] ?? ['title'=>$title,'multiple'=>false,'items'=>[]];
-
-            // ↓↓↓ ADMIN PRIKAZ: DEKODUJ ENTITETE PA ESCAPEUJ ZA TEXTAREA
-            $items_text = implode("\n", array_map(function($s){
-              return wp_specialchars_decode($s, ENT_QUOTES);
-            }, $g['items'] ?? []));
-          ?>
-            <div class="card">
-              <h3><?php echo esc_html($title);?></h3>
-              <p>Naslov: <input name="pills[<?php echo $key;?>][title]" value="<?php echo esc_attr($g['title']);?>"></p>
-              <p><label><input type="checkbox" name="pills[<?php echo $key;?>][multiple]" value="1" <?php checked(!empty($g['multiple']));?>> Dozvoli višestruki izbor</label></p>
-              <p>Stavke (po redovima):<br>
-                <textarea name="pills[<?php echo $key;?>][items]" rows="6" style="width:100%;"><?php echo esc_textarea($items_text);?></textarea>
-              </p>
-            </div>
-          <?php endforeach;?>
-        </div>
-
-        <hr/>
-
-        <h2>C) Kontakt info (kartica pored mape)</h2>
-        <table class="form-table">
+        <h2 style="margin-top:20px;">C) Kontakt info (mapa, email)</h2>
+        <table class="widefat striped">
           <tr>
-            <th scope="row">Adresa (po jedna linija)</th>
-            <td><textarea name="info[address_lines]" rows="4" class="large-text"><?php echo esc_textarea(implode("\n", $info['address_lines'] ?? []));?></textarea></td>
+            <th style="width:220px">Email koji prima</th>
+            <td><input name="info[email]" class="regular-text" value="<?php echo esc_attr($info['email'] ?? ''); ?>"></td>
           </tr>
           <tr>
-            <th scope="row">E-mail</th>
-            <td><input name="info[email]" class="regular-text" value="<?php echo esc_attr($info['email'] ?? '');?>"></td>
+            <th>Telefon</th>
+            <td><input name="info[phone]" class="regular-text" value="<?php echo esc_attr($info['phone'] ?? ''); ?>"></td>
           </tr>
           <tr>
-            <th scope="row">Telefon</th>
-            <td><input name="info[phone]" class="regular-text" value="<?php echo esc_attr($info['phone'] ?? '');?>"></td>
+            <th>Adresa (linije)</th>
+            <td><textarea name="info[address_lines]" rows="6" style="width:100%"><?php echo esc_textarea(implode("\n",$info['address_lines'] ?? [])); ?></textarea></td>
           </tr>
           <tr>
-            <th scope="row">Mapa – izvor</th>
+            <th>Mapa - način</th>
             <td>
-              <label><input type="radio" name="info[map_mode]" value="address" <?php checked(($info['map_mode']??'address'),'address');?>> Adresa</label>
-              &nbsp;&nbsp;
-              <label><input type="radio" name="info[map_mode]" value="coords"  <?php checked(($info['map_mode']??'address'),'coords');?>> Koordinate</label>
+              <label><input type="radio" name="info[map_mode]" value="address" <?php checked(($info['map_mode'] ?? '')=='address'); ?> > Address</label>
+              <label style="margin-left:10px;"><input type="radio" name="info[map_mode]" value="coords" <?php checked(($info['map_mode'] ?? '')=='coords'); ?> > Coordinates</label>
             </td>
           </tr>
           <tr>
-            <th scope="row">Map address (ako koristiš “Adresa”)</th>
-            <td><input name="info[map_address]" class="regular-text" value="<?php echo esc_attr($info['map_address'] ?? '');?>"><br>
-              <small>Ostavi prazno da se generiše iz polja Adresa.</small></td>
+            <th scope="row">Adresa za mapu</th>
+            <td><input name="info[map_address]" size="80" value="<?php echo esc_attr($info['map_address'] ?? '');?>"></td>
           </tr>
           <tr>
             <th scope="row">Koordinate (ako koristiš “Koordinate”)</th>
@@ -269,27 +248,50 @@ class WI_Contact {
           </tr>
         </table>
 
+        <h2 style="margin-top:20px;">D) reCAPTCHA v3 (opcionalno)</h2>
+        <p>Ovde možeš uneti Google reCAPTCHA v3 site i secret ključeve. Ako ostane prazno, forma neće koristiti reCAPTCHA.</p>
+        <table class="widefat striped">
+          <tr>
+            <th style="width:220px">Site key</th>
+            <td><input name="recaptcha_site_key" class="regular-text" value="<?php echo esc_attr(get_option(self::OPT_RECAPTCHA_SITE, '')); ?>"></td>
+          </tr>
+          <tr>
+            <th>Secret key</th>
+            <td><input name="recaptcha_secret_key" class="regular-text" value="<?php echo esc_attr(get_option(self::OPT_RECAPTCHA_SECRET, '')); ?>"></td>
+          </tr>
+        </table>
+
         <?php submit_button('Sačuvaj sve'); ?>
       </form>
     </div>
-
+    <style>
+      /* small admin helpers */
+      #wi-fields-rows input[type=text], #wi-fields-rows input[type=email], #wi-fields-rows select { width:100%; }
+      .wi-remove-row { color:#a00; }
+    </style>
     <script>
       (function(){
-        const tbody = document.getElementById('wi-fields-rows');
-        document.getElementById('wi-add-field')?.addEventListener('click', () => {
-          const i = tbody.querySelectorAll('tr').length;
-          const tr = document.createElement('tr');
-          tr.innerHTML =
-            '<td><input name="fields['+i+'][name]'+" class=\"regular-text\"></td>"+
-            '<td><input name="fields['+i+'][label]'+" class=\"regular-text\"></td>"+
-            '<td><select name=\"fields['+i+'][type]\"><option>text</option><option>email</option><option>tel</option></select></td>'+
-            '<td><label><input type=\"checkbox\" name=\"fields['+i+'][required]\" value=\"1\"> Required</label></td>'+
-            '<td><button class=\"button wi-remove-row\" type=\"button\">Obriši</button></td>';
-          tbody.appendChild(tr);
-        });
-        tbody.addEventListener('click', (e) => {
-          if (e.target && e.target.classList.contains('wi-remove-row')) {
-            e.target.closest('tr').remove();
+        // small client side admin helpers to add/remove rows
+        var add = document.getElementById('wi-add-field');
+        if (add) {
+          add.addEventListener('click', function(e){
+            e.preventDefault();
+            var tbody = document.getElementById('wi-fields-rows');
+            var idx = tbody.children.length;
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td><input name="fields['+idx+'][name]" class="regular-text"></td>' +
+                           '<td><input name="fields['+idx+'][label]" class="regular-text"></td>' +
+                           '<td><select name="fields['+idx+'][type]"><option value="text">text</option><option value="email">email</option><option value="tel">tel</option></select></td>' +
+                           '<td><input type="checkbox" name="fields['+idx+'][required]"></td>' +
+                           '<td><a href="#" class="wi-remove-row">Remove</a></td>';
+            tbody.appendChild(tr);
+          });
+        }
+        document.addEventListener('click', function(e){
+          if (e.target && e.target.matches('.wi-remove-row')) {
+            e.preventDefault();
+            var tr = e.target.closest('tr');
+            if (tr) tr.parentNode.removeChild(tr);
           }
         });
       })();
@@ -297,11 +299,36 @@ class WI_Contact {
     <?php
   }
 
-  /* ---------- Shortcode: samo HTML forme (bez submit dugmeta – Next ga koristi) ---------- */
+  /* ---------- Frontend shortcode ---------- */
   public function shortcode_form($atts = []) {
     $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
     ob_start(); ?>
     <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+      <?php $rec_site = get_option(self::OPT_RECAPTCHA_SITE, ''); if ($rec_site): ?>
+      <input type="hidden" name="wi_recaptcha_token" id="wi_recaptcha_token" value="">
+      <script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr($rec_site); ?>"></script>
+      <script>
+      document.addEventListener('DOMContentLoaded', function(){
+        if (typeof grecaptcha !== 'undefined') {
+          grecaptcha.ready(function(){
+            var form = document.querySelector('.wi-contact-form');
+            if (!form) return;
+            form.addEventListener('submit', function(evt){
+              // prevent default, request token, then submit
+              evt.preventDefault();
+              grecaptcha.execute('<?php echo esc_js($rec_site); ?>', {action: 'contact'}).then(function(token){
+                var inp = document.getElementById('wi_recaptcha_token');
+                if (inp) inp.value = token;
+                // submit the form programmatically
+                form.submit();
+              });
+            });
+          });
+        }
+      });
+      </script>
+      <?php endif; ?>
+
       <input type="hidden" name="action" value="wi_contact_submit">
 
       <div class="wi-grid">
@@ -314,16 +341,16 @@ class WI_Contact {
           $label_plain = trim(preg_replace('/\s*\*+$/', '', $label));
           $req   = !empty($f['required']);
           $id    = 'wi_' . $name;
-          $ph    = $label_plain . ($req ? ' *' : '');
+          $ph    = $label_plain;
         ?>
-          <label class="wi-field" for="<?php echo esc_attr($id); ?>">
-            <span class="wi-label-text"><?php echo esc_html($label_plain); ?></span>
+          <label for="<?php echo esc_attr($id); ?>">
+            <span class="wi-label"><?php echo esc_html($label_plain); ?></span>
             <input
               id="<?php echo esc_attr($id); ?>"
               name="<?php echo esc_attr($name); ?>"
               type="<?php echo esc_attr($type); ?>"
               placeholder="<?php echo esc_attr($ph); ?>"
-              <?php echo $req ? 'required aria-required="true"' : ''; ?>
+              <?php echo $req ? 'required aria-required=\"true\"' : ''; ?>
             >
           </label>
         <?php endforeach; ?>
@@ -344,6 +371,27 @@ class WI_Contact {
   /* === ADDED: handler koji šalje mejl preko wp_mail() === */
   public function handle_submit() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') wp_die();
+
+    // reCAPTCHA v3 verification (optional)
+    $rec_secret = get_option(self::OPT_RECAPTCHA_SECRET, '');
+    if ($rec_secret) {
+      $token = sanitize_text_field($_POST['wi_recaptcha_token'] ?? '');
+      if (empty($token)) {
+        echo 'RECAPTCHA_MISSING'; wp_die();
+      }
+      $resp = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+        'body' => ['secret' => $rec_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''],
+        'timeout' => 10,
+      ]);
+      if (is_wp_error($resp)) {
+        echo 'RECAPTCHA_ERROR'; wp_die();
+      }
+      $body = wp_remote_retrieve_body($resp);
+      $json = json_decode($body, true);
+      if (empty($json['success']) || (isset($json['score']) && $json['score'] < 0.4)) {
+        echo 'RECAPTCHA_FAILED'; wp_die();
+      }
+    }
 
     // Polja definisana u podesavanjima
     $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
