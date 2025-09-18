@@ -25,6 +25,93 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
+<?php
+// PREUZMI reCAPTCHA SITE KEY iz plugin opcije (ako je postavljen)
+$wi_recaptcha_site = get_option('wi_contact_recaptcha_site', '');
+?>
+
+<?php if ( !empty($wi_recaptcha_site) ) : ?>
+  <!-- reCAPTCHA v3 loader (dinamički, ako plugin već nije ubacio) -->
+  <script>
+  (function(){
+    // čuvamo site key u globalu da JS ispod može da ga koristi
+    window.RECAPTCHA_SITE_KEY = <?php echo json_encode($wi_recaptcha_site); ?>;
+
+    function ensureHiddenInput(form){
+      var inp = form.querySelector('#wi_recaptcha_token');
+      if (!inp) {
+        inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = 'wi_recaptcha_token'; // OVO ime backend očekuje
+        inp.id   = 'wi_recaptcha_token';
+        form.appendChild(inp);
+      }
+      return inp;
+    }
+
+    function getToken(action){
+      return new Promise(function(resolve, reject){
+        if (typeof grecaptcha === 'undefined') return reject(new Error('grecaptcha_not_loaded'));
+        grecaptcha.ready(function(){
+          grecaptcha.execute(window.RECAPTCHA_SITE_KEY, {action: action || 'contact'})
+            .then(resolve).catch(reject);
+        });
+      });
+    }
+
+    function attach(form){
+      if (form.__wiCaptchaBound) return; // izbegni dupli bind
+      form.__wiCaptchaBound = true;
+
+      form.addEventListener('submit', function(ev){
+        // uvek stopiraj default; tek posle tokena šalji
+        ev.preventDefault();
+
+        var submitBtn = form.querySelector('[type="submit"]');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.dataset.prevText = submitBtn.textContent;
+          submitBtn.textContent = 'Verifikuje…';
+        }
+
+        ensureHiddenInput(form);
+
+        getToken('contact').then(function(token){
+          form.querySelector('#wi_recaptcha_token').value = token;
+          form.submit(); // sad zaista šaljemo (handler se ne aktivira ponovo)
+        }).catch(function(err){
+          console.error('reCAPTCHA error:', err);
+          alert('Greška pri verifikaciji. Pokušaj ponovo.');
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitBtn.dataset.prevText || 'Senden';
+          }
+        });
+      }, {capture:true}); // capture da ništa ne pretekne
+    }
+
+    function init(){
+      // ciljamo WI Contact formu koja šalje na admin-post.php
+      var forms = document.querySelectorAll('form.wi-contact-form[action*="admin-post.php"]');
+      forms.forEach(attach);
+    }
+
+    // 1) odmah veži handler da submit ne pobegne
+    document.addEventListener('DOMContentLoaded', init);
+
+    // 2) ako reCAPTCHA skripta nije već tu, ubaci je
+    if (typeof grecaptcha === 'undefined') {
+      var s = document.createElement('script');
+      s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(window.RECAPTCHA_SITE_KEY);
+      s.async = true; s.defer = true;
+      s.onload = init;
+      document.head.appendChild(s);
+    }
+  })();
+  </script>
+<?php endif; ?>
+
 <footer class="site-footer">
   <div class="content-container">
     <div class="footer-bar">
