@@ -369,31 +369,35 @@ class WI_Contact {
   }
 
   /* === ADDED: handler koji šalje mejl preko wp_mail() === */
-  public function handle_submit() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') wp_die();
+public function handle_submit() {
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') wp_die();
+
+  try {
 
     // reCAPTCHA v3 verification (optional)
     $rec_secret = get_option(self::OPT_RECAPTCHA_SECRET, '');
     if ($rec_secret) {
       $token = sanitize_text_field($_POST['wi_recaptcha_token'] ?? '');
       if (empty($token)) {
-        echo 'RECAPTCHA_MISSING'; wp_die();
+        status_header(200); echo 'RECAPTCHA_MISSING'; return;
       }
       $resp = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
-        'body' => ['secret' => $rec_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''],
-        'timeout' => 10,
+        'body'      => ['secret' => $rec_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''],
+        'timeout'   => 12,
       ]);
       if (is_wp_error($resp)) {
-        echo 'RECAPTCHA_ERROR'; wp_die();
+        error_log('WI_CONTACT reCAPTCHA HTTP error: ' . $resp->get_error_message());
+        status_header(200); echo 'RECAPTCHA_ERROR'; return;
       }
       $body = wp_remote_retrieve_body($resp);
       $json = json_decode($body, true);
       if (empty($json['success']) || (isset($json['score']) && $json['score'] < 0.4)) {
-        echo 'RECAPTCHA_FAILED'; wp_die();
+        error_log('WI_CONTACT reCAPTCHA response: ' . substr($body,0,500));
+        status_header(200); echo 'RECAPTCHA_FAILED'; return;
       }
     }
 
-    // Polja definisana u podesavanjima
+    // Polja iz opcija
     $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
     $data   = [];
     foreach ($fields as $f) {
@@ -407,7 +411,7 @@ class WI_Contact {
     $info     = get_option(self::OPT_INFO, self::defaults_info());
     $email_to = sanitize_email($info['email'] ?? '') ?: get_option('admin_email');
 
-    // Subject i HTML telo
+    // Subject i telo
     $subject = sprintf('Neue Anfrage über Kontaktformular (%s)', parse_url(home_url(), PHP_URL_HOST));
 
     $lines = [];
@@ -425,17 +429,33 @@ class WI_Contact {
     }
     $body = '<html><body>'.implode('', $lines).'</body></html>';
 
+    // Headeri
     $headers = ['Content-Type: text/html; charset=UTF-8'];
     if (!empty($data['email']) && is_email($data['email'])) {
       $headers[] = 'Reply-To: '.$data['email'];
     }
 
+    // Log greške ako wp_mail padne
+    add_action('wp_mail_failed', function($e){
+      error_log('WI_MAIL_FAIL: ' . print_r($e, true));
+    });
+
     $sent = wp_mail($email_to, $subject, $body, $headers);
 
-    // Jednostavan odgovor (fetch je no-cors)
+    status_header(200);
     echo $sent ? 'OK' : 'MAIL_ERROR';
-    wp_die();
+
+  } catch (\Throwable $e) {
+    if (function_exists('error_log')) {
+      error_log('WI_CONTACT FATAL: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    }
+    status_header(200);
+    echo 'SERVER_ERROR: ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine();
   }
+
+  wp_die();
+}
+
 }
 
 new WI_Contact();
