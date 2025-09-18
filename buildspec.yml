@@ -2,20 +2,14 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - set -euxo pipefail
+      - set -e
       - eval "$(ssh-agent -s)"
-      # 1) Prvo pokušaj direktno (multiline Klartext)
+      # snimi ključ iz varijable u privremeni fajl
       - KEY_FILE=/tmp/lightsail_key.pem
       - printf '%s' "$LIGHTSAIL_KEY" | tr -d '\r' > "$KEY_FILE"
       - chmod 600 "$KEY_FILE"
-      - |
-        if ! ssh-add "$KEY_FILE"; then
-          echo "Direct add failed, trying to interpret \\n escapes..."
-          # 2) Fallback: ako je vrednost upisana sa literalnim \n, pretvori u prave nove redove
-          printf '%b' "$LIGHTSAIL_KEY" | tr -d '\r' > "$KEY_FILE"
-          chmod 600 "$KEY_FILE"
-          ssh-add "$KEY_FILE"
-        fi
+      # pokušaj učitavanje; ako je key unet sa literalnim \n, premapiraj ih u realne nove redove
+      - ssh-add "$KEY_FILE" || ( printf '%b' "$LIGHTSAIL_KEY" | tr -d '\r' > "$KEY_FILE" && chmod 600 "$KEY_FILE" && ssh-add "$KEY_FILE" )
       - ssh-add -l
       - mkdir -p ~/.ssh
       - ssh-keyscan -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
