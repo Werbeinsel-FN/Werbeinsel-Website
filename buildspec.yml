@@ -1,29 +1,17 @@
 version: 0.2
-
 phases:
-  install:
-    runtime-versions:
-      nodejs: 16
-    commands:
-      - echo "Installiere ssh und aws-cli falls nötig"
-      - apt-get update && apt-get install -y openssh-client awscli
-
-
   pre_build:
     commands:
-      - echo "Lese privaten SSH-Schlüssel aus SSM"
+      - eval "$(ssh-agent -s)"
+      - echo "$LIGHTSAIL_KEY" | tr -d '\r' | ssh-add -
       - mkdir -p ~/.ssh
-      - aws ssm get-parameter --name "/werbeinsel/ssh_private_key" --with-decryption --query "Parameter.Value" --output text > ~/.ssh/id_rsa
-      - chmod 600 ~/.ssh/id_rsa
-      - |
-        echo "Host lightsail
-        HostName 3.126.252.21
-        User deploy
-        IdentityFile ~/.ssh/id_rsa
-        StrictHostKeyChecking=no" > ~/.ssh/config
-
-
+      - ssh-keyscan -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts
+      - ssh-keyscan -H github.com >> ~/.ssh/known_hosts
   build:
     commands:
-      - echo "Verbinde mit Lightsail und ziehe neues GitHub-Repo"
-      - ssh lightsail "sudo -u bitnami git -C /opt/bitnami/wordpress pull origin main && sudo /opt/bitnami/ctlscript.sh restart apache"
+      - ssh -o IdentitiesOnly=yes bitnami@"$LIGHTSAIL_HOST" 'bash -lc "
+          cd /opt/bitnami/wordpress &&
+          git fetch origin &&
+          git reset --hard origin/main &&
+          sudo /opt/bitnami/ctlscript.sh restart apache
+        "'
