@@ -444,7 +444,7 @@ public function handle_submit() {
 
     status_header(200);
     echo $sent ? 'OK' : 'MAIL_ERROR';
-
+return; 
   } catch (\Throwable $e) {
     if (function_exists('error_log')) {
       error_log('WI_CONTACT FATAL: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
