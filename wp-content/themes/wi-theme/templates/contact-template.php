@@ -4,9 +4,12 @@
  */
 get_header();
 
-$next_url      = content_url('uploads/next-contact/index.html?v=10');
-$form_html     = do_shortcode('[wi_contact_form]');
-$plugin_css_url= plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
+$next_url       = content_url('uploads/next-contact/index.html?v=10');
+$form_html      = do_shortcode('[wi_contact_form]');
+$plugin_css_url = plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
+
+/* NOVO: uzmi reCAPTCHA v3 SITE KEY iz opcija plugina (SECRET NE IDE U JS) */
+$site_key       = get_option('wi_contact_recaptcha_site', '');
 
 $pills = null;
 
@@ -68,11 +71,13 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
 
 <script>
 (function(){
-  const iframe   = document.getElementById('wi-next-contact');
-  const CSS_URL  = <?php echo wp_json_encode($plugin_css_url.'?v=8'); ?>;
-  const FORM_HTML= <?php echo wp_json_encode($form_html); ?>;
-  const PILLS    = <?php echo wp_json_encode($pills); ?>;
-  const POST_URL = <?php echo wp_json_encode(admin_url('admin-post.php')); ?>;
+  const iframe    = document.getElementById('wi-next-contact');
+  const CSS_URL   = <?php echo wp_json_encode($plugin_css_url.'?v=8'); ?>;
+  const FORM_HTML = <?php echo wp_json_encode($form_html); ?>;
+  const PILLS     = <?php echo wp_json_encode($pills); ?>;
+  const POST_URL  = <?php echo wp_json_encode(admin_url('admin-post.php')); ?>;
+  /* NOVO: prosleđen site key iz PHP-a */
+  const SITE_KEY  = <?php echo wp_json_encode($site_key); ?>;
 
   /* -------- autosize -------- */
   let lastH=0, raf=0;
@@ -143,15 +148,75 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
       const hid=frm.querySelector('input[name="pill_'+key+'"]'); if(hid) hid.value=values.join(', ');
     });
   }
-function clearLooseFields(doc) {
-  // očisti sve textarea i "slobodne" inpute, i van .wi-contact-form
-  doc.querySelectorAll('textarea').forEach(t => { t.value = ''; });
-  // ako Next-UI koristi floating labele/validaciju, pošalji input event
-  doc.querySelectorAll('input, textarea').forEach(el => {
-    try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch {}
-    try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch {}
-  });
-}
+  function clearLooseFields(doc) {
+    doc.querySelectorAll('textarea').forEach(t => { t.value = ''; });
+    doc.querySelectorAll('input, textarea').forEach(el => {
+      try { el.dispatchEvent(new Event('input', { bubbles: true })); } catch {}
+      try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch {}
+    });
+  }
+
+  /* ===== NOVO: reCAPTCHA loader u IFRAME-u + submit helper ===== */
+  function loadRecaptchaIntoIframe(doc){
+    if (!SITE_KEY) return; // ako nema site key, preskoči
+    const w = iframe.contentWindow;
+    if (w && w.grecaptcha) return; // već učitano
+    const s = doc.createElement('script');
+    s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(SITE_KEY);
+    s.async = true; s.defer = true;
+    doc.head.appendChild(s);
+  }
+
+  async function submitWithRecaptcha(doc){
+    const frm = doc.querySelector('.wi-contact-form');
+    if (!frm) return;
+
+    // nativna validacija prvo
+    if (!frm.reportValidity()) {
+      const firstInvalid = doc.querySelector(':invalid');
+      try {
+        const r = iframe.getBoundingClientRect();
+        window.scrollTo({ top: window.pageYOffset + r.top - 80, behavior: 'smooth' });
+        if (firstInvalid) {
+          setTimeout(() => {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus({ preventScroll: true });
+          }, 250);
+        }
+      } catch {}
+      fitFromDOM();
+      return;
+    }
+
+    // ako nema site key ili grecaptcha – pošalji bez tokena (kao do sada)
+    if (!SITE_KEY) { submitAjax(doc); return; }
+
+    const w = iframe.contentWindow;
+    const tokenInput = doc.getElementById('wi_recaptcha_token');
+
+    function fail(msg){
+      console.warn(msg || 'reCAPTCHA nije dostupna');
+      alert('reCAPTCHA je blokirana ili nije učitana. Dozvoli Google skripte i pokušaj ponovo.');
+    }
+
+    if (w && w.grecaptcha && w.grecaptcha.execute) {
+      try {
+        await new Promise((resolve) => w.grecaptcha.ready(resolve));
+        const token = await w.grecaptcha.execute(SITE_KEY, {action: 'contact'});
+        if (tokenInput) tokenInput.value = token;
+        submitAjax(doc);
+      } catch (e) {
+        fail('reCAPTCHA execute error'); 
+      }
+    } else {
+      // ako kasni učitavanje, probaj kratko kasnije
+      setTimeout(() => {
+        if (w && w.grecaptcha && w.grecaptcha.execute) submitWithRecaptcha(doc);
+        else fail('reCAPTCHA nije učitana');
+      }, 600);
+    }
+  }
+  /* ===== Kraj NOVO ===== */
 
   /* -------- Danke / Error UI -------- */
   function ensureDanke(doc){
@@ -182,80 +247,78 @@ function clearLooseFields(doc) {
   }
 
   /* -------- AJAX submit (sa redirect detekcijom) -------- */
-  // --- zameni postojeću submitAjax funkciju ovim ---
-// === REPLACE submitAjax WITH THIS VERSION ===
-async function submitAjax(doc){
-  const frm = doc.querySelector('.wi-contact-form');
-  if (!frm) return;
+  async function submitAjax(doc){
+    const frm = doc.querySelector('.wi-contact-form');
+    if (!frm) return;
 
-  // 1) HTML5 nativna validacija (bez overlay greške)
-  //    Ako je nešto nepopunjeno, prijavi poruku i skroluj do polja.
-  //    -> ne radimo submit, ne prikazujemo UPS! overlay.
-  // reportValidity() prikazuje poruku browsera na prvom nevalidnom polju.
-  if (!frm.reportValidity()) {
-    const firstInvalid = doc.querySelector(':invalid');
-    // skrol parent stranice do iFrame-a
-    try {
-      const r = iframe.getBoundingClientRect();
-      window.scrollTo({ top: window.pageYOffset + r.top - 80, behavior: 'smooth' });
-      // pa u okviru iFrame-a do konkretnog polja
-      if (firstInvalid) {
-        setTimeout(() => {
-          firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          firstInvalid.focus({ preventScroll: true });
-        }, 250);
-      }
-    } catch {}
-    fitFromDOM();
-    return; // prekida se slanje – korisnik vidi nativnu poruku
-  }
-
-  try {
-    // 2) upiši vrednosti iz "pills"
-    syncHidden(doc);
-
-    // 3) pošalji kao pre (no-cors da ne smetaju redirect/CORS)
-    const fd = new FormData(frm);
-    if (!fd.get('action')) fd.set('action', 'wi_contact_submit');
-
-    await fetch(POST_URL, {
-      method: 'POST',
-      body: fd,
-      credentials: 'include',
-      mode: 'no-cors'
-    });
-
-    // 4) smatramo uspeh → „Danke“
-    showDanke();
+    if (!frm.reportValidity()) {
+      const firstInvalid = doc.querySelector(':invalid');
+      try {
+        const r = iframe.getBoundingClientRect();
+        window.scrollTo({ top: window.pageYOffset + r.top - 80, behavior: 'smooth' });
+        if (firstInvalid) {
+          setTimeout(() => {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus({ preventScroll: true });
+          }, 250);
+        }
+      } catch {}
+      fitFromDOM();
+      return;
+    }
 
     try {
-      frm.reset();
-      clearLooseFields(doc);
-      doc.querySelectorAll('.wi-pill.wi-pill-active').forEach(b => b.classList.remove('wi-pill-active'));
       syncHidden(doc);
-    } catch {}
 
-    fitFromDOM();
-  } catch (err) {
-    // stvarni mrežni problem → prikaži „UPS“
-    showError();
+      const fd = new FormData(frm);
+      if (!fd.get('action')) fd.set('action', 'wi_contact_submit');
+
+      await fetch(POST_URL, {
+        method: 'POST',
+        body: fd,
+        credentials: 'include',
+        mode: 'no-cors'
+      });
+
+      showDanke();
+
+      try {
+        frm.reset();
+        clearLooseFields(doc);
+        doc.querySelectorAll('.wi-pill.wi-pill-active').forEach(b => b.classList.remove('wi-pill-active'));
+        syncHidden(doc);
+      } catch {}
+
+      fitFromDOM();
+    } catch (err) {
+      showError();
+    }
   }
-}
-
 
   /* -------- CTA hook + delegacija -------- */
   function wireCTA(doc){
     const btn=doc.querySelector('button[type="submit"]');
-    if(btn && !btn.dataset.wiWired){ btn.type='button'; btn.dataset.wiWired='1'; btn.addEventListener('click',(ev)=>{ev.preventDefault(); submitAjax(doc);},true); }
+    if(btn && !btn.dataset.wiWired){
+      btn.type='button'; btn.dataset.wiWired='1';
+      /* IZMENJENO: sad zovemo submitWithRecaptcha */
+      btn.addEventListener('click',(ev)=>{ev.preventDefault(); submitWithRecaptcha(doc);}, true);
+    }
   }
   function installDelegation(doc){
     if(doc.__wiDelegation) return; doc.__wiDelegation=true;
     doc.addEventListener('click',(ev)=>{
       const el=ev.target.closest('button,a,[role="button"]'); if(!el) return;
-      const txt=(el.textContent||'').trim(); if(/anfrage\s*senden/i.test(txt)){ ev.preventDefault(); ev.stopPropagation(); submitAjax(doc); }
+      const txt=(el.textContent||'').trim();
+      if(/anfrage\s*senden/i.test(txt)){
+        ev.preventDefault(); ev.stopPropagation();
+        /* IZMENJENO: sad zovemo submitWithRecaptcha */
+        submitWithRecaptcha(doc);
+      }
     },true);
     doc.addEventListener('keydown',(ev)=>{
-      if(ev.key!=='Enter') return; const inForm=ev.target.closest('.wi-contact-form'); if(inForm){ ev.preventDefault(); submitAjax(doc); }
+      if(ev.key!=='Enter') return;
+      const inForm=ev.target.closest('.wi-contact-form');
+      if(inForm){ ev.preventDefault(); /* IZMENJENO */ submitWithRecaptcha(doc); }
     },true);
   }
 
@@ -275,6 +338,9 @@ async function submitAjax(doc){
     slot.innerHTML=FORM_HTML;
 
     const fb=doc.querySelector('.wi-contact-form .wi-submit'); if(fb) fb.style.display='none';
+
+    /* NOVO: učitaj reCAPTCHA skriptu u IFRAME dokument */
+    loadRecaptchaIntoIframe(doc);
 
     renderPills(doc); wireCTA(doc); installDelegation(doc); syncHidden(doc);
     fitFromDOM();
