@@ -22,11 +22,15 @@ function wi_get_group($key, $fallback) {
     $items[$i]['image'] = isset($items[$i]['image']) ? (int)$items[$i]['image'] : 0;
     $items[$i]['image_url'] = $items[$i]['image'] ? wp_get_attachment_image_url((int)$items[$i]['image'], 'full') : $f['image'];
     $items[$i]['cat_name']  = $items[$i]['cat'] ? get_cat_name((int)$items[$i]['cat']) : $f['category'];
+    // helper: slug od naslova
+    $items[$i]['slug'] = sanitize_title( $items[$i]['title'] );
+    $items[$i]['group_key'] = $key;
+    $items[$i]['index'] = $i;
   }
   return $items;
 }
 
-/** Fallback vrednosti (ne menjamo) */
+// Fallbackovi (ne menjamo)
 $out_of_home_fb = [
   ['title'=>'Plakatwerbung','category'=>'Auf die Straße','image'=>'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&q=80&auto=format&fit=crop'],
   ['title'=>'Großflächenwerbung','category'=>'Auf die Straße','image'=>'https://images.unsplash.com/photo-1553708881-112abc53fe54?w=1200&q=80&auto=format&fit=crop'],
@@ -55,6 +59,11 @@ $KLE = wi_get_group('lass_kleben', $lass_kleben_fb);
 $services_css_path = get_stylesheet_directory() . '/css/services.css';
 $services_css_url  = get_stylesheet_directory_uri() . '/css/services.css';
 if (file_exists($services_css_path)) { $services_css_url .= '?v=' . filemtime($services_css_path); }
+
+/** Helper: URL ka detail stranici */
+function wi_service_detail_url($slug){
+  return home_url( '/services/' . $slug . '/' );
+}
 ?>
 <link rel="stylesheet" href="<?php echo esc_url($services_css_url); ?>">
 
@@ -66,68 +75,66 @@ if (file_exists($services_css_path)) { $services_css_url .= '?v=' . filemtime($s
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['ooh']); ?></h2>
       <div class="svc-grid svc-grid--3">
         <?php foreach ($OOH as $s): ?>
-          <article class="svc-card" role="button" tabindex="0">
+          <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
             <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
             <div class="svc-card__overlay svc-card__overlay--dark">
               <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>
               <h3 class="svc-card__ttl"><?php echo esc_html($s['title']); ?></h3>
             </div>
-          </article>
+          </a>
         <?php endforeach; ?>
       </div>
     </div>
   </section>
 
   <!-- PIXEL & CODE (crna, u sredini) -->
- <!-- 2) PIXEL & CODE (crna, u sredini) -->
-<section class="svc-section svc-section--dark">
-  <div class="svc-container content-container">
-    <h2 class="svc-hl svc-hl--white"><?php echo esc_html($H['pix']); ?></h2>
-    <div class="svc-grid svc-grid--2cols">
-      <div class="svc-grid svc-grid--2">
-        <?php foreach (array_slice($PIX, 0, 2) as $s): ?>
-          <article class="svc-card" role="button" tabindex="0">
-            <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
-            <div class="svc-card__overlay svc-card__overlay--yellow">
-              <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
-              <h3 class="svc-card__ttl svc-card__ttl--dark"><?php echo esc_html($s['title']); ?></h3>
-            </div>
-          </article>
-        <?php endforeach; ?>
-      </div>
-      <div class="svc-grid svc-grid--2">
-        <?php foreach (array_slice($PIX, 2) as $s): ?>
-          <article class="svc-card" role="button" tabindex="0">
-            <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
-            <div class="svc-card__overlay svc-card__overlay--yellow">
-              <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
-              <h3 class="svc-card__ttl svc-card__ttl--dark"><?php echo esc_html($s['title']); ?></h3>
-            </div>
-          </article>
-        <?php endforeach; ?>
+  <section class="svc-section svc-section--dark">
+    <div class="svc-container content-container">
+      <h2 class="svc-hl svc-hl--white"><?php echo esc_html($H['pix']); ?></h2>
+      <div class="svc-grid svc-grid--2cols">
+        <div class="svc-grid svc-grid--2">
+          <?php foreach (array_slice($PIX, 0, 2) as $s): ?>
+            <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+              <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
+              <div class="svc-card__overlay svc-card__overlay--yellow">
+                <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
+                <h3 class="svc-card__ttl svc-card__ttl--dark"><?php echo esc_html($s['title']); ?></h3>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
+        <div class="svc-grid svc-grid--2">
+          <?php foreach (array_slice($PIX, 2) as $s): ?>
+            <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+              <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
+              <div class="svc-card__overlay svc-card__overlay--yellow">
+                <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
+                <h3 class="svc-card__ttl svc-card__ttl--dark"><?php echo esc_html($s['title']); ?></h3>
+              </div>
+            </a>
+          <?php endforeach; ?>
+        </div>
       </div>
     </div>
-  </div>
-</section>
-
+  </section>
 
   <!-- LASS KLEBEN (žuta, na dnu) -->
-<section class="svc-section svc-section--yellow">
-  <div class="svc-container content-container">
-    <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['kle']); ?></h2>
-    <div class="svc-grid svc-grid--3-md">
-      <?php foreach ($KLE as $s): ?>
-        <article class="svc-card" role="button" tabindex="0">
-          <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
-          <div class="svc-card__overlay svc-card__overlay--dark">
-            <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>
-            <h3 class="svc-card__ttl"><?php echo esc_html($s['title']); ?></h3>
-          </div>
-        </article>
-      <?php endforeach; ?>
+  <section class="svc-section svc-section--yellow">
+    <div class="svc-container content-container">
+      <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['kle']); ?></h2>
+      <div class="svc-grid svc-grid--3-md">
+        <?php foreach ($KLE as $s): ?>
+          <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+            <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
+            <div class="svc-card__overlay svc-card__overlay--dark">
+              <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>
+              <h3 class="svc-card__ttl"><?php echo esc_html($s['title']); ?></h3>
+            </div>
+          </a>
+        <?php endforeach; ?>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
 </main>
 
