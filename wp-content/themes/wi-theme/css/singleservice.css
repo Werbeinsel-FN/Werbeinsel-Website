@@ -29,26 +29,23 @@
 /* ==== Hero blok (leva slika + slider + desna slika) ==== */
 /* Ovaj trik centriranja ignorise max-width roditelja (.content-container)
    i centrira sekciju prema viewportu, uz max 1780px i 16px guttera sa strana. */
+section.content-container:has(> .wi-hero-wrap) {
+  max-width: 100%;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
 .wi-hero-wrap {
   display: flex;
   align-items: center;
-  gap: 16px;
-
-  /* visine kao pre */
+  gap: 32px; /* 32px između leve/slajdera/desne */
   height: 50vh;
   min-height: 400px;
 
-  /* ključ: centriranje transformom */
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-
-  /* širina ograničena na 1780 ili viewport - 32px */
-  width: min(var(--content-max-width), 100vw - (var(--page-gutter) * 2));
-
-  /* ukloni sve prethodne margine/paddinge koji su smetali */
-  margin: 0;
-  padding: 0;
+  max-width: var(--content-max-width); /* 1780px limit */
+  margin: 0 auto; /* centriranje */
+  padding-left: var(--page-gutter); /* 16px + 16px = 32px ukupno */
+  padding-right: var(--page-gutter);
   box-sizing: border-box;
 }
 .wi-side img {
