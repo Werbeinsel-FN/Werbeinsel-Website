@@ -147,6 +147,7 @@
   font-size: 17.5px !important; /* tačno 17.5px */
   line-height: 1.2;
   margin: 0;
+  padding-bottom: 10px;
 }
 .svc-card__cat--dark,
 .svc-card__ttl--dark {
