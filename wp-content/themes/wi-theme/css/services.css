@@ -177,4 +177,16 @@
   .svc-card__overlay {
     padding: 1.25rem;
   }
+  /* Povećanje teksta u karticama */
+  .svc-page .svc-card .svc-card__ttl {
+    font-size: 25px !important; /* sa 17.5px na 22px */
+  }
+  .svc-card__cat {
+    font-size: 18px; /* sa 13px na 16px */
+  }
+
+  /* Povećanje glavnih naslova */
+  .svc-hl {
+    font-size: clamp(120px, 8vw, 220px);
+  }
 }
