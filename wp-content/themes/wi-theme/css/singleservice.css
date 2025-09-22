@@ -1,8 +1,9 @@
 /* ----- Layout / Container ----- */
 .content-container {
-  max-width: 1400px;
+  max-width: 1780px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 .mt-16 {
   margin-top: 4rem;
@@ -24,15 +25,15 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
   height: 50vh;
   min-height: 400px;
 
   /* ključ: poravnanje na viewport, simetričan padding */
   width: 100vw;
   margin-left: calc(50% - 50vw); /* centriraj prema viewportu */
-  padding-left: 30px;
-  padding-right: 30px;
+  padding-left: 2rem;
+  padding-right: 2rem;
   box-sizing: border-box;
 }
 @media (min-width: 640px) {
@@ -325,8 +326,8 @@ section.content-container.mt-16 .max-w-4xl p {
 .cards-grid {
   display: grid;
   grid-template-columns: 1fr; /* mobilno: 1 kolona */
-  gap: 20px;
-  max-width: 1200px;
+  gap: 32px !important;
+  max-width: 1780px;
   margin: 0 auto;
   padding: 0 16px;
 }
@@ -384,9 +385,20 @@ section.content-container.mt-16 .max-w-4xl p {
 }
 
 /* Desktop: 3 kartice u redu */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .cards-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+  }
+  .feature-box {
+    max-width: 580px; /* 1780px - 64px gap / 3 */
+    margin: 0 auto; /* centriranje ako ima lufta */
+    padding: 16px;
+  }
+}
+@media (max-width: 480px) {
+  .content-container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
   }
 }
