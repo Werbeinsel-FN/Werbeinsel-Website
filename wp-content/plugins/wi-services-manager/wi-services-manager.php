@@ -419,23 +419,44 @@ private function merge_defaults(array $defaults, $saved) {
     $selected = isset($_GET['service']) ? sanitize_title(wp_unslash($_GET['service'])) : $firstKey;
 
     $det = get_option(self::OPT_KEY_DETAILS, []);
-    $cur = $det[$selected] ?? [
-      'slides' => [
-        ['h1'=>'PLAKATWERBUNG','h2'=>'Authentische Plakatwerbung','text'=>'So sieht professionelle Straßenwerbung in der Praxis aus','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-        ['h1'=>'PLAKATWERBUNG','h2'=>'Professionelle Außenwerbung','text'=>'Ihre Marke im städtischen Umfeld präsentieren','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-        ['h1'=>'PLAKATWERBUNG','h2'=>'Großformat-Werbung','text'=>'Maximale Aufmerksamkeit durch beeindruckende Größe','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-        ['h1'=>'PLAKATWERBUNG','h2'=>'Strategische Platzierung','text'=>'An hochfrequentierten Verkehrsknotenpunkten','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-      ],
-      'below' => ['title'=>'IHRE BOTSCHAFT AUF DIE STRAßE','text'=>'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...'],
-      'dist'  => ['title'=>'UNSER VERTEILERGEBIET','text'=>"Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.\n\nMit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen."],
-      'faq'   => [
-        ['q'=>'Wie lange im Voraus sollte ich meine Plakatwerbung buchen?','a'=>'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.'],
-        ['q'=>'Welche Plakatgrößen bieten Sie an?','a'=>'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.'],
-        ['q'=>'Erstellen Sie auch das Design für die Plakate?','a'=>'Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.'],
-        ['q'=>'Wie wählen Sie die Standorte für meine Plakate aus?','a'=>'Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.'],
-        ['q'=>'Was passiert bei schlechtem Wetter oder Vandalismus?','a'=>'Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.'],
-      ],
-    ];
+$det = get_option(self::OPT_KEY_DETAILS, []);
+
+// podrazumevane vrednosti
+$defaults_cur = [
+  'slides' => [
+    ['h1'=>'PLAKATWERBUNG','h2'=>'Authentische Plakatwerbung','text'=>'So sieht professionelle Straßenwerbung in der Praxis aus','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
+    ['h1'=>'PLAKATWERBUNG','h2'=>'Professionelle Außenwerbung','text'=>'Ihre Marke im städtischen Umfeld präsentieren','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
+    ['h1'=>'PLAKATWERBUNG','h2'=>'Großformat-Werbung','text'=>'Maximale Aufmerksamkeit durch beeindruckende Größe','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
+    ['h1'=>'PLAKATWERBUNG','h2'=>'Strategische Platzierung','text'=>'An hochfrequentierten Verkehrsknotenpunkten','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
+  ],
+  'below' => [
+    'title'=>'IHRE BOTSCHAFT AUF DIE STRAßE',
+    'text'=>'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...'
+  ],
+  'dist'  => [
+    'title'=>'UNSER VERTEILERGEBIET',
+    'text'=>"Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.\n\nMit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen."
+  ],
+  'faq'   => [
+    ['q'=>'Wie lange im Voraus sollte ich meine Plakatwerbung buchen?','a'=>'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.'],
+    ['q'=>'Welche Plakatgrößen bieten Sie an?','a'=>'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.'],
+    ['q'=>'Erstellen Sie auch das Design für die Plakate?','a'=>'Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.'],
+    ['q'=>'Wie wählen Sie die Standorte für meine Plakate aus?','a'=>'Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.'],
+    ['q'=>'Was passiert bei schlechtem Wetter oder Vandalismus?','a'=>'Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.'],
+  ],
+];
+
+// uzmi sačuvane vrednosti za izabrani servis (ako postoje)
+$saved_for_selected = isset($det[$selected]) && is_array($det[$selected]) ? $det[$selected] : [];
+
+// rekurzivni merge: sačuvano ima prednost, a prazna polja se popunjavaju defaultima
+$cur = $this->merge_defaults($defaults_cur, $saved_for_selected);
+
+// dodatno: osiguraj 4 slajda tako što popunimo nedostajuće indekse
+for ($i=0; $i<4; $i++) {
+  $cur['slides'][$i] = $this->merge_defaults($defaults_cur['slides'][$i], $cur['slides'][$i] ?? []);
+}
+
     
     ?>
     <div class="wrap wi-wrap">
