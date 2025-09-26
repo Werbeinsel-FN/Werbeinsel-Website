@@ -456,3 +456,100 @@ section.content-container.mt-16 .max-w-4xl p {
     transition: none;
   }
 }
+/* === Prefooter CTA sekcija === */
+.wi-prefooter-cta {
+  background-color: #000; /* crna pozadina */
+  width: 100%;
+  padding-top: 4rem; /* py-16 iz Tailwind */
+  padding-bottom: 4rem;
+  margin-top: 4rem; /* mt-16 */
+  text-align: center;
+}
+
+/* Naslov */
+.wi-prefooter-cta__title {
+  color: #fff; /* beo tekst */
+  font-weight: 800; /* bold */
+  font-family: "Unbounded", sans-serif; /* tvoj unbounded-bold font */
+  margin-bottom: 2rem; /* mb-8 */
+  line-height: 1.1;
+  white-space: nowrap;
+  font-size: 6vw; /* skaliranje kao u Tailwind */
+}
+
+@media (min-width: 640px) {
+  /* sm */
+  .wi-prefooter-cta__title {
+    font-size: 5.5vw;
+  }
+}
+@media (min-width: 768px) {
+  /* md */
+  .wi-prefooter-cta__title {
+    font-size: 5vw;
+  }
+}
+@media (min-width: 1024px) {
+  /* lg */
+  .wi-prefooter-cta__title {
+    font-size: 4.5vw;
+  }
+}
+@media (min-width: 1280px) {
+  /* xl */
+  .wi-prefooter-cta__title {
+    font-size: 4vw;
+  }
+}
+
+/* Dugme */
+.wi-prefooter-cta__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+
+  background-color: #ffed00; /* žuta */
+  border: 2px solid #ffed00;
+  border-radius: 9999px; /* full rounded */
+  color: #000; /* crn tekst */
+
+  font-family: "Poppins", sans-serif;
+  font-weight: 800; /* extra bold */
+  font-size: 96px; /* veliko JA */
+  line-height: 1;
+
+  width: 24rem; /* w-96 */
+  height: 12rem; /* h-48 */
+
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Hover efekat */
+.wi-prefooter-cta__btn:hover {
+  background-color: #fff;
+  border-color: #fff;
+  transform: scale(1.05);
+}
+
+/* Klik animacija */
+.wi-prefooter-cta__btn:active {
+  transform: scale(0.98);
+}
+
+/* Responsivnost */
+@media (max-width: 1024px) {
+  .wi-prefooter-cta__btn {
+    width: 20rem;
+    height: 10rem;
+    font-size: 72px;
+  }
+}
+@media (max-width: 640px) {
+  .wi-prefooter-cta__btn {
+    width: 16rem;
+    height: 8rem;
+    font-size: 56px;
+  }
+}

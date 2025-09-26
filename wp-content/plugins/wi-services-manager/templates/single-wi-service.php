@@ -108,26 +108,19 @@ get_header();
     <!-- Kartica 1 -->
     <div class="card">
       <div class="card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <circle cx="12" cy="12" r="6"></circle>
-          <circle cx="12" cy="12" r="2"></circle>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard w-10 h-10 text-black" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>
       </div>
-      <h3>Zielgenaue Platzierung</h3>
-      <p>Strategische Standorte für maximale Reichweite und optimale Zielgruppenerreichung</p>
+      <h3>1. PLANEN</h3>
+      <p>Gemeinsam definieren wir Ihre Ziele, Zielgruppe und Budget. Wir analysieren die besten Standorte für Ihre Kampagne.</p>
     </div>
 
     <!-- Kartica 2 -->
     <div class="card">
       <div class="card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 6v6l4 2"></path>
-          <circle cx="12" cy="12" r="10"></circle>
-        </svg>
+       <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck w-10 h-10 text-black" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
       </div>
-      <h3>24/7 Sichtbarkeit</h3>
-      <p>Ihre Werbung arbeitet rund um die Uhr für Sie, ohne Unterbrechung oder Ausfallzeiten</p>
+      <h3>2. PLAKATIEREN</h3>
+      <p>Unser erfahrenes Team klebt Ihre Plakate professionell und termingerecht an den ausgewählten Standorten.</p>
     </div>
 
     <!-- Kartica 3 -->
@@ -138,8 +131,8 @@ get_header();
           <path d="m9 11 3 3L22 4"></path>
         </svg>
       </div>
-      <h3>Messbare Erfolge</h3>
-      <p>Wir dokumentieren und messen Ihre Kampagnenerfolge mit detaillierten Reports</p>
+      <h3>3. BELEGEN</h3>
+      <p>Sie erhalten eine lückenlose Dokumentation mit Fotos aller Plakatierungen als Nachweis für Ihre Kampagne.</p>
     </div>
 
   </div>
@@ -147,7 +140,17 @@ get_header();
 
 
 </main>
-
+<!-- Prefooter CTA -->
+<section class="bg-black w-full py-16 mt-16 wi-prefooter-cta">
+  <div class="content-container text-center overflow-hidden">
+    <h2 class="unbounded-bold text-white mb-8 leading-none whitespace-nowrap wi-prefooter-cta__title">
+      BEREIT FÜR MAXIMUM IMPACT?
+    </h2>
+    <button class="bg-[#ffed00] border-2 border-[#ffed00] rounded-full hover:bg-white hover:border-white transition-all transform hover:scale-105 poppins-extrabold text-black flex items-center justify-center mx-auto wi-prefooter-cta__btn">
+      JA
+    </button>
+  </div>
+</section>
 
 
 <?php get_footer(); ?>
