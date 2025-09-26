@@ -146,7 +146,7 @@ get_header();
     <h2 class="unbounded-bold text-white mb-8 leading-none whitespace-nowrap wi-prefooter-cta__title">
       BEREIT FÜR MAXIMUM IMPACT?
     </h2>
-   <a href="<?php echo site_url('/contact'); ?>" 
+   <a href="<?php echo site_url('/kontakt'); ?>" 
    class="bg-[#ffed00] border-2 border-[#ffed00] rounded-full hover:bg-white hover:border-white transition-all transform hover:scale-105 poppins-extrabold text-black flex items-center justify-center mx-auto wi-prefooter-cta__btn">
   JA
 </a>
