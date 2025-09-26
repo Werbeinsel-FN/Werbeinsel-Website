@@ -371,6 +371,34 @@ class WI_Services_Manager {
     ksort($list);
     return $list;
   }
+/** Rekurzivno spaja $saved preko $defaults, ne pregazajući postojeće vrednosti praznim stringom */
+private function merge_defaults(array $defaults, $saved) {
+  if (!is_array($saved)) return $defaults;
+
+  $out = $defaults;
+
+  // prvo prepiši poznate ključeve
+  foreach ($defaults as $k => $defVal) {
+    if (array_key_exists($k, $saved)) {
+      $savVal = $saved[$k];
+      if (is_array($defVal)) {
+        $out[$k] = $this->merge_defaults($defVal, is_array($savVal) ? $savVal : []);
+      } else {
+        // koristi sačuvano samo ako nije '' (prazan string)
+        $out[$k] = ($savVal !== '' ? $savVal : $defVal);
+      }
+    }
+  }
+
+  // zadrži i dodatne ključeve kojih nema u defaultu (npr. dodatna FAQ pitanja)
+  foreach ($saved as $k => $v) {
+    if (!array_key_exists($k, $defaults)) {
+      $out[$k] = $v;
+    }
+  }
+
+  return $out;
+}
 
   public function render_details() {
     if (!current_user_can(self::CAP)) return;
@@ -408,6 +436,7 @@ class WI_Services_Manager {
         ['q'=>'Was passiert bei schlechtem Wetter oder Vandalismus?','a'=>'Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.'],
       ],
     ];
+    
     ?>
     <div class="wrap wi-wrap">
       <h1>Service Details</h1>
