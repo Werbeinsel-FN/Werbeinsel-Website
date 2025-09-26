@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) exit;
 $slug = get_query_var( WI_Services_Manager::QV_TAG );
 list($svc, $det) = WI_Services_Manager::get_service_data_by_slug($slug);
 
-// fallback
+// fallback za slajdere i below
 $slides = $det['slides'] ?? [
   ['h1'=>'PLAKATWERBUNG','h2'=>'Authentische Plakatwerbung','text'=>'So sieht professionelle Straßenwerbung in der Praxis aus','bg_type'=>'image','bg_url'=>''],
   ['h1'=>'PLAKATWERBUNG','h2'=>'Professionelle Außenwerbung','text'=>'Ihre Marke im städtischen Umfeld präsentieren','bg_type'=>'image','bg_url'=>''],
@@ -13,6 +13,24 @@ $slides = $det['slides'] ?? [
   ['h1'=>'PLAKATWERBUNG','h2'=>'Strategische Platzierung','text'=>'An hochfrequentierten Verkehrsknotenpunkten','bg_type'=>'image','bg_url'=>''],
 ];
 $below = $det['below'] ?? ['title'=>'IHRE BOTSCHAFT AUF DIE STRAßE','text'=>'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...'];
+
+// fallback za Verteilergebiet (naslov + tekst)
+$dist = $det['dist'] ?? [
+  'title' => 'UNSER VERTEILERGEBIET',
+  'text'  => "Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.\n\nMit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen."
+];
+
+// fallback za FAQ
+$faq = (isset($det['faq']) && is_array($det['faq']) && $det['faq'])
+  ? $det['faq']
+  : [
+      ['q'=>'Wie lange im Voraus sollte ich meine Plakatwerbung buchen?','a'=>'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.'],
+      ['q'=>'Welche Plakatgrößen bieten Sie an?','a'=>'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.'],
+      ['q'=>'Erstellen Sie auch das Design für die Plakate?','a'=>'Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.'],
+      ['q'=>'Wie wählen Sie die Standorte für meine Plakate aus?','a'=>'Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.'],
+      ['q'=>'Was passiert bei schlechtem Wetter ili Vandalismus?','a'=>'Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.'],
+    ];
+
 wp_enqueue_style(
   'wi-hero',
   get_stylesheet_directory_uri() . '/css/singleservice.css',
@@ -101,45 +119,47 @@ get_header();
       <?php endif; ?>
     </div>
   </section>
+
   <!-- === Dodatna sekcija sa 3 kartice === -->
-<section class="content-container cards-section">
-  <div class="cards-grid">
-    
-    <!-- Kartica 1 -->
-    <div class="card">
-      <div class="card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard w-10 h-10 text-black" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>
-      </div>
-      <h3>1. PLANEN</h3>
-      <p>Gemeinsam definieren wir Ihre Ziele, Zielgruppe und Budget. Wir analysieren die besten Standorte für Ihre Kampagne.</p>
-    </div>
+  <section class="content-container cards-section">
+    <div class="cards-grid">
 
-    <!-- Kartica 2 -->
-    <div class="card">
-      <div class="card-icon">
-       <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck w-10 h-10 text-black" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+      <!-- Kartica 1 -->
+      <div class="card">
+        <div class="card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard w-10 h-10 text-black" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path></svg>
+        </div>
+        <h3>1. PLANEN</h3>
+        <p>Gemeinsam definieren wir Ihre Ziele, Zielgruppe und Budget. Wir analysieren die besten Standorte für Ihre Kampagne.</p>
       </div>
-      <h3>2. PLAKATIEREN</h3>
-      <p>Unser erfahrenes Team klebt Ihre Plakate professionell und termingerecht an den ausgewählten Standorten.</p>
-    </div>
 
-    <!-- Kartica 3 -->
-    <div class="card">
-      <div class="card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
-          <path d="m9 11 3 3L22 4"></path>
-        </svg>
+      <!-- Kartica 2 -->
+      <div class="card">
+        <div class="card-icon">
+         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck w-10 h-10 text-black" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+        </div>
+        <h3>2. PLAKATIEREN</h3>
+        <p>Unser erfahrenes Team klebt Ihre Plakate professionell und termingerecht an den ausgewählten Standorten.</p>
       </div>
-      <h3>3. BELEGEN</h3>
-      <p>Sie erhalten eine lückenlose Dokumentation mit Fotos aller Plakatierungen als Nachweis für Ihre Kampagne.</p>
-    </div>
 
-  </div>
-</section>
+      <!-- Kartica 3 -->
+      <div class="card">
+        <div class="card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.801 10A10 10 0 1 1 17 3.335"></path>
+            <path d="m9 11 3 3L22 4"></path>
+          </svg>
+        </div>
+        <h3>3. BELEGEN</h3>
+        <p>Sie erhalten eine lückenlose Dokumentation mit Fotos aller Plakatierungen als Nachweis für Ihre Kampagne.</p>
+      </div>
+
+    </div>
+  </section>
 
 
 </main>
+
 <!-- Prefooter CTA -->
 <section class="bg-black w-full py-16 mt-16 wi-prefooter-cta">
   <div class="content-container text-center overflow-hidden">
@@ -152,19 +172,20 @@ get_header();
 </a>
   </div>
 </section>
+
+<!-- Verteilergebiet -->
 <section class="content-container wi-distribution mt-16">
   <div class="wi-dist-box">
     <div class="wi-dist-grid">
       <!-- Levo: tekst -->
       <div class="wi-dist-text">
-        <h2 class="wi-dist-title">UNSER VERTEILERGEBIET</h2>
+        <h2 class="wi-dist-title"><?php echo esc_html($dist['title'] ?? ''); ?></h2>
         <div class="wi-dist-copy">
-          <p>Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.</p>
-          <p>Mit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen.</p>
+          <?php echo wp_kses_post( wpautop($dist['text'] ?? '') ); ?>
         </div>
       </div>
 
-      <!-- Desno: samo mapa -->
+      <!-- Desno: mapa -->
       <div class="wi-dist-map">
         <div class="wi-map-embed">
           <iframe
@@ -178,6 +199,8 @@ get_header();
     </div>
   </div>
 </section>
+
+<!-- FAQ -->
 <section class="content-container wi-faq">
   <div class="wi-faq-head">
     <h2 class="wi-faq-title">HÄUFIGE FRAGEN</h2>
@@ -185,75 +208,25 @@ get_header();
   </div>
 
   <div class="wi-faq-list">
-
-    <details class="wi-faq-item">
-      <summary class="wi-faq-summary">
-        <h3 class="wi-faq-q">Wie lange im Voraus sollte ich meine Plakatwerbung buchen?</h3>
-        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </summary>
-      <div class="wi-faq-answer">
-        <p>Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.</p>
-      </div>
-    </details>
-
-    <details class="wi-faq-item">
-      <summary class="wi-faq-summary">
-        <h3 class="wi-faq-q">Welche Plakatgrößen bieten Sie an?</h3>
-        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </summary>
-      <div class="wi-faq-answer">
-        <p>Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.</p>
-      </div>
-    </details>
-
-    <details class="wi-faq-item">
-      <summary class="wi-faq-summary">
-        <h3 class="wi-faq-q">Erstellen Sie auch das Design für die Plakate?</h3>
-        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </summary>
-      <div class="wi-faq-answer">
-        <p>Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.</p>
-      </div>
-    </details>
-
-    <details class="wi-faq-item">
-      <summary class="wi-faq-summary">
-        <h3 class="wi-faq-q">Wie wählen Sie die Standorte für meine Plakate aus?</h3>
-        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </summary>
-      <div class="wi-faq-answer">
-        <p>Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.</p>
-      </div>
-    </details>
-
-    <details class="wi-faq-item">
-      <summary class="wi-faq-summary">
-        <h3 class="wi-faq-q">Was passiert bei schlechtem Wetter oder Vandalismus?</h3>
-        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </summary>
-      <div class="wi-faq-answer">
-        <p>Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.</p>
-      </div>
-    </details>
-
+    <?php foreach ($faq as $row): 
+      $q = trim($row['q'] ?? ''); 
+      $a = trim($row['a'] ?? '');
+      if ($q === '' && $a === '') continue;
+    ?>
+      <details class="wi-faq-item">
+        <summary class="wi-faq-summary">
+          <h3 class="wi-faq-q"><?php echo esc_html($q); ?></h3>
+          <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </summary>
+        <div class="wi-faq-answer">
+          <p><?php echo wp_kses_post($a); ?></p>
+        </div>
+      </details>
+    <?php endforeach; ?>
   </div>
 </section>
-
-
 
 <?php get_footer(); ?>

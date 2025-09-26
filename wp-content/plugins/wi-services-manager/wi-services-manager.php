@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Werbeinsel Services Manager
- * Description: Uređivanje sadržaja "Services" stranice + detalja servisa (slider i sadržaj ispod).
- * Version: 2.0.2
+ * Description: Uređivanje sadržaja "Services" stranice + detalja servisa (slider i sadržaj ispod) + Verteilergebiet + FAQ.
+ * Version: 2.1.0
  * Author: Werbeinsel
  */
 
@@ -89,11 +89,9 @@ class WI_Services_Manager {
 
   /** Admin assets */
   public function assets($hook) {
-    // Load on both pages robustly (fix for “nothing happens” on click)
     $is_ours = (isset($_GET['page']) && ( $_GET['page'] === self::PAGE_SLUG || $_GET['page'] === self::PAGE_SLUG_DET ));
     if (!$is_ours) return;
 
-    // Ensure media frame exists
     wp_enqueue_media();
 
     add_action('admin_print_footer_scripts', function () { ?>
@@ -112,6 +110,8 @@ class WI_Services_Manager {
         .wi-wrap select{width:100%}
         .muted{opacity:.7;font-size:12px}
         .slide-box{border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fff}
+        .faq-item{border:1px dashed #e5e7eb;border-radius:12px;padding:12px;background:#fff;margin-bottom:10px}
+        .faq-actions{display:flex;gap:8px;margin-top:6px}
         @media (max-width: 960px){ .wi-row{flex-direction:column} .wi-img{width:100%;height:160px} }
       </style>
       <script>
@@ -128,7 +128,7 @@ class WI_Services_Manager {
           function triggerChange(el){
             ['input','change'].forEach(ev => el && el.dispatchEvent(new Event(ev, {bubbles:true})));
           }
-          // Use document-level delegation so it always binds (fix #2)
+
           document.addEventListener('click', function(e){
             // GRID image
             const gridPick = e.target.closest('.wi-upload');
@@ -183,9 +183,48 @@ class WI_Services_Manager {
               triggerChange(urlEl);
               return;
             }
+
+            // FAQ add/remove
+            if (e.target.matches('.wi-faq-add')) {
+              e.preventDefault();
+              const list = e.target.closest('.card').querySelector('.wi-faq-list');
+              const index = list.children.length;
+              const tmpl = document.getElementById('wi-faq-template').content.cloneNode(true);
+              // rename inputs to correct index
+              tmpl.querySelectorAll('[data-name]').forEach(function(el){
+                const field = el.getAttribute('data-name');
+                el.setAttribute('name', el.getAttribute('name').replace('__INDEX__', index));
+              });
+              list.appendChild(tmpl);
+              return;
+            }
+            if (e.target.matches('.wi-faq-remove')) {
+              e.preventDefault();
+              const item = e.target.closest('.faq-item');
+              if (item) item.remove();
+              return;
+            }
           });
         })();
       </script>
+      <!-- FAQ template -->
+      <template id="wi-faq-template">
+        <div class="faq-item">
+          <div>
+            <label>Pitanje</label>
+            <input type="text" class="regular-text" data-name="q"
+              name="<?php echo self::OPT_KEY_DETAILS; ?>[services][__SLUG__][faq][__INDEX__][q]" value="">
+          </div>
+          <div>
+            <label>Odgovor</label>
+            <textarea rows="3" data-name="a"
+              name="<?php echo self::OPT_KEY_DETAILS; ?>[services][__SLUG__][faq][__INDEX__][a]"></textarea>
+          </div>
+          <div class="faq-actions">
+            <button type="button" class="button wi-faq-remove">Ukloni pitanje</button>
+          </div>
+        </div>
+      </template>
     <?php });
   }
 
@@ -303,7 +342,6 @@ class WI_Services_Manager {
     $defaults = $this->defaults_map();
     $spec     = $this->groups_spec();
 
-    // merge saved + defaults to guarantee all slots exist
     foreach ($spec as $gk => $s) {
       for ($i=0; $i<$s['count']; $i++) {
         $title = '';
@@ -313,7 +351,6 @@ class WI_Services_Manager {
           $title = $defaults[$gk][$i]['title'];
         }
         if ($title === '') continue;
-        // write back so structure exists
         $groups[$gk][$i]['title'] = $title;
       }
     }
@@ -339,7 +376,6 @@ class WI_Services_Manager {
     if (!current_user_can(self::CAP)) return;
 
     $services = $this->all_services_indexed();
-    // If still empty for any reason, fall back to defaults entirely
     if (!$services) {
       foreach ($this->defaults_map() as $g => $arr) {
         foreach ($arr as $i => $it) {
@@ -362,7 +398,15 @@ class WI_Services_Manager {
         ['h1'=>'PLAKATWERBUNG','h2'=>'Großformat-Werbung','text'=>'Maximale Aufmerksamkeit durch beeindruckende Größe','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
         ['h1'=>'PLAKATWERBUNG','h2'=>'Strategische Platzierung','text'=>'An hochfrequentierten Verkehrsknotenpunkten','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
       ],
-      'below' => ['title'=>'IHRE BOTSCHAFT AUF DIE STRAßE','text'=>'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...']
+      'below' => ['title'=>'IHRE BOTSCHAFT AUF DIE STRAßE','text'=>'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...'],
+      'dist'  => ['title'=>'UNSER VERTEILERGEBIET','text'=>"Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.\n\nMit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen."],
+      'faq'   => [
+        ['q'=>'Wie lange im Voraus sollte ich meine Plakatwerbung buchen?','a'=>'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.'],
+        ['q'=>'Welche Plakatgrößen bieten Sie an?','a'=>'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.'],
+        ['q'=>'Erstellen Sie auch das Design für die Plakate?','a'=>'Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.'],
+        ['q'=>'Wie wählen Sie die Standorte für meine Plakate aus?','a'=>'Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.'],
+        ['q'=>'Was passiert bei schlechtem Wetter oder Vandalismus?','a'=>'Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.'],
+      ],
     ];
     ?>
     <div class="wrap wi-wrap">
@@ -442,6 +486,60 @@ class WI_Services_Manager {
           </div>
         </div>
 
+        <div class="card">
+          <h2>Verteilergebiet (naslov + tekst pored mape)</h2>
+          <div class="wi-grid">
+            <div>
+              <label>Naslov</label>
+              <input type="text" class="regular-text" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][dist][title]" value="<?php echo esc_attr($cur['dist']['title'] ?? ''); ?>">
+            </div>
+            <div>
+              <label>Tekst (podržava paragraf-e)</label>
+              <textarea rows="6" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][dist][text]"><?php echo esc_textarea($cur['dist']['text'] ?? ''); ?></textarea>
+            </div>
+          </div>
+          <p class="muted">Ako ništa nije uneto, koristiće se podrazumevani (default) tekst.</p>
+        </div>
+
+        <div class="card">
+          <h2>FAQ (pitanja i odgovori)</h2>
+          <div class="wi-faq-list">
+            <?php
+              $faq = is_array($cur['faq'] ?? null) ? $cur['faq'] : [];
+              foreach ($faq as $i => $row):
+                $q = $row['q'] ?? '';
+                $a = $row['a'] ?? '';
+            ?>
+              <div class="faq-item">
+                <div>
+                  <label>Pitanje</label>
+                  <input type="text" class="regular-text"
+                    name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][faq][<?php echo (int)$i; ?>][q]"
+                    value="<?php echo esc_attr($q); ?>">
+                </div>
+                <div>
+                  <label>Odgovor</label>
+                  <textarea rows="3"
+                    name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][faq][<?php echo (int)$i; ?>][a]"><?php echo esc_textarea($a); ?></textarea>
+                </div>
+                <div class="faq-actions">
+                  <button type="button" class="button wi-faq-remove">Ukloni pitanje</button>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          <p><button type="button" class="button button-primary wi-faq-add">+ Dodaj pitanje</button></p>
+
+          <script>
+            // Zameni placeholder __SLUG__ u template-u
+            document.addEventListener('DOMContentLoaded', function(){
+              const tpl = document.getElementById('wi-faq-template');
+              if (!tpl) return;
+              tpl.innerHTML = tpl.innerHTML.replaceAll('__SLUG__','<?php echo esc_js($selected); ?>');
+            });
+          </script>
+        </div>
+
         <?php submit_button(); ?>
       </form>
     </div>
@@ -454,6 +552,8 @@ class WI_Services_Manager {
     if (!$editing) return $out;
 
     $svcs = $input['services'][$editing] ?? [];
+
+    // Slides
     $slides = [];
     if (isset($svcs['slides']) && is_array($svcs['slides'])) {
       foreach ($svcs['slides'] as $i => $sl) {
@@ -467,14 +567,38 @@ class WI_Services_Manager {
         ];
       }
     }
+
+    // Below
     $below = [
       'title' => sanitize_text_field($svcs['below']['title'] ?? ''),
       'text'  => wp_kses_post($svcs['below']['text'] ?? ''),
     ];
 
+    // Verteilergebiet
+    $dist = [
+      'title' => sanitize_text_field($svcs['dist']['title'] ?? ''),
+      'text'  => wp_kses_post($svcs['dist']['text'] ?? ''),
+    ];
+
+    // FAQ
+    $faq_clean = [];
+    if (isset($svcs['faq']) && is_array($svcs['faq'])) {
+      foreach ($svcs['faq'] as $row) {
+        $q = trim(wp_unslash($row['q'] ?? ''));
+        $a = trim(wp_unslash($row['a'] ?? ''));
+        if ($q === '' && $a === '') continue;
+        $faq_clean[] = [
+          'q' => sanitize_text_field($q),
+          'a' => wp_kses_post($a),
+        ];
+      }
+    }
+
     if (!isset($out[$editing])) $out[$editing] = [];
     $out[$editing]['slides'] = $slides;
     $out[$editing]['below']  = $below;
+    $out[$editing]['dist']   = $dist;
+    $out[$editing]['faq']    = $faq_clean;
 
     return $out;
   }
