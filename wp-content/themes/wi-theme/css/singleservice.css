@@ -473,38 +473,35 @@ section.content-container.mt-16 .max-w-4xl p {
   font-family: "Unbounded", sans-serif;
   margin-bottom: 1.5rem;
   line-height: 1.1;
-  white-space: normal; /* dozvoli prelom teksta */
-  max-width: 90%; /* da ne ide preko */
+  white-space: nowrap !important;
+  max-width: 100% !important;
   margin-left: auto;
   margin-right: auto;
-  font-size: clamp(28px, 4vw, 52px); /* fleksibilno skaliranje */
+  font-size: clamp(12px, 6vw, 52px) !important; /* fleksibilno skaliranje */
+  overflow: visible;
+  text-overflow: clip;
+  display: inline-block !important;
+}
+.content-container.text-center.overflow-hidden {
+  overflow: visible !important;
 }
 
-@media (min-width: 640px) {
-  /* sm */
+/* 3) Jače smanjivanje fonta na užim širinama (bez …) */
+@media (max-width: 1200px) {
   .wi-prefooter-cta__title {
-    font-size: 5.5vw;
-  }
-}
-@media (min-width: 768px) {
-  /* md */
-  .wi-prefooter-cta__title {
-    font-size: 5vw;
-  }
-}
-@media (min-width: 1024px) {
-  /* lg */
-  .wi-prefooter-cta__title {
-    font-size: 4.5vw;
-  }
-}
-@media (min-width: 1280px) {
-  /* xl */
-  .wi-prefooter-cta__title {
-    font-size: 4vw;
+    /* smanji brže nego 6vw */
+    font-size: clamp(12px, 4.2vw, 44px) !important;
+    letter-spacing: -0.015em;
   }
 }
 
+/* 4) Dodatno na vrlo uskim ekranima */
+@media (max-width: 640px) {
+  .wi-prefooter-cta__title {
+    font-size: clamp(6px, 3.8vw, 30px) !important;
+    letter-spacing: -0.02em;
+  }
+}
 /* Dugme */
 .wi-prefooter-cta__btn {
   display: flex;
@@ -546,9 +543,6 @@ section.content-container.mt-16 .max-w-4xl p {
   .wi-prefooter-cta {
     padding-top: 2rem;
     padding-bottom: 2rem;
-  }
-  .wi-prefooter-cta__title {
-    font-size: clamp(24px, 6vw, 40px);
   }
   .wi-prefooter-cta__btn {
     width: 20rem;
