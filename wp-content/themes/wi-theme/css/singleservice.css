@@ -361,7 +361,7 @@ section.content-container.mt-16 .max-w-4xl p {
    ========================= */
 .cards-section {
   margin-top: 100px;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
 }
 
 .cards-grid {
@@ -460,21 +460,24 @@ section.content-container.mt-16 .max-w-4xl p {
 .wi-prefooter-cta {
   background-color: #000; /* crna pozadina */
   width: 100%;
-  padding-top: 4rem; /* py-16 iz Tailwind */
-  padding-bottom: 4rem;
-  margin-top: 4rem; /* mt-16 */
+  padding-top: 3rem; /* py-16 iz Tailwind */
+  padding-bottom: 3rem;
+  margin-top: 0; /* mt-16 */
   text-align: center;
 }
 
 /* Naslov */
 .wi-prefooter-cta__title {
-  color: #fff; /* beo tekst */
-  font-weight: 800; /* bold */
-  font-family: "Unbounded", sans-serif; /* tvoj unbounded-bold font */
-  margin-bottom: 2rem; /* mb-8 */
+  color: #fff;
+  font-weight: 800;
+  font-family: "Unbounded", sans-serif;
+  margin-bottom: 1.5rem;
   line-height: 1.1;
-  white-space: nowrap;
-  font-size: 6vw; /* skaliranje kao u Tailwind */
+  white-space: normal; /* dozvoli prelom teksta */
+  max-width: 90%; /* da ne ide preko */
+  margin-left: auto;
+  margin-right: auto;
+  font-size: clamp(28px, 4vw, 52px); /* fleksibilno skaliranje */
 }
 
 @media (min-width: 640px) {
@@ -508,7 +511,7 @@ section.content-container.mt-16 .max-w-4xl p {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-
+  text-decoration: none;
   background-color: #ffed00; /* žuta */
   border: 2px solid #ffed00;
   border-radius: 9999px; /* full rounded */
@@ -540,6 +543,13 @@ section.content-container.mt-16 .max-w-4xl p {
 
 /* Responsivnost */
 @media (max-width: 1024px) {
+  .wi-prefooter-cta {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  .wi-prefooter-cta__title {
+    font-size: clamp(24px, 6vw, 40px);
+  }
   .wi-prefooter-cta__btn {
     width: 20rem;
     height: 10rem;
@@ -551,5 +561,419 @@ section.content-container.mt-16 .max-w-4xl p {
     width: 16rem;
     height: 8rem;
     font-size: 56px;
+  }
+}
+/* ---------- DISTRIBUTIONS-SEKCIJA (bez Tailwinda) ---------- */
+.wi-distribution {
+  margin-top: 4rem;
+} /* ekv. mt-16 */
+
+/* Bela kutija sa ivicom i radiusom 40px */
+.wi-dist-box {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 40px;
+  padding: 2rem; /* base padding */
+}
+
+@media (min-width: 768px) {
+  .wi-dist-box {
+    padding: 3rem;
+  } /* md:p-12 */
+}
+
+/* Grid 1 kolona -> 2 kolone na većim ekranima */
+.wi-dist-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .wi-dist-grid {
+    grid-template-columns: 1fr 1fr; /* lg:grid-cols-2 */
+    gap: 3rem;
+  }
+}
+
+/* Leva kolona: tipografija */
+.wi-dist-title {
+  font-family: "Poppins", system-ui, sans-serif !important;
+  font-weight: 700 !important;
+  color: #000;
+  line-height: 1;
+  margin: 0 0 1.5rem;
+  font-size: clamp(32px, 60px, 80px) !important; /* text-[60px] responsivno */
+}
+
+.wi-dist-copy p {
+  font-family: "Poppins", system-ui, sans-serif;
+  color: #000;
+  line-height: 1.6;
+  font-size: 18px !important;
+  margin: 0 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .wi-dist-copy p {
+    font-size: 20px;
+  }
+}
+
+/* Desna kolona: mapa */
+.wi-dist-map {
+  border-radius: 40px;
+  overflow: hidden;
+  background: #f2f2f2; /* fallback dok se mapa učita */
+  min-height: 24rem; /* ekv. h-96 */
+  position: relative;
+}
+
+/* Responsive embed da iframe ispuni blok i zadrži zaobljenja */
+.wi-map-embed,
+.wi-map-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  border-radius: 40px;
+}
+
+/* Gustoća na manjim ekranima */
+@media (max-width: 640px) {
+  .wi-dist-box {
+    padding: 1.5rem;
+  }
+  .wi-distribution {
+    margin-top: 2.5rem;
+  }
+}
+/* ===== Fix: Unser Verteilergebiet (<= 600px) ===== */
+@media (max-width: 600px) {
+  /* malo manji globalni padding da bela kutija ne deluje preveliko */
+  .content-container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .wi-distribution {
+    margin-top: 1.25rem !important;
+  }
+
+  .wi-dist-box {
+    padding: 14px !important; /* manje unutrašnjeg prostora */
+    border-radius: 18px !important;
+  }
+
+  .wi-dist-grid {
+    gap: 12px !important; /* zbijeniji razmak između kolona/redova */
+  }
+
+  .wi-dist-title {
+    font-size: 24px !important; /* smanjeno */
+    line-height: 1.06 !important;
+    margin: 0 0 8px !important;
+    max-width: 100% !important;
+    white-space: normal !important; /* dozvoli prelom */
+    word-break: break-word !important;
+    hyphens: auto;
+    text-align: left;
+    letter-spacing: 0 !important;
+  }
+
+  .wi-dist-copy p {
+    font-size: 14px !important; /* smanjen paragraf */
+    line-height: 1.45 !important;
+    margin: 0 0 10px !important;
+    max-width: 100% !important;
+    text-align: left;
+  }
+
+  .wi-dist-map {
+    min-height: 180px !important; /* manja mapa */
+    border-radius: 18px !important;
+  }
+
+  .wi-map-embed,
+  .wi-map-embed iframe {
+    border: 0 !important;
+    border-radius: 18px !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+  }
+}
+/* ===== FAQ (HÄUFIGE FRAGEN) ===== */
+.wi-faq {
+  margin-top: 4rem; /* razmak gore */
+  margin-bottom: 4rem; /* razmak dole */
+}
+
+.wi-faq-head {
+  text-align: center;
+  margin-bottom: 3rem; /* ekv. mb-12 */
+}
+
+.wi-faq-title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  color: #000;
+  margin: 0 0 2rem 0; /* mb-8 */
+  line-height: 1;
+  font-size: clamp(32px, 4.5vw, 60px); /* text-[60px] responsive */
+}
+
+.wi-faq-sub {
+  font-family: "Poppins", system-ui, sans-serif;
+  color: #000;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 48rem; /* ~max-w-3xl */
+  margin: 0 auto;
+}
+
+.wi-faq-list {
+  max-width: 64rem; /* ~max-w-4xl */
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem; /* space-y-4 */
+}
+
+/* Kartica */
+.wi-faq-card {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 40px;
+  overflow: hidden;
+}
+
+/* Dugme u kartici */
+.wi-faq-cardBtn {
+  width: 100%;
+  padding: 1.5rem; /* p-6 */
+  text-align: left;
+  background: transparent;
+  border: 0;
+  display: flex;
+  align-items: center; /* items-center */
+  justify-content: space-between; /* justify-between */
+  gap: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wi-faq-cardBtn:hover {
+  background: #f7f7f7; /* hover:bg-gray-50 */
+}
+
+.wi-faq-q {
+  text-transform: none !important;
+  margin: 0;
+  padding-right: 0.5rem; /* pr-4 */
+  font-family: "Poppins", system-ui, sans-serif !important;
+  font-weight: 700;
+  color: #000;
+  font-size: 18px !important; /* text-lg */
+  line-height: 1.35;
+}
+
+/* Plus ikonica */
+.wi-faq-plus {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0; /* flex-shrink-0 */
+  stroke: #000;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --- Mobilno fino podešavanje --- */
+@media (max-width: 600px) {
+  .wi-faq {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .wi-faq-head {
+    margin-bottom: 1.75rem;
+  }
+  .wi-faq-title {
+    font-size: clamp(26px, 7vw, 34px);
+  }
+  .wi-faq-sub {
+    font-size: 15px;
+    max-width: 90%;
+  }
+  .wi-faq-card {
+    border-radius: 22px;
+  }
+  .wi-faq-cardBtn {
+    padding: 1.1rem;
+  }
+  .wi-faq-q {
+    font-size: 16px;
+  }
+  .wi-faq-plus {
+    width: 20px;
+    height: 20px;
+  }
+}
+/* ===== FAQ (HÄUFIGE FRAGEN) – VEĆI “DUGMIĆI” + PLUS/MINUS ===== */
+.wi-faq {
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+}
+
+.wi-faq-head {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.wi-faq-title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  color: #000;
+  margin: 0 0 1.5rem;
+  line-height: 1;
+  font-size: clamp(32px, 4.5vw, 60px);
+}
+.wi-faq-sub {
+  font-family: "Poppins", system-ui, sans-serif;
+  color: #000;
+  font-size: clamp(16px, 2vw, 20px);
+  line-height: 1.6;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.wi-faq-list {
+  max-width: 64rem;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+}
+
+/* Svaka stavka je <details> – kard sa crnim okvirom i velikim radiusom */
+.wi-faq-item {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 40px;
+  overflow: hidden;
+}
+
+/* "Dugme": <summary> – VEĆE, udobno za klik */
+.wi-faq-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem; /* VEĆI “dugmić” */
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease;
+}
+.wi-faq-summary:hover {
+  background: #f7f7f7;
+}
+.wi-faq-summary::-webkit-details-marker {
+  display: none;
+} /* sakrij default marker */
+
+/* Pitanje */
+.wi-faq-q {
+  margin: 0;
+  padding-right: 0.5rem;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+  color: #000;
+  font-size: 22px;
+  line-height: 1.35; /* VEĆE nego ranije */
+}
+
+/* Ikonica (PLUS/MINUS): plus po difoltu, minus kada je otvoreno */
+.wi-faq-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  color: #000;
+  transition: transform 0.2s ease;
+}
+.wi-faq-item[open] .wi-faq-icon {
+  transform: rotate(180deg);
+}
+
+/* Delovi plusa – horizontalna je uvek vidljiva, vertikalna nestaje kad je OPEN */
+.wi-faq-icon .h {
+  opacity: 1;
+}
+.wi-faq-icon .v {
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+.wi-faq-item[open] .wi-faq-icon .v {
+  opacity: 0;
+} /* -> MINUS */
+
+/* Odgovor (content) */
+.wi-faq-answer {
+  padding: 0 1rem 0.5rem 1rem;
+  border-top: 1px solid #eee;
+  font-family: "Poppins", system-ui, sans-serif;
+  color: #000;
+  font-size: 17px;
+  line-height: 1.6;
+  animation: wiFaqOpen 0.2s ease;
+}
+@keyframes wiFaqOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Mobilno fino (<= 600px) --- */
+@media (max-width: 600px) {
+  .wi-faq {
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .wi-faq-head {
+    margin-bottom: 1.5rem;
+  }
+  .wi-faq-title {
+    font-size: clamp(24px, 7vw, 34px);
+  }
+  .wi-faq-sub {
+    font-size: 15px;
+    max-width: 92%;
+  }
+  .wi-faq-item {
+    border-radius: 22px;
+  }
+  .wi-faq-summary {
+    padding: 1.25rem 1rem;
+  }
+  .wi-faq-q {
+    font-size: 18px;
+  }
+  .wi-faq-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+  .wi-faq-answer {
+    padding: 0 1rem 1.1rem 1rem;
+    font-size: 15px;
   }
 }

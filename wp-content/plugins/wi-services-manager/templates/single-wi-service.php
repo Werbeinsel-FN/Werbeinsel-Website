@@ -146,11 +146,114 @@ get_header();
     <h2 class="unbounded-bold text-white mb-8 leading-none whitespace-nowrap wi-prefooter-cta__title">
       BEREIT FÜR MAXIMUM IMPACT?
     </h2>
-    <button class="bg-[#ffed00] border-2 border-[#ffed00] rounded-full hover:bg-white hover:border-white transition-all transform hover:scale-105 poppins-extrabold text-black flex items-center justify-center mx-auto wi-prefooter-cta__btn">
-      JA
-    </button>
+   <a href="<?php echo site_url('/contact'); ?>" 
+   class="bg-[#ffed00] border-2 border-[#ffed00] rounded-full hover:bg-white hover:border-white transition-all transform hover:scale-105 poppins-extrabold text-black flex items-center justify-center mx-auto wi-prefooter-cta__btn">
+  JA
+</a>
   </div>
 </section>
+<section class="content-container wi-distribution mt-16">
+  <div class="wi-dist-box">
+    <div class="wi-dist-grid">
+      <!-- Levo: tekst -->
+      <div class="wi-dist-text">
+        <h2 class="wi-dist-title">UNSER VERTEILERGEBIET</h2>
+        <div class="wi-dist-copy">
+          <p>Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.</p>
+          <p>Mit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen.</p>
+        </div>
+      </div>
+
+      <!-- Desno: samo mapa -->
+      <div class="wi-dist-map">
+        <div class="wi-map-embed">
+          <iframe
+            src="https://www.google.com/maps/d/embed?mid=1ir7B-FiRZNb2WciFOsgTqt4zUKkmh8w&ehbc=2E312F"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Verteilergebiet Karte">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="content-container wi-faq">
+  <div class="wi-faq-head">
+    <h2 class="wi-faq-title">HÄUFIGE FRAGEN</h2>
+    <p class="wi-faq-sub">Antworten auf die wichtigsten Fragen zur Plakatwerbung</p>
+  </div>
+
+  <div class="wi-faq-list">
+
+    <details class="wi-faq-item">
+      <summary class="wi-faq-summary">
+        <h3 class="wi-faq-q">Wie lange im Voraus sollte ich meine Plakatwerbung buchen?</h3>
+        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </summary>
+      <div class="wi-faq-answer">
+        <p>Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.</p>
+      </div>
+    </details>
+
+    <details class="wi-faq-item">
+      <summary class="wi-faq-summary">
+        <h3 class="wi-faq-q">Welche Plakatgrößen bieten Sie an?</h3>
+        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </summary>
+      <div class="wi-faq-answer">
+        <p>Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.</p>
+      </div>
+    </details>
+
+    <details class="wi-faq-item">
+      <summary class="wi-faq-summary">
+        <h3 class="wi-faq-q">Erstellen Sie auch das Design für die Plakate?</h3>
+        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </summary>
+      <div class="wi-faq-answer">
+        <p>Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.</p>
+      </div>
+    </details>
+
+    <details class="wi-faq-item">
+      <summary class="wi-faq-summary">
+        <h3 class="wi-faq-q">Wie wählen Sie die Standorte für meine Plakate aus?</h3>
+        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </summary>
+      <div class="wi-faq-answer">
+        <p>Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.</p>
+      </div>
+    </details>
+
+    <details class="wi-faq-item">
+      <summary class="wi-faq-summary">
+        <h3 class="wi-faq-q">Was passiert bei schlechtem Wetter oder Vandalismus?</h3>
+        <svg class="wi-faq-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path class="h" d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="v" d="M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </summary>
+      <div class="wi-faq-answer">
+        <p>Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.</p>
+      </div>
+    </details>
+
+  </div>
+</section>
+
 
 
 <?php get_footer(); ?>
