@@ -79,6 +79,43 @@ div {
 .text-center {
   text-align: center;
 }
+#contact-main {
+  --bleed: 0 !important;
+  display: flex; /* ← dodato */
+  justify-content: center; /* ← centrira child */
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+/* 1) Resetuj sve "full-bleed" trikove samo u kontakt sekciji */
+#contact-main .full-bleed {
+  width: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  max-width: none !important; /* dozvolimo da sledeće pravilo preuzme */
+}
+
+/* 2) Pravi container: centriran i ograničen na 1780px */
+#contact-main .contact-main-container {
+  width: 100% !important;
+  max-width: 1780px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 0 !important;
+}
+
+/* 3) Iframe ide 100% širine containera (ne ekrana) */
+#wi-next-contact {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  border: 0;
+}
 
 /**************************************/
 /* Headlines                          */
