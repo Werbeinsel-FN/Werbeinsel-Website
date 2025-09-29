@@ -972,11 +972,11 @@ section.content-container.mt-16 .max-w-4xl p {
   }
 }
 .wi-faq {
-  max-width: none !important;
+  max-width: 1780px !important;
   width: 100% !important;
 }
 
 .wi-faq-list {
-  max-width: none !important;
+  max-width: 1780px !important;
   width: 100% !important;
 }
