@@ -17,6 +17,23 @@
       type="image/x-icon"
       sizes="16x16"
     />
+    <style>
+      /* centralni container za sve delove koji NISU full-bleed */
+      .content-container {
+        max-width: 1780px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 5vw; /* isto kao kod tebe */
+        padding-right: 5vw;
+      }
+      /* helper za full-bleed sekcije unutar containera */
+      .full-bleed {
+        width: 100vw;
+        max-width: 100vw;
+        margin-left: 50%;
+        transform: translateX(-50%);
+      }
+    </style>
   </head>
   <body
     class="__variable_9ee274 __variable_be8a02 antialiased bg-[#ffed00] text-black"
@@ -189,7 +206,7 @@
                 </div>
               </div>
             </section>
-            <section class="relative mt-16">
+            <section class="relative mt-16 full-bleed">
               <div class="relative w-full">
                 <div class="w-full h-96 overflow-hidden relative z-0">
                   <iframe

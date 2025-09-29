@@ -111,10 +111,12 @@ div {
 
 /* 3) Iframe ide 100% širine containera (ne ekrana) */
 #wi-next-contact {
-  display: block;
-  width: 100% !important;
-  max-width: 100% !important;
-  border: 0;
+  display: block !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  border: 0 !important;
+  margin-left: 50% !important;
+  transform: translateX(-50%) !important; /* centriraj preko 100vw */
 }
 
 /**************************************/
