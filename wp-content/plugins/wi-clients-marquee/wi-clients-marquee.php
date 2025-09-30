@@ -295,6 +295,20 @@ class WI_Clients_Marquee {
   will-change: transform;
 }
 
+/* bazno: pretvori u grayscale */
+.pill img.pill-logo--img {
+  filter: grayscale(1) contrast(2) !important;
+}
+
+/* na CRNOJ piluli: učini ga belim (pozitivan), jak kontrast */
+.pill.is-black img.pill-logo--img {
+  filter: grayscale(1) invert(1) contrast(2.5) brightness(1.05) !important;
+}
+
+/* na BELOJ piluli: zadrži tamno (negativ ne treba), pojačaj kontrast */
+.pill.is-white img.pill-logo--img {
+  filter: grayscale(1) contrast(2.5) brightness(0.85) !important;
+}
 /* (ostali tvoji stilovi za .pill i .pill-logo ostaju) */
 
       @media (max-width:1200px){:root{--pill-w:320px;--pill-h:160px;--pill-gap:48px}}
