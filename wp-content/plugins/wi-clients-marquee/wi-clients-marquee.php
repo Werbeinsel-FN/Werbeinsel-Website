@@ -2,17 +2,17 @@
 /**
  * Plugin Name: WI Clients Marquee
  * Description: Naizmenične crno/belo pilule sa logotipovima (3 reda). Admin: lista logotipa. Shortcode: [wi_clients_marquee].
- * Version: 1.1.0
+ * Version: 1.2.1
  * Author: Werbeinsel
  */
 
 if (!defined('ABSPATH')) exit;
 
 class WI_Clients_Marquee {
-  const OPT_KEY     = 'wi_clients_marquee_items';
-  const MENU_SLUG   = 'wi-clients-marquee';
-  const ROWS        = 3;   // broj redova
-  const ROW_CAP     = 8;   // minimalno komada po redu (pre dupliranja za seamless)
+  const OPT_KEY   = 'wi_clients_marquee_items';
+  const MENU_SLUG = 'wi-clients-marquee';
+  const ROWS      = 3;   // broj redova
+  const ROW_CAP   = 8;   // broj pilula po redu (osnovna sekvenca, JS klonira za loop)
 
   public function __construct(){
     // Admin
@@ -22,7 +22,8 @@ class WI_Clients_Marquee {
 
     // Front
     add_shortcode('wi_clients_marquee',   [$this,'shortcode']);
-    add_action('wp_head',                 [$this,'print_front_css']); // inline CSS zbog jednostavnosti
+    add_action('wp_head',                 [$this,'print_front_css']);
+    add_action('wp_footer',               [$this,'print_front_js']);
   }
 
   /* ================= ADMIN ================= */
@@ -53,7 +54,6 @@ class WI_Clients_Marquee {
       foreach ($val as $row){
         $id  = isset($row['image_id']) ? intval($row['image_id']) : 0;
         $alt = isset($row['alt']) ? sanitize_text_field($row['alt']) : '';
-        // ignorisemo stare 'type' vrednosti – prelazna kompatibilnost
         $out[] = ['image_id'=>$id, 'alt'=>$alt];
       }
     }
@@ -63,7 +63,7 @@ class WI_Clients_Marquee {
   public function admin_assets($hook){
     if ($hook !== 'toplevel_page_'.self::MENU_SLUG) return;
     wp_enqueue_media();
-    wp_enqueue_script('wi-cm-admin', plugin_dir_url(__FILE__).'wi-cm-admin.js', ['jquery'], '1.1.0', true);
+    wp_enqueue_script('wi-cm-admin', plugin_dir_url(__FILE__).'wi-cm-admin.js', ['jquery'], '1.2.1', true);
     wp_add_inline_style('wp-admin', '
       .wi-cm-table{width:100%;border-collapse:collapse;margin-top:16px}
       .wi-cm-table th,.wi-cm-table td{border:1px solid #ccd0d4;padding:8px;vertical-align:top}
@@ -82,7 +82,7 @@ class WI_Clients_Marquee {
     <div class="wrap">
       <h1>Clients Marquee</h1>
       <p class="description">
-        Dodaj logoe koji će se prikazivati u 3 reda. Redovi se pune <b>naizmenično</b> (bez ponavljanja istog logotipa u više redova).
+        Dodaj logoe koji će se prikazivati u 3 reda. Redovi se pune sekvencijalno (prvo ceo prvi red, pa drugi, pa treći).
         Boje pilula se automatski smenjuju (crna/bela), a logo se prilagođava kontrastu.
       </p>
 
@@ -168,7 +168,7 @@ class WI_Clients_Marquee {
   public function shortcode($atts){
     $items = get_option(self::OPT_KEY, []);
 
-    // 1) filtriramo samo uploadovane logoe (image_id > 0)
+    // uploadovani logoi
     $real = [];
     if (is_array($items)) {
       foreach ($items as $it){
@@ -179,22 +179,21 @@ class WI_Clients_Marquee {
       }
     }
 
-    // 2) raspodela bez ponavljanja po redovima (round-robin)
+    // sekvencijalna raspodela: popuni ceo red pre prelaska na sledeći
     $rows = array_fill(0, self::ROWS, []);
-    $i = 0;
-    foreach ($real as $logo) {
-      $rows[$i % self::ROWS][] = $logo;
-      $i++;
+    $chunks = array_chunk($real, self::ROW_CAP);
+    for ($r = 0; $r < self::ROWS; $r++) {
+      $rows[$r] = isset($chunks[$r]) ? $chunks[$r] : [];
     }
 
-    // 3) popuni svaku listu do minimalnog kapaciteta default (može da se ponavlja)
+    // dopuni default logoom
     for ($r=0; $r<self::ROWS; $r++){
       while (count($rows[$r]) < self::ROW_CAP) {
         $rows[$r][] = ['image_id'=>0, 'alt'=>'Client'];
       }
     }
 
-    // helper: render jedne pilule (pozadina auto, logo auto)
+    // helper za pilulu
     $render_pill = function($is_black, $image_id, $alt){
       $bg_class = $is_black ? 'is-black' : 'is-white';
       $style_color = $is_black ? 'color:#fff;' : 'color:#000;';
@@ -203,33 +202,33 @@ class WI_Clients_Marquee {
       if ($image_id) {
         $src = wp_get_attachment_image_url($image_id, 'large');
         if ($src) {
-          $html_logo = '<img src="'.esc_url($src).'" alt="'.esc_attr($alt).'" class="pill-logo pill-logo--img" loading="lazy" decoding="async">';
+          $html_logo = '<img src="'.esc_url($src).'" alt="'.esc_attr($alt).'" class="pill-logo pill-logo--img" loading="lazy">';
         }
       }
       if (!$html_logo) {
-        // default – inline SVG sa currentColor
-        $html_logo = '<svg class="pill-logo pill-logo--svg" viewBox="0 0 640 200" role="img" aria-label="'.esc_attr($alt).'" xmlns="http://www.w3.org/2000/svg">
-          <title>'.esc_html($alt).'</title>
-          <path fill="currentColor" d="M60 150 L95 50 L130 150 L155 150 L195 50 L230 150 L205 150 L180 85 L155 150 L130 150 L105 85 L80 150 Z"/>
-          <text x="260" y="132" font-family="system-ui,Segoe UI,Arial,sans-serif" font-weight="800" font-size="72" fill="currentColor">WERBEINSEL</text>
+        // centriran default SVG (x/y u sredini, dominant-baseline middle, text-anchor middle)
+        $html_logo = '<svg class="pill-logo pill-logo--svg" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'.esc_attr($alt).'">
+          <g fill="currentColor">
+            <circle cx="50" cy="50" r="20"/>
+            <text x="175" y="50" font-family="system-ui,Segoe UI,Arial,sans-serif" font-weight="800" font-size="30" text-anchor="middle" dominant-baseline="middle">WERBEINSEL</text>
+          </g>
         </svg>';
       }
 
       return '<div class="pill '.$bg_class.'" style="'.$style_color.'">'.$html_logo.'</div>';
     };
 
-    // helper: jedna traka sa naizmeničnim bojama (kreće crnom)
+    // helper za jednu traku
     $track = function($logos, $dir_class) use ($render_pill){
-      $html = '<div class="clients-track '.$dir_class.'">';
-      for ($dup=0; $dup<2; $dup++) { // dupliramo radi seamless loop-a
-        $idx = 0;
-        foreach ($logos as $logo){
-          $is_black = ($idx % 2 === 0); // crna, bela, crna, ...
-          $html .= $render_pill($is_black, intval($logo['image_id']), $logo['alt']);
-          $idx++;
-        }
+      $html = '<div class="clients-track '.$dir_class.'" data-direction="'.($dir_class==='clients-track--right'?'right':'left').'" data-speed="40">';
+      $html .= '<div class="clients-seq">';
+      $idx = 0;
+      foreach ($logos as $logo){
+        $is_black = ($idx % 2 === 0);
+        $html .= $render_pill($is_black, intval($logo['image_id']), $logo['alt']);
+        $idx++;
       }
-      $html .= '</div>';
+      $html .= '</div></div>';
       return $html;
     };
 
@@ -253,31 +252,140 @@ class WI_Clients_Marquee {
     <style id="wi-clients-marquee-css">
       :root{
         --container-max:1780px;--container-pad:32px;--row-gap:64px;--pill-gap:64px;
-        --pill-w:384px;--pill-h:192px;--pill-radius:9999px;--track-speed:30s;
+        --pill-w:384px;--pill-h:192px;--pill-radius:9999px;
       }
       .container{max-width:var(--container-max);margin-inline:auto;padding-inline:var(--container-pad)}
       .clients{margin:4rem 0}
       .clients-title{font:800 clamp(1.5rem,2rem + 1vw,3.5rem)/1.1 system-ui,sans-serif;text-align:center;margin:0 0 4rem;white-space:nowrap}
       .clients-rows{overflow:hidden;display:grid;gap:var(--row-gap)}
       .clients-row{overflow:hidden}
-      .clients-track{display:flex;align-items:center;gap:var(--pill-gap);will-change:transform}
-      @keyframes wi-left{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
-      @keyframes wi-right{0%{transform:translate3d(-50%,0,0)}100%{transform:translate3d(0,0,0)}}
-      .clients-track--left{animation:wi-left var(--track-speed) linear infinite}
-      .clients-track--right{animation:wi-right var(--track-speed) linear infinite}
-      .pill{flex:0 0 auto;width:var(--pill-w);height:var(--pill-h);border-radius:var(--pill-radius);display:flex;align-items:center;justify-content:center}
-      .pill.is-black{background:#000;border:none}
+      /* TRACK kao flex da gap važi i između kloniranih .clients-seq */
+      .clients-track{
+        display:flex; align-items:center; gap:var(--pill-gap);
+        animation:none!important; transform:translate3d(0,0,0);
+      }
+      .clients-track > .clients-seq{
+        display:flex; gap:var(--pill-gap);
+      }
+      .pill{
+        flex:0 0 auto; width:var(--pill-w); height:var(--pill-h);
+        border-radius:var(--pill-radius);
+        display:flex; align-items:center; justify-content:center;
+      }
+      .pill.is-black{background:#000}
       .pill.is-white{background:#fff;border:2px solid #000}
-      .pill-logo{max-width:70%;max-height:70%;width:auto;height:auto;display:block;object-fit:contain}
+      .pill-logo{max-width:70%;max-height:70%;object-fit:contain;display:block}
       /* Kontrast: samo za uploadovane slike na crnoj piluli */
       .pill.is-black img.pill-logo--img{filter: invert(1) brightness(1.2) contrast(1.05)}
       .pill.is-white img.pill-logo--img{filter:none}
-      @media (max-width:1200px){:root{--pill-w:320px;--pill-h:160px;--pill-gap:48px;--track-speed:26s}}
-      @media (max-width:900px){:root{--pill-w:260px;--pill-h:130px;--pill-gap:32px;--row-gap:40px;--track-speed:22s}}
-      @media (max-width:600px){:root{--pill-w:220px;--pill-h:110px;--pill-gap:24px;--track-speed:18s}.clients-title{margin-bottom:2.5rem}}
+      /* TRACK sada je relativan kontejner sa overflow: hidden */
+.clients-row{ overflow:hidden; position:relative; }
+.clients-track{
+  position:relative;
+  overflow:hidden;
+  height: var(--pill-h);
+  display:block;
+}
+
+.clients-track .clients-seq{
+  position:absolute; top:0; left:0;
+  display:flex;
+  gap:var(--pill-gap);
+  padding-right: var(--pill-gap); /* << DODATO: gap između A i B sekvence */
+  will-change: transform;
+}
+
+/* (ostali tvoji stilovi za .pill i .pill-logo ostaju) */
+
+      @media (max-width:1200px){:root{--pill-w:320px;--pill-h:160px;--pill-gap:48px}}
+      @media (max-width:900px){:root{--pill-w:260px;--pill-h:130px;--pill-gap:32px;--row-gap:40px}}
+      @media (max-width:600px){:root{--pill-w:220px;--pill-h:110px;--pill-gap:24px}.clients-title{margin-bottom:2.5rem}}
     </style>
     <?php
   }
+
+ public function print_front_js(){
+  ?>
+  <script>
+  (function(){
+    const onReady = (fn) => {
+      if (document.readyState === 'complete') fn();
+      else window.addEventListener('load', fn);
+    };
+
+    onReady(function(){
+      const tracks = document.querySelectorAll('.clients-track');
+
+      tracks.forEach(track => {
+        const dir   = track.dataset.direction === 'right' ? 1 : -1; // 1=desno, -1=levo
+        const speed = parseFloat(track.dataset.speed) || 40;        // px/s
+
+        let seqA = track.querySelector('.clients-seq');
+        if (!seqA) return;
+
+        // Napravi drugi “vagon”
+        let seqB = seqA.cloneNode(true);
+        track.appendChild(seqB);
+
+        // Meri realnu širinu jedne sekvence (uključuje gap unutar nje)
+        const widthOf = el => el.getBoundingClientRect().width;
+
+        // Stanja (x pozicije dve sekvence)
+        let w = Math.max(widthOf(seqA), 1);
+        let a = (dir > 0 ? -w : 0); // start: desno -> A je van leve ivice
+        let b = a + w;              // B ide odmah posle A
+
+        // Pozicioniraj početno
+        seqA.style.transform = `translate3d(${a}px,0,0)`;
+        seqB.style.transform = `translate3d(${b}px,0,0)`;
+
+        let last = performance.now();
+        let rafId;
+
+        function step(now){
+          const dt = (now - last)/1000; last = now;
+          const v  = dir * speed;
+
+          a += v*dt;
+          b += v*dt;
+
+          // “prebaci” vagon kad potpuno izađe
+          if (dir < 0){ // levo
+            if (a <= -w) a += 2*w;
+            if (b <= -w) b += 2*w;
+          } else {      // desno
+            if (a >=  w) a -= 2*w;
+            if (b >=  w) b -= 2*w;
+          }
+
+          seqA.style.transform = `translate3d(${a}px,0,0)`;
+          seqB.style.transform = `translate3d(${b}px,0,0)`;
+          rafId = requestAnimationFrame(step);
+        }
+
+        // Re-setup na resize bez “skoka”: zadržimo relativni offset
+        function resync(){
+          const total = 2*w;
+          // trenutni offset modulo w (relativno na A)
+          const rel = ((a % w) + w) % w;
+          w = Math.max(widthOf(seqA), 1);
+          a = (dir > 0 ? -w : 0) - rel;
+          b = a + w;
+          seqA.style.transform = `translate3d(${a}px,0,0)`;
+          seqB.style.transform = `translate3d(${b}px,0,0)`;
+        }
+
+        // Pri prvom merenju sačekaj da slike/SVG budu proračunate pa kreni
+        setTimeout(() => { w = Math.max(widthOf(seqA), 1); resync(); last = performance.now(); rafId = requestAnimationFrame(step); }, 0);
+        window.addEventListener('resize', resync, {passive:true});
+      });
+    });
+  })();
+  </script>
+  <?php
+}
+
+
 }
 new WI_Clients_Marquee();
 
