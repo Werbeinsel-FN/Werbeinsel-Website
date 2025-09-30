@@ -1,3 +1,154 @@
-.home-main-container {
-    min-height: 100vh;
+:root {
+  --container-max: 1780px;
+  --container-pad: 32px;
+  --row-gap: 64px;
+  --pill-gap: 64px;
+  --pill-w: 384px; /* 384 × 192 (standard) */
+  --pill-h: 192px;
+  --pill-radius: 9999px;
+  --track-speed: 30s; /* brzina klizanja jedne polovine sadržaja */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.home-main {
+  display: block;
+}
+
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+/* ===== OUR CLIENTS ===== */
+.clients {
+  margin: 4rem 0;
+}
+
+.clients-title {
+  font: 800 clamp(1rem, 3.75rem, 5.5rem) / 1.1 system-ui, sans-serif;
+  color: black;
+  text-align: center;
+  margin: 0 0 4rem;
+}
+
+.clients-rows {
+  overflow: hidden;
+  display: grid;
+  gap: var(--row-gap);
+}
+
+.clients-row {
+  overflow: hidden;
+}
+
+.clients-track {
+  display: flex;
+  align-items: center;
+  gap: var(--pill-gap);
+  will-change: transform;
+}
+
+/* Animacije */
+@keyframes marquee-left {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+@keyframes marquee-right {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.clients-track--left {
+  animation: marquee-left var(--track-speed) linear infinite;
+}
+.clients-track--right {
+  animation: marquee-right var(--track-speed) linear infinite;
+}
+
+/* Pilule */
+.pill {
+  flex: 0 0 auto;
+  width: var(--pill-w);
+  height: var(--pill-h);
+  border-radius: var(--pill-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pill.is-black {
+  background: #000;
+  border: none;
+}
+.pill.is-white {
+  background: #fff;
+  border: 2px solid #000;
+}
+
+/* Inline SVG logo — boja = currentColor */
+/* Uniformno skaliranje za sve logoe */
+.pill-logo {
+  max-width: 70%;
+  max-height: 70%;
+  width: auto;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Automatski kontrast SAMO za uploadovane slike na crnoj piluli */
+.pill.is-black img.pill-logo--img {
+  /* invert (iz crnog u belo), malo podigni brightness da bude čitko */
+  filter: invert(1) brightness(1.2) contrast(1.05);
+}
+
+/* Na beloj piluli nema filtra */
+.pill.is-white img.pill-logo--img {
+  filter: none;
+}
+
+/* Fallback inline SVG već koristi currentColor (belo na crnoj, crno na beloj),
+   zato ga NE diramo nikakvim filterima */
+
+/* Responsive (po želji ukloni ako želiš uvek 384×192) */
+@media (max-width: 1200px) {
+  :root {
+    --pill-w: 320px;
+    --pill-h: 160px;
+    --pill-gap: 48px;
+    --track-speed: 26s;
+  }
+}
+@media (max-width: 900px) {
+  :root {
+    --pill-w: 260px;
+    --pill-h: 130px;
+    --pill-gap: 32px;
+    --row-gap: 40px;
+    --track-speed: 22s;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --pill-w: 220px;
+    --pill-h: 110px;
+    --pill-gap: 24px;
+    --track-speed: 18s;
+  }
+  .clients-title {
+    margin-bottom: 2.5rem;
+    font-size: 2.3rem;
+  }
 }
