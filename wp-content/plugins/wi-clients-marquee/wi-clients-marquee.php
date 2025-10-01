@@ -310,7 +310,12 @@ class WI_Clients_Marquee {
   filter: grayscale(1) contrast(2.5) brightness(0.85) !important;
 }
 /* (ostali tvoji stilovi za .pill i .pill-logo ostaju) */
-
+  .pill.is-white img.pill-logo--img{
+    filter: grayscale(100%) contrast(600%) brightness(80%) !important;
+  }
+  .pill.is-black img.pill-logo--img{
+    filter: grayscale(100%) invert(100%) contrast(600%) brightness(95%) !important;
+  }
       @media (max-width:1200px){:root{--pill-w:320px;--pill-h:160px;--pill-gap:48px}}
       @media (max-width:900px){:root{--pill-w:260px;--pill-h:130px;--pill-gap:32px;--row-gap:40px}}
       @media (max-width:600px){:root{--pill-w:220px;--pill-h:110px;--pill-gap:24px}.clients-title{margin-bottom:2.5rem}}
