@@ -857,3 +857,19 @@ body {
 .home-main {
   padding-top: 0;
 }
+/* Skini fiksnu visinu hero-a i pusti da teče po visini slike */
+.home-hero__inner {
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Slika zauzima 100% širine, visina iz proporcije slike */
+.home-hero__media {
+  position: static !important; /* više nam ne treba absolute */
+  width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important; /* sigurnosti radi, ali height:auto već čuva celu sliku */
+  display: block;
+}
+
+/* Pošto .home-hero__media više nije absolute, skini inset pravila ako postoje */
