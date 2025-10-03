@@ -218,14 +218,6 @@
   background: var(--hero-gradient), #222;
 }
 
-/* overlay preko slike/videa – replicira SVG gradijent */
-.home-hero__overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: var(--hero-gradient);
-}
-
 /* glavni sadržaj ispod hero-a */
 .home-main {
   position: relative;
@@ -264,6 +256,7 @@ body {
   overflow-x: hidden;
 }
 .content-container {
+  margin-top: 2rem;
   padding: 4rem 1rem; /* py-16 */
   text-align: center;
 }
@@ -857,4 +850,10 @@ body {
     height: clamp(3.5rem, 16vw, 8rem) !important;
     font-size: clamp(18px, 9.5vw, 48px) !important;
   }
+}
+.logo-wrapper {
+  display: none !important;
+}
+.home-main {
+  padding-top: 0;
 }
