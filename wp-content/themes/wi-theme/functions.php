@@ -432,3 +432,354 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 //     }
 // }
 // add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
+// === HEADER VIDEO META BOX (samo za Template: Home) ===
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'wi_home_header_video',
+        __('Header video (MP4)', 'wi'),
+        'wi_home_header_video_cb',
+        'page',
+        'side',
+        'default'
+    );
+});
+
+function wi_home_header_video_cb($post) {
+    // Prikaži samo ako je izabran Home template
+    $tpl = get_page_template_slug($post->ID);
+    if ($tpl !== 'home.php' && $tpl !== 'template-home.php' && $tpl !== 'page-home.php') {
+        echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
+        return;
+    }
+
+    wp_nonce_field('wi_save_home_header_video', 'wi_home_header_video_nonce');
+
+    $video_id = get_post_meta($post->ID, '_wi_header_video_id', true);
+    $video_url = $video_id ? wp_get_attachment_url($video_id) : '';
+
+    ?>
+    <div>
+        <p>
+            <input type="hidden" id="wi_header_video_id" name="wi_header_video_id" value="<?php echo esc_attr($video_id); ?>">
+            <input type="text" id="wi_header_video_url" class="widefat" placeholder="<?php esc_attr_e('URL do MP4 fajla', 'wi'); ?>" value="<?php echo esc_attr($video_url); ?>" readonly>
+        </p>
+        <p>
+            <button type="button" class="button" id="wi_header_video_select"><?php esc_html_e('Izaberi MP4 iz medije', 'wi'); ?></button>
+            <button type="button" class="button" id="wi_header_video_clear" style="margin-left:6px;"><?php esc_html_e('Ukloni', 'wi'); ?></button>
+        </p>
+        <p style="color:#666;margin-top:8px;">
+            <?php esc_html_e('Ako je popunjen video, koristi se on. Ako nije, koristi se Istaknuta slika (Featured image).', 'wi'); ?>
+        </p>
+    </div>
+    <script>
+    (function($){
+        $(function(){
+            var frame;
+            $('#wi_header_video_select').on('click', function(e){
+                e.preventDefault();
+                if (frame) { frame.open(); return; }
+                frame = wp.media({
+                    title: 'Izaberi MP4',
+                    button: { text: 'Koristi ovaj video' },
+                    library: { type: 'video' },
+                    multiple: false
+                });
+                frame.on('select', function(){
+                    var attachment = frame.state().get('selection').first().toJSON();
+                    // prihvatamo samo mp4 radi kompatibilnosti
+                    if (attachment && attachment.url && /\.mp4($|\?)/i.test(attachment.url)) {
+                        $('#wi_header_video_id').val(attachment.id);
+                        $('#wi_header_video_url').val(attachment.url);
+                    } else {
+                        alert('Molim izaberite MP4 fajl.');
+                    }
+                });
+                frame.open();
+            });
+
+            $('#wi_header_video_clear').on('click', function(){
+                $('#wi_header_video_id').val('');
+                $('#wi_header_video_url').val('');
+            });
+        });
+    })(jQuery);
+    </script>
+    <?php
+}
+
+add_action('save_post_page', function ($post_id) {
+    if (!isset($_POST['wi_home_header_video_nonce']) || !wp_verify_nonce($_POST['wi_home_header_video_nonce'], 'wi_save_home_header_video')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_page', $post_id)) return;
+
+    $video_id = isset($_POST['wi_header_video_id']) ? intval($_POST['wi_header_video_id']) : 0;
+    if ($video_id) {
+        update_post_meta($post_id, '_wi_header_video_id', $video_id);
+    } else {
+        delete_post_meta($post_id, '_wi_header_video_id');
+    }
+});
+
+// Uveri se da je thumbnail podržan (za sliku)
+add_action('after_setup_theme', function(){
+    add_theme_support('post-thumbnails');
+});
+// === HOME: "Grüß Gott!" sekcija (naslov + tekst) ===
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'wi_home_intro_box',
+        __('Intro sekcija (ispod hero)', 'wi'),
+        function($post){
+            // prikaži samo na Home template-u
+            $tpl = get_page_template_slug($post->ID);
+            if ($tpl !== 'home.php' && $tpl !== 'template-home.php' && $tpl !== 'page-home.php') {
+                echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
+                return;
+            }
+
+            wp_nonce_field('wi_home_intro_save','wi_home_intro_nonce');
+
+            $title = get_post_meta($post->ID, '_wi_intro_title', true);
+            $text  = get_post_meta($post->ID, '_wi_intro_text', true);
+            ?>
+            <p><label for="wi_intro_title"><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label></p>
+            <input id="wi_intro_title" name="wi_intro_title" type="text" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Grüß Gott!">
+
+            <p style="margin-top:12px;"><strong><?php esc_html_e('Tekst', 'wi'); ?></strong></p>
+            <?php
+            // mali editor samo za paragraf
+            wp_editor(
+                $text,
+                'wi_intro_text',
+                [
+                    'textarea_name' => 'wi_intro_text',
+                    'media_buttons' => false,
+                    'textarea_rows' => 6,
+                    'teeny'         => true,
+                    'quicktags'     => false,
+                ]
+            );
+        },
+        'page',
+        'normal',
+        'high'
+    );
+});
+
+add_action('save_post_page', function($post_id){
+    if (!isset($_POST['wi_home_intro_nonce']) || !wp_verify_nonce($_POST['wi_home_intro_nonce'], 'wi_home_intro_save')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_page', $post_id)) return;
+
+    $title = isset($_POST['wi_intro_title']) ? wp_kses_post($_POST['wi_intro_title']) : '';
+    $text  = isset($_POST['wi_intro_text'])  ? wp_kses_post($_POST['wi_intro_text'])  : '';
+
+    if ($title !== '') update_post_meta($post_id, '_wi_intro_title', $title); else delete_post_meta($post_id, '_wi_intro_title');
+    if ($text  !== '') update_post_meta($post_id, '_wi_intro_text',  $text ); else delete_post_meta($post_id, '_wi_intro_text');
+});
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'wi_home_intro_box',
+        __('Intro sekcija (ispod hero)', 'wi'),
+        function($post){
+            $tpl = get_page_template_slug($post->ID);
+
+            // ako template slug ne sadrži "home", prekini
+            if (strpos($tpl, 'home') === false) {
+                echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
+                return;
+            }
+
+            wp_nonce_field('wi_home_intro_save','wi_home_intro_nonce');
+
+            $title = get_post_meta($post->ID, '_wi_intro_title', true);
+            $text  = get_post_meta($post->ID, '_wi_intro_text', true);
+            ?>
+            <p><label for="wi_intro_title"><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label></p>
+            <input id="wi_intro_title" name="wi_intro_title" type="text" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Grüß Gott!">
+
+            <p style="margin-top:12px;"><strong><?php esc_html_e('Tekst', 'wi'); ?></strong></p>
+            <?php
+            wp_editor(
+                $text,
+                'wi_intro_text',
+                [
+                    'textarea_name' => 'wi_intro_text',
+                    'media_buttons' => false,
+                    'textarea_rows' => 6,
+                    'teeny'         => true,
+                    'quicktags'     => false,
+                ]
+            );
+        },
+        'page',
+        'normal',
+        'high'
+    );
+});
+/* === SERVICES sekcija (pre OUR CLIENTS) =============================== */
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'wi_home_services',
+        __('Services sekcija (pre OUR CLIENTS)', 'wi'),
+        'wi_home_services_cb',
+        'page',
+        'normal',
+        'high'
+    );
+});
+
+function wi_home_services_cb($post){
+    $tpl = get_page_template_slug($post->ID);
+    if (strpos((string)$tpl, 'home') === false) {
+        echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
+        return;
+    }
+
+    wp_nonce_field('wi_home_services_save', 'wi_home_services_nonce');
+
+    $section_title = get_post_meta($post->ID, '_wi_services_title', true);
+
+    // 3 slot-a (možeš povećati broj po želji)
+    $items = [];
+    for ($i=1; $i<=3; $i++){
+        $items[$i] = [
+            'img_id' => get_post_meta($post->ID, "_wi_services_{$i}_img_id", true),
+            'title'  => get_post_meta($post->ID, "_wi_services_{$i}_title",  true),
+        ];
+    }
+
+    ?>
+    <style>
+      .wi-field { margin: 10px 0 16px; }
+      .wi-row { border:1px solid #ddd; padding:12px; border-radius:8px; margin:12px 0; background:#fafafa; }
+      .wi-thumb { width: 120px; height: 80px; object-fit: cover; border-radius:6px; display:block; background:#eee; }
+      .wi-flex { display:flex; gap:12px; align-items:flex-start; }
+      .wi-actions{ display:flex; gap:8px; margin-top:6px; }
+      .wi-small{ color:#666; font-size:12px; }
+      .wi-input{ width:100%; }
+    </style>
+
+    <div class="wi-field">
+        <label><strong><?php esc_html_e('Naslov sekcije', 'wi'); ?></strong></label>
+        <input type="text" class="widefat" name="wi_services_title" value="<?php echo esc_attr($section_title ?: 'Services'); ?>">
+        <p class="wi-small"><?php esc_html_e('Veliki naslov iznad kartica (npr. "Services").', 'wi'); ?></p>
+    </div>
+
+    <?php for ($i=1; $i<=3; $i++):
+        $img_id = intval($items[$i]['img_id']);
+        $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'large') : '';
+        $title   = $items[$i]['title'];
+    ?>
+      <div class="wi-row">
+        <h4 style="margin:0 0 8px;">Kartica <?php echo $i; ?></h4>
+        <div class="wi-flex">
+          <div>
+            <img id="wi_services_<?php echo $i; ?>_preview" class="wi-thumb" src="<?php echo esc_url($img_url ?: ''); ?>" alt="">
+            <div class="wi-actions">
+              <input type="hidden" id="wi_services_<?php echo $i; ?>_img_id" name="wi_services_<?php echo $i; ?>_img_id" value="<?php echo esc_attr($img_id); ?>">
+              <button type="button" class="button wi-pick" data-slot="<?php echo $i; ?>"><?php esc_html_e('Izaberi sliku', 'wi'); ?></button>
+              <button type="button" class="button wi-clear" data-slot="<?php echo $i; ?>"><?php esc_html_e('Ukloni', 'wi'); ?></button>
+            </div>
+          </div>
+          <div class="wi-input">
+            <label><strong><?php esc_html_e('Naslov kartice', 'wi'); ?></strong></label>
+            <input type="text" class="widefat" name="wi_services_<?php echo $i; ?>_title" value="<?php echo esc_attr($title ?: 'Service'); ?>">
+            <p class="wi-small"><?php esc_html_e('Kratak naslov koji se prikazuje preko slike (npr. "Vehicle Wrapping").', 'wi'); ?></p>
+          </div>
+        </div>
+      </div>
+    <?php endfor; ?>
+
+    <script>
+    (function($){
+      $(function(){
+        var frame;
+        $('.wi-pick').on('click', function(e){
+          e.preventDefault();
+          var slot = $(this).data('slot');
+
+          if (frame) frame.close();
+          frame = wp.media({ title: 'Izaberi sliku', button:{ text: 'Koristi sliku' }, library:{ type:'image' }, multiple:false });
+          frame.on('select', function(){
+            var att = frame.state().get('selection').first().toJSON();
+            $('#wi_services_'+slot+'_img_id').val(att.id);
+            $('#wi_services_'+slot+'_preview').attr('src', att.sizes && att.sizes.medium ? att.sizes.medium.url : att.url);
+          });
+          frame.open();
+        });
+
+        $('.wi-clear').on('click', function(){
+          var slot = $(this).data('slot');
+          $('#wi_services_'+slot+'_img_id').val('');
+          $('#wi_services_'+slot+'_preview').attr('src','');
+        });
+      });
+    })(jQuery);
+    </script>
+    <?php
+}
+
+add_action('save_post_page', function($post_id){
+    if (!isset($_POST['wi_home_services_nonce']) || !wp_verify_nonce($_POST['wi_home_services_nonce'], 'wi_home_services_save')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_page', $post_id)) return;
+
+    update_post_meta($post_id, '_wi_services_title', sanitize_text_field($_POST['wi_services_title'] ?? ''));
+
+    for ($i=1; $i<=3; $i++){
+        $img_id = isset($_POST["wi_services_{$i}_img_id"]) ? intval($_POST["wi_services_{$i}_img_id"]) : 0;
+        $title  = isset($_POST["wi_services_{$i}_title"])   ? wp_kses_post($_POST["wi_services_{$i}_title"])   : '';
+        if ($img_id) update_post_meta($post_id, "_wi_services_{$i}_img_id", $img_id); else delete_post_meta($post_id, "_wi_services_{$i}_img_id");
+        if ($title !== '') update_post_meta($post_id, "_wi_services_{$i}_title", $title); else delete_post_meta($post_id, "_wi_services_{$i}_title");
+    }
+});
+
+/* Obavezno: učitaj WP media skriptu na admin-u da bi radilo biranje slike */
+add_action('admin_enqueue_scripts', function($hook){
+    if ($hook === 'post.php' || $hook === 'post-new.php') {
+        wp_enqueue_media();
+    }
+});
+/** ---------------------------
+ *  CTA (pre footera) – metabox
+ *  Key: _wi_cta_title (dozvoljen <br>)
+ * --------------------------- */
+add_action('add_meta_boxes', function () {
+    add_meta_box(
+        'wi_cta_box',
+        __('CTA sekcija (pre footera)', 'wi'),
+        'wi_render_cta_box',
+        'page',
+        'normal',
+        'default'
+    );
+});
+function wi_render_cta_box($post) {
+    // (uklonili smo uslov koji je davao poruku)
+    wp_nonce_field('wi_save_cta_box', 'wi_cta_nonce');
+
+    $val = get_post_meta($post->ID, '_wi_cta_title', true);
+    ?>
+    <p><label for="wi_cta_title"><strong><?php _e('Naslov (dozvoljen <br>)', 'wi'); ?></strong></label></p>
+    <textarea id="wi_cta_title" name="wi_cta_title" rows="3" style="width:100%;max-width:800px;"><?php
+        echo esc_textarea($val);
+    ?></textarea>
+    <p style="opacity:.75;margin-top:.25rem">
+        <?php _e('Možeš koristiti <br> za novi red.', 'wi'); ?>
+    </p>
+    <?php
+}
+
+
+add_action('save_post', function ($post_id) {
+    if (!isset($_POST['wi_cta_nonce']) || !wp_verify_nonce($_POST['wi_cta_nonce'], 'wi_save_cta_box')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    $raw = isset($_POST['wi_cta_title']) ? $_POST['wi_cta_title'] : '';
+    // dozvoli samo <br> u naslovu
+    $allowed = array('br' => array());
+    $clean = wp_kses($raw, $allowed);
+    update_post_meta($post_id, '_wi_cta_title', $clean);
+});

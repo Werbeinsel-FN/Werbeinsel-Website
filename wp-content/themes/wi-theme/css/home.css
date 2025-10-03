@@ -152,3 +152,709 @@
     font-size: 2.3rem;
   }
 }
+/* === HERO (vrh stranice) === */
+/* ===== VARS ===== */
+:root {
+  /* identičan SVG gradient */
+  --hero-gradient: linear-gradient(
+    to top,
+    #333333 0%,
+    rgba(102, 102, 102, 0.7) 60%,
+    rgba(153, 153, 153, 0) 100%
+  );
+
+  /* horizontalni odmak od ivica (kao na slici 1) */
+  --hero-gutter: clamp(16px, 4vw, 28px);
+  --hero-radius: 12px; /* zaobljeni uglovi “karte” */
+}
+
+/* ===== HERO ===== */
+.home-hero {
+  margin: 0;
+  padding: var(--hero-gutter);
+  padding-bottom: 0; /* donja ivica prati sledeću sekciju */
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    padding: 0;
+  } /* full-bleed na mobilnom, ako želiš zadrži 16px */
+}
+
+/* okvir/“karta” sa zaobljenjem */
+.home-hero__frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* da slika i overlay prate zaobljenje */
+  /* opciono blaga senka, ako želiš da se karta izdvoji:
+  box-shadow: 0 6px 24px rgba(0,0,0,.08);
+  */
+  background: #222; /* baza ispod medija */
+}
+
+/* ciljna visina: 1440x850 → max 850px na desktopu,
+   na manjim ekranima zadržavamo dobar odnos */
+.home-hero__inner {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, min(59vw, 80vh), 850px);
+}
+
+/* mediji */
+.home-hero__media,
+.home-hero__fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center; /* po potrebi promeni na center 40% */
+  display: block;
+}
+
+/* fallback kada nema slike/videa – isti vizuelni efekat kao sa overlay-em */
+.home-hero__fallback {
+  background: var(--hero-gradient), #222;
+}
+
+/* overlay preko slike/videa – replicira SVG gradijent */
+.home-hero__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--hero-gradient);
+}
+
+/* glavni sadržaj ispod hero-a */
+.home-main {
+  position: relative;
+  z-index: 1;
+  padding-block: 2rem;
+}
+/* ==== HARD FIX: uvek zadrži razmak levo/desno i na najmanjim širinama ==== */
+:root {
+  --hero-gutter: clamp(16px, 5vw, 28px);
+}
+
+/* Pusti okvir da bude auto-širine i nametni bočne margine */
+.home-hero__frame {
+  width: auto !important;
+  margin-left: var(--hero-gutter) !important;
+  margin-right: var(--hero-gutter) !important;
+  max-width: calc(1440px - (var(--hero-gutter) * 2));
+  box-sizing: border-box;
+}
+
+/* Ako neki globalni selektor gura sve u 100% širine, ovo ga gasi za naš hero */
+.home-hero,
+.home-hero * {
+  max-width: none !important;
+}
+
+/* Ako tema koristi alignfull sa negativnim marginama, neutralizuj na našem templejtu */
+.page-template-home .alignfull {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* (opciono) spreči bilo kakav horizontalni scroll zbog agresivnih stilova teme */
+html,
+body {
+  overflow-x: hidden;
+}
+.content-container {
+  padding: 4rem 1rem; /* py-16 */
+  text-align: center;
+}
+
+.content-inner {
+  max-width: 60rem; /* ~960px */
+  margin-inline: auto;
+}
+
+.content-container .intro-title {
+  font-size: 34px;
+  font-family: "Unbounded", sans-serif;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 2rem;
+  color: black;
+}
+
+.content-container .intro-text {
+  font-size: 34px;
+  font-family: "Poppins", sans-serif;
+  line-height: 1.6;
+}
+
+/* responsivno smanjenje fonta */
+@media (max-width: 768px) {
+  .content-container .intro-title {
+    font-size: 28px;
+  }
+  .content-container .intro-text {
+    font-size: 22px;
+  }
+}
+@media (max-width: 480px) {
+  .content-container .intro-title {
+    font-size: 24px;
+  }
+  .content-container .intro-text {
+    font-size: 18px;
+  }
+}
+/* === HERO: malo širi + viši === */
+
+/* 1) Manji bočni razmak (bila gornja granica 28px) */
+:root {
+  --hero-gutter: clamp(12px, 3.6vw, 22px);
+}
+
+/* Dozvoli da ide šire od starog limita */
+.home-hero__frame {
+  max-width: none; /* širina = 100% - 2*gutter */
+}
+
+/* 2) Viši hero na desktopu/laptopu */
+.home-hero__inner {
+  /* pre je bilo ~clamp(420px, min(59vw, 80vh), 850px) */
+  height: clamp(520px, min(66vw, 90vh), 920px);
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .home-hero__inner {
+    height: clamp(420px, 62vw, 780px);
+  }
+}
+
+/* Mobilni */
+@media (max-width: 768px) {
+  .home-hero__inner {
+    height: clamp(340px, 58vw, 640px);
+  }
+  /* blago podigni kadar da motiv ne bude isečen pri cover-u */
+  .home-hero__media {
+    object-position: center 40%;
+  }
+}
+
+/* Uski mobilni */
+@media (max-width: 480px) {
+  .home-hero__inner {
+    height: clamp(300px, 52vh, 520px);
+  }
+}
+/* === HERO FULL HEIGHT === */
+.home-hero__frame {
+  max-width: 100%; /* pusti da ide do ivica container-a */
+  margin-left: var(--hero-gutter);
+  margin-right: var(--hero-gutter);
+}
+
+.home-hero__inner {
+  height: 100vh; /* zauzmi celu visinu ekrana */
+  max-height: none; /* ukloni limit */
+}
+
+.home-hero__media {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Mobilni: malo manja visina, da ne pojede ceo ekran */
+@media (max-width: 768px) {
+  .home-hero__inner {
+    height: 80vh;
+  }
+}
+/* ===== SERVICES ===== */
+.services {
+  background: #000;
+  margin-top: 4rem; /* mt-16 */
+  padding: 6rem 0; /* py-24 */
+  color: #fff;
+}
+
+.services__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+.services__title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 1;
+  font-size: clamp(48px, 10vw, 175px);
+  text-align: center;
+  color: #fff;
+}
+
+.services__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  justify-items: center;
+}
+
+@media (min-width: 1024px) {
+  .services__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.service-card {
+  width: min(560px, 100%);
+  aspect-ratio: 560 / 760; /* ~0.737, kao u tvom primeru */
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transform: translateZ(0);
+  transition: transform 300ms ease;
+}
+.service-card:hover {
+  transform: scale(1.03);
+}
+
+.service-card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* labela dole levo */
+.service-card__label {
+  position: absolute;
+  left: 2rem;
+  bottom: 2rem;
+}
+
+.service-card__title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 55px);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+  text-transform: uppercase;
+}
+/* ===== SERVICES (stack, 100vh) ===== */
+.services {
+  background: #000;
+  margin-top: 4rem;
+  padding: 4rem var(--container-pad) 0; /* naslov gore, platno će biti 100vh ispod */
+  color: #fff;
+}
+
+.services__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.services__title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 0.95;
+  font-size: clamp(48px, 10vw, 175px);
+  text-align: center;
+}
+
+/* Platno za stack: uvek 100vh (sa gornjim paddingom sekcije iznad) */
+.services__stage {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* cela visina ekrana */
+  border-radius: 40px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+/* Svaka kartica pokriva celo platno; pomeramo ih po X da se vide sve tri */
+.services__card {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(0);
+  transition: transform 0.3s ease;
+}
+
+/* redosled slojeva */
+.services__card--1 {
+  z-index: 1;
+  transform: translateX(-14%);
+}
+.services__card--2 {
+  z-index: 2;
+  transform: translateX(0%);
+}
+.services__card--3 {
+  z-index: 3;
+  transform: translateX(14%);
+}
+
+/* medij */
+.services__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* labela u dnu */
+.services__label {
+  position: absolute;
+  left: 2rem;
+  bottom: 2rem;
+}
+.services__labelText {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 55px);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* hover – naglasi aktivnu */
+.services__card:hover {
+  transform: translateX(var(--x, 0%)) scale(1.03);
+}
+
+/* Responsivno: na užim ekranima manji pomeraji da ne “ispadnu” sa strane */
+@media (max-width: 1024px) {
+  .services__card--1 {
+    transform: translateX(-10%);
+  }
+  .services__card--3 {
+    transform: translateX(10%);
+  }
+}
+@media (max-width: 768px) {
+  .services {
+    padding: 2rem 16px 0;
+  }
+  .services__stage {
+    height: 80vh;
+    border-radius: 24px;
+  }
+  .services__card--1 {
+    transform: translateX(-6%);
+  }
+  .services__card--3 {
+    transform: translateX(6%);
+  }
+}
+@media (max-width: 480px) {
+  .services__stage {
+    height: 70vh;
+    border-radius: 18px;
+  }
+  .services__label {
+    left: 1rem;
+    bottom: 1rem;
+  }
+}
+/* ===== SERVICES (100vh stacked) ===== */
+.services {
+  background: #000;
+  margin-top: 4rem;
+  padding: 4rem var(--container-pad) 0; /* naslov gore, platno ispod */
+  color: #fff;
+}
+
+.services__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.services__title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 0.95;
+  font-size: clamp(48px, 10vw, 175px);
+  text-align: center;
+  margin: 0 0 64px;
+}
+
+/* Platno: uvek 100vh, zaobljeno, bez presecanja dna */
+.services__stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  border-radius: 40px;
+  overflow: hidden;
+}
+
+/* Svaka kartica pokriva celo platno */
+.services__card {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.3s ease;
+}
+
+/* Lagani pomeraj da se vide sve tri; z-index slojevi */
+.services__card--1 {
+  z-index: 1;
+  transform: translateX(-14%);
+}
+.services__card--2 {
+  z-index: 2;
+  transform: translateX(0%);
+}
+.services__card--3 {
+  z-index: 3;
+  transform: translateX(14%);
+}
+
+.services__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* labela dole levo */
+.services__label {
+  position: absolute;
+  left: 2rem;
+  bottom: 2rem;
+}
+.services__labelText {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 55px);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* hover – blago naglasi aktivnu */
+.services__card:hover {
+  transform: translateX(0) scale(1.03);
+}
+
+/* Responsivno: smanji pomeraje da ne ispadaju sa strane */
+@media (max-width: 1024px) {
+  .services__card--1 {
+    transform: translateX(-10%);
+  }
+  .services__card--3 {
+    transform: translateX(10%);
+  }
+}
+@media (max-width: 768px) {
+  .services {
+    padding: 2rem 16px 0;
+  }
+  .services__stage {
+    height: 80vh;
+    border-radius: 24px;
+  }
+  .services__card--1 {
+    transform: translateX(-6%);
+  }
+  .services__card--3 {
+    transform: translateX(6%);
+  }
+}
+@media (max-width: 480px) {
+  .services__stage {
+    height: 70vh;
+    border-radius: 18px;
+  }
+  .services__label {
+    left: 1rem;
+    bottom: 1rem;
+  }
+}
+/* ===== SERVICES: 3 kolone, 100vh ===== */
+.services {
+  background: #000;
+  margin-top: 4rem;
+  padding: 4rem var(--container-pad) 0;
+  color: #fff;
+}
+
+.services__container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.services__title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  line-height: 0.95;
+  font-size: clamp(48px, 10vw, 175px);
+  text-align: center;
+}
+
+/* Traka sa 3 slike jedna do druge */
+.services__strip {
+  height: 100vh; /* PUNA visina ekrana */
+  border-radius: 40px;
+  overflow: hidden;
+  display: flex;
+  gap: 0; /* bez praznina između */
+}
+
+/* Svaka kartica zauzima 1/3 širine, punu visinu */
+.services__card {
+  position: relative;
+  flex: 1 1 33.333%;
+  min-width: 0;
+}
+
+/* Slike popunjavaju karticu */
+.services__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Labela dole levo */
+.services__label {
+  position: absolute;
+  left: 2rem;
+  bottom: 2rem;
+}
+.services__labelText {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 55px);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* Mobilno: napravi stack po visini ako želiš */
+@media (max-width: 768px) {
+  .services {
+    padding: 2rem 16px 0;
+  }
+  .services__strip {
+    height: 80vh;
+    border-radius: 24px;
+  }
+}
+.services::after {
+  content: "";
+  display: block;
+  height: 64px;
+}
+/* SERVICES – responsive veličina teksta u karticama */
+.services__labelText,
+.service-card__title {
+  white-space: nowrap; /* ne prelazi u novi red */
+  font-size: clamp(30px, 3.4vw, 64px); /* osnovno skaliranje */
+}
+
+/* ~1440px i niže – još malo manje */
+@media (max-width: 1440px) {
+  .services__labelText,
+  .service-card__title {
+    font-size: clamp(30px, 3vw, 50px);
+  }
+}
+
+/* ~1024px i niže – dodatno stisni da 3 kolone ne “pucaju” */
+@media (max-width: 1024px) {
+  .services__labelText,
+  .service-card__title {
+    font-size: clamp(50px, 5vw, 60px);
+  }
+}
+/* === CTA (pre footera) === */
+.cta {
+  background: #000;
+  padding: 4rem 1rem;
+  margin-top: 4rem; /* razmak od prethodne sekcije */
+}
+.cta__inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  text-align: center;
+}
+.cta__title {
+  font-family: "Unbounded", system-ui, sans-serif;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  margin: 0 0 2rem;
+  font-size: clamp(40px, 10vw, 175px);
+}
+.cta__btn {
+  background: #ffed00;
+  border: 2px solid #ffed00;
+  color: #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  width: 24rem; /* ~w-96 */
+  height: 12rem; /* ~h-48 */
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(36px, 7vw, 96px);
+  transition: transform 0.2s ease, background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+.cta__btn:hover {
+  background: #fff;
+  border-color: #fff;
+  transform: scale(1.05);
+}
+
+/* Ako tema ubacuje “ukrasnu” liniju/pseudo-elemente ili separator */
+.cta::after,
+.cta__container::after,
+.cta hr,
+.cta .wp-block-separator {
+  display: none !important;
+}
+.site-footer {
+  padding: 0 !important;
+}
+.content-container {
+  padding-bottom: 32px;
+  padding-top: 32px;
+}
+.home-main {
+  margin-bottom: -40px;
+}
+/* CTA dugme – fluidno skaliranje za male rezolucije */
+.cta__btn,
+.cta-btn {
+  /* umesto fiksnih 24rem × 12rem */
+  width: clamp(12rem, 60vw, 24rem) !important;
+  height: clamp(4rem, 18vw, 12rem) !important;
+
+  /* font se smanjuje na užim ekranima */
+  font-size: clamp(20px, 8vw, 96px) !important;
+
+  line-height: 1;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* dodatno stezanje na baš malim ekranima */
+@media (max-width: 480px) {
+  .cta__btn,
+  .cta-btn {
+    width: clamp(12rem, 85vw, 22rem) !important;
+    height: clamp(3.5rem, 16vw, 8rem) !important;
+    font-size: clamp(18px, 9.5vw, 48px) !important;
+  }
+}
