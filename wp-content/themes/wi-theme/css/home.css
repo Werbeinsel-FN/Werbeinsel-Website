@@ -29,10 +29,10 @@
 }
 
 .clients-title {
-  font: 800 clamp(1rem, 3.75rem, 5.5rem) / 1.1 system-ui, sans-serif;
+  font: 800 clamp(46px, 10vw, 200px) / 1.1 system-ui, sans-serif;
   color: black;
   text-align: center;
-  margin: 0 0 4rem;
+  margin: 0 auto 4rem;
 }
 
 .clients-rows {
