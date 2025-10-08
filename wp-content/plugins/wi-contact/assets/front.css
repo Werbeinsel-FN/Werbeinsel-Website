@@ -142,12 +142,14 @@
 /* inputi/textarea kao u Next-u – + fiksna veličina teksta 30px */
 #wp-form-slot .wi-contact-form input,
 #wp-form-slot .wi-contact-form textarea {
-  font-size: 30px !important;
-  padding: 15px 20px;
+  font-size: 35px !important;
+  padding: 15px 24px;
+  height: 100px;
+  border-radius: 100px;
 }
 #wp-form-slot .wi-contact-form input::placeholder,
 #wp-form-slot .wi-contact-form textarea::placeholder {
-  font-size: 30px !important; /* ⇦ ključno */
+  font-size: 35px !important; /* ⇦ ključno */
   font-family: var(--font-poppins), "Poppins", system-ui, -apple-system,
     Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif !important;
 }
@@ -157,4 +159,3 @@
     Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif !important;
   line-height: 1.2;
 }
-
