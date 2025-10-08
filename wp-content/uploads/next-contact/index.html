@@ -23,7 +23,7 @@
         max-width: 1780px;
         margin-left: auto;
         margin-right: auto;
-        padding-left: 5vw; /* isto kao kod tebe */
+        padding-left: 5vw;
         padding-right: 5vw;
       }
       /* helper za full-bleed sekcije unutar containera */
@@ -32,6 +32,173 @@
         max-width: 100vw;
         margin-left: 50%;
         transform: translateX(-50%);
+      }
+
+      textarea {
+        font-size: 30px !important;
+      }
+      textarea::placeholder {
+        font-size: 30px !important;
+      }
+
+      /* “pills” dugmad */
+      #wi-contact-root
+        .grid.md\:grid-cols-3
+        .space-y-2
+        > button[type="button"] {
+        font-size: 22px !important;
+        line-height: 1.2;
+        padding: 1.25rem 2rem;
+      }
+      @media (max-width: 640px) {
+        #wi-contact-root
+          .grid.md\:grid-cols-3
+          .space-y-2
+          > button[type="button"] {
+          font-size: 12px !important;
+          padding: 1rem 1.5rem;
+        }
+      }
+
+      #wi-contact-root label.unbounded-extrabold,
+      #wi-contact-root label.unbounded-bold {
+        font-size: 40px !important;
+        line-height: 1.1;
+      }
+
+      /* univerzalno pravilo za sva dugmad u kontakt formi */
+      #wi-contact-root button[type="button"] {
+        width: 280px !important;
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+      }
+
+      /* CTA: ANFRAGE SENDEN – fiksne dimenzije i stil */
+      #wi-contact-root [class*="grid-cols-[1fr_auto]"] button {
+        width: 456px !important;
+        height: 80px !important;
+        padding: 0 48px !important;
+        font-size: 30px !important; /* Unbounded 30px */
+        line-height: 1 !important;
+        border-radius: 40px !important;
+        white-space: nowrap !important;
+        justify-self: center !important;
+        margin: 0 auto !important;
+      }
+      @media (max-width: 640px) {
+        #wi-contact-root [class*="grid-cols-[1fr_auto]"] button {
+          width: 100% !important;
+          height: 72px !important;
+          padding: 0 32px !important;
+          font-size: 20px !important;
+        }
+      }
+
+      /* ukloni žuti prostor ispod iFrame sadržaja */
+      main.pb-10 {
+        padding-bottom: 0 !important;
+      }
+      #wi-contact-root main.pb-32 {
+        padding-bottom: 0 !important;
+      }
+
+      html,
+      body {
+        margin: 0;
+      }
+      /* ================= CONTACT FOOTER (3 kolone) – FIX ================= */
+
+      /* sekcija */
+      .contact-footer {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+        background: #000;
+        border-top: 8px solid #ffed00;
+      }
+
+      /* mreža */
+      .contact-footer .cf-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        text-align: center;
+      }
+      @media (min-width: 900px) {
+        .contact-footer .cf-row {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 4rem;
+        }
+      }
+
+      /* ikonice – obavezno žuta linija, bez popunjavanja, fiksna veličina */
+      .contact-footer .cf-icon {
+        width: 96px !important;
+        height: 96px !important;
+        display: block;
+        color: #ffed00 !important; /* currentColor za stroke */
+        stroke: #ffed00 !important;
+        fill: none !important;
+        stroke-width: 2.5;
+      }
+
+      /* naslovi */
+      .contact-footer .cf-title {
+        font-family: var(--font-unbounded, "Unbounded", system-ui, sans-serif);
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #fff;
+        font-size: clamp(20px, 2.4vw, 34px);
+        line-height: 1.05;
+        margin: 12px 0 0;
+        letter-spacing: 0.5px;
+      }
+
+      /* tekst/adresa/mail/tel */
+      .contact-footer .cf-text {
+        font-family: var(
+          --font-poppins,
+          "Poppins",
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif
+        );
+        color: #fff;
+        font-size: clamp(18px, 2.1vw, 28px);
+        line-height: 1.35;
+        margin: 6px 0 0;
+      }
+
+      /* linkovi unutra */
+      .contact-footer .cf-link {
+        color: #fff;
+        text-decoration: none;
+      }
+      .contact-footer .cf-link:hover {
+        color: #ffed00;
+      }
+
+      /* skini eventualne default paddings posred containera da ne bude “žutog” lufta ispod */
+      .contact-footer .content-container {
+        padding-top: 0;
+        padding-bottom: 0;
+      }
+      main.pb-10,
+      #wi-contact-root main.pb-32 {
+        padding-bottom: 0 !important;
+      }
+
+      /* sigurnosno – sakrij staru mapu ako je slučajno ostala negde u DOM-u */
+      section.full-bleed {
+        display: none !important;
+      }
+      #wp-form-shell {
+        padding-bottom: 4rem !important;
       }
     </style>
   </head>
@@ -44,276 +211,196 @@
         <header class="pb-8">
           <div class="content-container text-center"></div>
         </header>
-        <main class="pb-32">
-          <div class="relative">
-            <section class="content-container text-center">
-              <h1
-                class="unbounded-bold text-black mb-8 leading-none break-words text-[clamp(46px,12vw,240px)]"
-              >
-                KONTAKT
-              </h1>
-            </section>
-            <section class="content-container mt-16">
-              <div class="space-y-12" id="wp-form-shell">
-                <div id="wp-form-slot"></div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div>
-                    <label
-                      class="block text-3xl unbounded-bold text-black mb-6 text-center"
-                      >SERVICES</label
-                    >
-                    <div class="space-y-2">
-                      <button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        Außenwerbung</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        Beschriftung</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        Grafikdesign</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        Webdesign
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label
-                      class="block text-3xl unbounded-bold text-black mb-6 text-center"
-                      >BUDGET</label
-                    >
-                    <div class="space-y-2">
-                      <button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        &lt; 5.000€</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        5.000€ - 15.000€</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        15.000€ - 50.000€</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        &gt; 50.000€
-                      </button>
-                    </div>
-                  </div>
-                  <div>
-                    <label
-                      class="block text-3xl unbounded-bold text-black mb-6 text-center"
-                      >ZEITRAHMEN</label
-                    >
-                    <div class="space-y-2">
-                      <button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        Sofort</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        Innerhalb 1 Monat</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        1-3 Monate</button
-                      ><button
-                        type="button"
-                        class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                      >
-                        &gt; 3 Monate
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <textarea
-                  name="message"
-                  placeholder="Nachricht"
-                  rows="6"
-                  class="w-full p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black resize-none poppins"
-                ></textarea>
-                <div class="grid gap-3 sm:grid-cols-[1fr_auto] items-center">
-                  <div
-                    class="poppins text-neutral-700 text-[11px] sm:text-[13px] md:text-sm leading-snug"
-                  >
-                    <p class="m-0">
-                      Mit dem Absenden stimmen Sie unseren
-                      Datenschutzbestimmungen zu.
-                    </p>
-                    <p class="m-0">Ihre Daten werden vertraulich behandelt.</p>
-                  </div>
-                  <button
-                    type="submit"
-                    class="w-full sm:w-auto justify-self-stretch sm:justify-self-end bg-[var(--brand)] text-black border-2 border-black rounded-[40px] px-8 sm:px-12 py-4 unbounded-bold hover:bg-black hover:text-white transition-all disabled:opacity-60"
-                  >
-                    ANFRAGE SENDEN
-                  </button>
-                  <script>
-                    // sakrij Submit dugme iz plugina (da ne bude duplo)
-                    document.addEventListener("DOMContentLoaded", function () {
-                      const hidePluginBtn = () => {
-                        const btn = document.querySelector(
-                          ".wi-contact-form .wi-submit"
-                        );
-                        if (btn) btn.style.display = "none";
-                      };
-                      hidePluginBtn();
-                      // i ako DOM menja visinu posle injekcije:
-                      const ro = new MutationObserver(hidePluginBtn);
-                      ro.observe(document.body, {
-                        subtree: true,
-                        childList: true,
-                      });
-                    });
 
-                    // Veži tvoj gumb da šalje WI Contact formu
-                    (function () {
-                      const sendBtn =
-                        document.querySelector(
-                          'button[type="submit"].unbounded-bold, button[aria-label="ANFRAGE SENDEN"]'
-                        ) ||
-                        document.querySelector(
-                          'button:contains("ANFRAGE SENDEN")'
-                        );
-                      if (!sendBtn) return;
-                      sendBtn.type = "button";
-                      sendBtn.addEventListener("click", function () {
-                        const frm = document.querySelector(".wi-contact-form");
-                        if (frm && frm.requestSubmit) frm.requestSubmit();
-                        else if (frm) frm.submit();
-                      });
-                    })();
-                  </script>
+        <div class="relative">
+          <section class="content-container text-center">
+            <h1
+              class="unbounded-bold text-black mb-8 leading-none break-words text-[clamp(46px,12vw,240px)]"
+            >
+              KONTAKT
+            </h1>
+          </section>
+
+          <section class="content-container mt-16">
+            <div class="space-y-12" id="wp-form-shell">
+              <div id="wp-form-slot"></div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                  <label
+                    class="block text-3xl unbounded-bold text-black mb-6 text-center"
+                    >SERVICES</label
+                  >
+                  <div class="space-y-2">
+                    <button
+                      type="button"
+                      class="w-96 px-8 py-6 rounded-full text-center transition-all poppins-bold text-[38px] bg-black text-white border-2 border-black hover:bg-gray-800"
+                    >
+                      Außenwerbung
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      Beschriftung
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      Grafikdesign
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      Webdesign
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </section>
-            <section class="relative mt-16 full-bleed">
-              <div class="relative w-full">
-                <div class="w-full h-96 overflow-hidden relative z-0">
-                  <iframe
-                    title="Google Maps – Werbeinsel"
-                    src="https://www.google.com/maps?q=Flughafen%2076/3%2C%2088046%20Friedrichshafen%2C%20Deutschland&hl=de&z=15&output=embed"
-                    style="width: 100%; height: 100%; border: 0; display: block"
-                    loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"
-                    allowfullscreen
-                  ></iframe>
+
+                <div>
+                  <label
+                    class="block text-3xl unbounded-bold text-black mb-6 text-center"
+                    >BUDGET</label
+                  >
+                  <div class="space-y-2">
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      &lt; 5.000€
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      5.000€ - 15.000€
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      15.000€ - 50.000€
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      &gt; 50.000€
+                    </button>
+                  </div>
                 </div>
-                <div
-                  class="absolute top-1/2 left-8 -translate-y-1/2 bg-white rounded-[40px] p-8 shadow-lg max-w-sm z-[10000]"
-                >
-                  <div class="grid gap-6">
-                    <div class="flex items-start gap-4">
-                      <div
-                        class="w-12 h-12 bg-[var(--brand)] rounded-full flex items-center justify-center flex-shrink-0"
-                      >
-                        <svg
-                          class="w-6 h-6 text-black"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-                          ></path>
-                          <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 class="unbounded-bold text-lg mb-2">ADRESSE</h4>
-                        <p class="poppins text-neutral-800">
-                          Flughafen 76/3<br />88046 Friedrichshafen<br />Deutschland
-                        </p>
-                      </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                      <div
-                        class="w-12 h-12 bg-[var(--brand)] rounded-full flex items-center justify-center flex-shrink-0"
-                      >
-                        <svg
-                          class="w-6 h-6 text-black"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"
-                          ></path>
-                          <rect
-                            x="2"
-                            y="4"
-                            width="20"
-                            height="16"
-                            rx="2"
-                          ></rect>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 class="unbounded-bold text-lg mb-2">E-MAIL</h4>
-                        <a
-                          href="mailto:hallo@werbeinsel.de"
-                          class="poppins underline"
-                          >hallo@werbeinsel.de</a
-                        >
-                      </div>
-                    </div>
-                    <div class="flex items-start gap-4">
-                      <div
-                        class="w-12 h-12 bg-[var(--brand)] rounded-full flex items-center justify-center flex-shrink-0"
-                      >
-                        <svg
-                          class="w-6 h-6 text-black"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                        >
-                          <path
-                            d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
-                          ></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 class="unbounded-bold text-lg mb-2">TELEFON</h4>
-                        <a href="tel:+4975417005744" class="poppins underline"
-                          >+49 7541 700 57 44</a
-                        >
-                      </div>
-                    </div>
+
+                <div>
+                  <label
+                    class="block text-3xl unbounded-bold text-black mb-6 text-center"
+                    >ZEITRAHMEN</label
+                  >
+                  <div class="space-y-2">
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      Sofort
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      Innerhalb 1 Monat
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      1-3 Monate
+                    </button>
+                    <button
+                      type="button"
+                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
+                    >
+                      &gt; 3 Monate
+                    </button>
                   </div>
                 </div>
               </div>
-            </section>
-          </div>
-        </main>
+
+              <textarea
+                name="message"
+                placeholder="Nachricht"
+                rows="6"
+                class="w-full p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black resize-none poppins"
+              ></textarea>
+
+              <div class="grid gap-3 sm:grid-cols-[1fr_auto] items-center">
+                <div
+                  class="poppins text-neutral-700 text-[11px] sm:text-[13px] md:text-sm leading-snug"
+                >
+                  <p class="m-0">
+                    Mit dem Absenden stimmen Sie unseren Datenschutzbestimmungen
+                    zu.
+                  </p>
+                  <p class="m-0">Ihre Daten werden vertraulich behandelt.</p>
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full sm:w-auto justify-self-stretch sm:justify-self-end bg-[var(--brand)] text-black border-2 border-black rounded-[40px] px-8 sm:px-12 py-4 unbounded-bold hover:bg-black hover:text-white transition-all disabled:opacity-60"
+                >
+                  ANFRAGE SENDEN
+                </button>
+
+                <script>
+                  // sakrij Submit dugme iz plugina (da ne bude duplo)
+                  document.addEventListener("DOMContentLoaded", function () {
+                    const hidePluginBtn = () => {
+                      const btn = document.querySelector(
+                        ".wi-contact-form .wi-submit"
+                      );
+                      if (btn) btn.style.display = "none";
+                    };
+                    hidePluginBtn();
+                    const ro = new MutationObserver(hidePluginBtn);
+                    ro.observe(document.body, {
+                      subtree: true,
+                      childList: true,
+                    });
+                  });
+
+                  // Veži tvoj gumb da šalje WI Contact formu
+                  (function () {
+                    const sendBtn =
+                      document.querySelector(
+                        'button[type="submit"].unbounded-bold, button[aria-label="ANFRAGE SENDEN"]'
+                      ) ||
+                      document.querySelector(
+                        'button:contains("ANFRAGE SENDEN")'
+                      );
+                    if (!sendBtn) return;
+                    sendBtn.type = "button";
+                    sendBtn.addEventListener("click", function () {
+                      const frm = document.querySelector(".wi-contact-form");
+                      if (frm && frm.requestSubmit) frm.requestSubmit();
+                      else if (frm) frm.submit();
+                    });
+                  })();
+                </script>
+              </div>
+            </div>
+          </section>
+
+          <!-- Kontakt-info (crna) sekcija je uklonjena iz ovog HTML-a.
+               Prikaži je iz WordPress-a pomoću [wi_contact_info] izvan iFrame-a. -->
+        </div>
       </div>
     </main>
+
     <!--$--><!--/$-->
     <script
       src="/wp-content/uploads/next-contact/_next/static/chunks/webpack-f373cbfd59bb198a.js"
       id="_R_"
-      async=""
+      async
     ></script>
     <script>
       (self.__next_f = self.__next_f || []).push([0]);
@@ -327,19 +414,7 @@
     <script>
       self.__next_f.push([
         1,
-        '0:{"P":null,"b":"VmF8RzYMWC51LaahnRWi4","p":"/wp-content/uploads/next-contact","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/wp-content/uploads/next-contact/_next/static/css/a62b2870c5a296b7.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"de","children":["$","body",null,{"className":"__variable_9ee274 __variable_be8a02 antialiased bg-[#ffed00] text-black","children":["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\\"Segoe UI\\",Roboto,Helvetica,Arial,sans-serif,\\"Apple Color Emoji\\",\\"Segoe UI Emoji\\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","main",null,{"className":"py-10","children":[["$","$L4",null,{}],["$","$L5",null,{}]]}],null,["$","$L6",null,{"children":["$L7",["$","$L8",null,{"promise":"$@9"}]]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$La",null,{"children":"$Lb"}],null],["$","$Lc",null,{"children":["$","div",null,{"hidden":true,"children":["$","$d",null,{"fallback":null,"children":"$Le"}]}]}]]}],false]],"m":"$undefined","G":["$f",[]],"s":false,"S":true}\n',
-      ]);
-    </script>
-    <script>
-      self.__next_f.push([
-        1,
-        'b:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]\n7:null\n',
-      ]);
-    </script>
-    <script>
-      self.__next_f.push([
-        1,
-        '10:I[622,[],"IconMark"]\n9:{"metadata":[["$","title","0",{"children":"Kontakt | Werbeinsel"}],["$","meta","1",{"name":"description","content":"Kontakt – Werbeinsel"}],["$","link","2",{"rel":"icon","href":"/wp-content/uploads/next-contact/favicon.ico","type":"image/x-icon","sizes":"16x16"}],["$","$L10","3",{}]],"error":null,"digest":"$undefined"}\n',
+        '0:{"P":null,"b":"VmF8RzYMWC51LaahnRWi4","p":"/wp-content/uploads/next-contact","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/wp-content/uploads/next-contact/_next/static/css/a62b2870c5a296b7.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"de","children":["$","body",null,{"className":"__variable_9ee274 __variable_be8a02 antialiased bg-[#ffed00] text-black","children":["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\\"Segoe UI\\",Roboto,Helvetica,Arial,sans-serif,\\"Apple Color Emoji\\",\\"Segoe UI Emoji\\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","main",null,{"className":"py-10","children":[["$","$L4",null,{}],["$","$L5",null,{}]]}],null,["$","$L6",null,{"children":["$L7",["$","$L8",null,{"promise":"$@9"}]]}]]}],{},null,false]},null,false],["$","$1","h",{"children":[null,[["$","$La",null,{"children":"$Lb"}],null],["$","$Lc",null,{"children":["$","div",null,{"hidden":true,"children":["$","$d",null,{"fallback":null,"children":"$Le"}]}]}]]}],false]],"m":"$undefined","G":["$f",[]],"s":false,"S":true}
       ]);
     </script>
     <script>

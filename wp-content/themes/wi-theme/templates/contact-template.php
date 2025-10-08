@@ -4,7 +4,7 @@
  */
 get_header();
 
-$next_url       = content_url('uploads/next-contact/index.html?v=11');
+$next_url       = content_url('uploads/next-contact/index.html?v=18');
 $form_html      = do_shortcode('[wi_contact_form]');
 $plugin_css_url = plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
 
@@ -48,11 +48,19 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
 <style>
   /* Full-bleed iFrame kao ranije */
   #contact-main{--bleed:calc(50vw - 50%);width:calc(100% + 2*var(--bleed));
-    margin-left:calc(-1*var(--bleed));margin-right:calc(-1*var(--bleed));
-    padding:0!important;overflow:visible!important;}
+    margin-left:calc(-1*var(--bleed));margin-right:calc(-1*var(--bleed)); 
+    padding:0!important;overflow:visible!important; }
   .contact-main-container{margin:0!important;padding:0!important;}
   #wi-next-contact{border-radius:0!important;display:block;width:100%;border:0;}
   .site,.site-main,.content-area,.entry-content{overflow:visible!important;}
+  #wi-contact-info-wrap{
+  --bleed:calc(50vw - 50%);
+  width:calc(100% + 2*var(--bleed));
+  margin-left:calc(-1*var(--bleed));
+  margin-right:calc(-1*var(--bleed));
+  padding:0!important;
+  
+}
 </style>
 
 <main id="contact-main" class="contact-main">
@@ -68,6 +76,108 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     ></iframe>
   </div>
 </main>
+<div id="wi-contact-info-wrap">
+  <?php echo do_shortcode('[wi_contact_info]'); ?>
+</div>
+
+<style id="wi-contact-info-inline">
+  /* Sekcija (crna pozadina, žuti gornji border, py-16) */
+  #wi-contact-info-wrap section,
+  #wi-contact-info-wrap .wi-contact-info{
+    background:#000 !important;
+    color:#fff !important;
+    border-top:8px solid #ffed00 !important;
+    padding-top:4rem !important;   /* py-16 */
+    padding-bottom:4rem !important;
+    margin-top:0 !important;       /* da nema praznog razmaka iznad */
+  }
+
+  /* Container širina + bočni padovi */
+  #wi-contact-info-wrap .info-container,
+  #wi-contact-info-wrap .content-container{
+    max-width:1780px !important;
+    margin-inline:auto !important;
+    padding-inline:5vw !important;
+  }
+
+  /* Grid: 1 → 3 kolone */
+  #wi-contact-info-wrap .info-grid,
+  #wi-contact-info-wrap .cf-row,
+  #wi-contact-info-wrap .grid{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:3rem !important;
+    text-align:center !important;
+  }
+  @media (min-width:768px){
+    #wi-contact-info-wrap .info-grid,
+    #wi-contact-info-wrap .cf-row,
+    #wi-contact-info-wrap .grid{
+      grid-template-columns:repeat(3,1fr) !important;
+      gap:5rem !important;
+    }
+  }
+
+  /* Stavke */
+  #wi-contact-info-wrap .info-item,
+  #wi-contact-info-wrap .cf-item{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:1.5rem !important;
+  }
+
+  /* Ikonice – žute, ~112px */
+  #wi-contact-info-wrap .info-icon,
+  #wi-contact-info-wrap .cf-icon{
+    width:112px !important;
+    height:112px !important;
+    color:#ffed00 !important;
+  }
+
+  /* Naslov (Unbounded, bold, uppercase) */
+  #wi-contact-info-wrap .info-title,
+  #wi-contact-info-wrap .cf-title,
+  #wi-contact-info-wrap h3{
+    font-family:var(--font-poppins,"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif) !important;
+    font-weight:800 !important;
+    text-transform:uppercase !important;
+    letter-spacing:.5px !important;
+    font-size:clamp(20px,2.6vw,34px) !important;
+    line-height:1.05 !important;
+    margin:0 !important;
+    color:#fff !important;
+  }
+
+  /* Text (Poppins, veliki) */
+  #wi-contact-info-wrap .info-text,
+  #wi-contact-info-wrap .cf-text,
+  #wi-contact-info-wrap p{
+    font-family:var(--font-poppins,"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif) !important;
+    font-size:clamp(20px,2.6vw,34px) !important;
+    line-height:1.35 !important;
+    margin:0 !important;
+    color:#fff !important;
+  }
+
+  /* Linkovi */
+  #wi-contact-info-wrap .info-link,
+  #wi-contact-info-wrap .cf-link,
+  #wi-contact-info-wrap a{
+    color:inherit !important;
+    text-decoration:none !important;
+  }
+  #wi-contact-info-wrap .info-link:hover,
+  #wi-contact-info-wrap .cf-link:hover,
+  #wi-contact-info-wrap a:hover{
+    color:#ffed00 !important;
+  }
+
+  /* Ukloni žuti razmak ka footeru i eventualne padove iz main-a */
+  main.pb-10{ padding-bottom:0 !important; }
+  #wi-contact-info-wrap{ margin-bottom:0 !important; }
+  #wi-contact-info-wrap + *{ margin-top:0 !important; }
+</style>
 
 <script>
 (function(){
@@ -369,5 +479,15 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
   setTimeout(fitFromDOM,350);
 })();
 </script>
-
+<style>
+    #wi-contact-info-wrap ~ footer,
+  #wi-contact-info-wrap ~ #colophon,
+  #wi-contact-info-wrap ~ .site-footer {
+    border-top: 0 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    /* ako postoji 1px gap od teme: povuci footer 1px nagore */
+    margin-top: -5px !important;
+  }
+</style>
 <?php get_footer(); ?>
