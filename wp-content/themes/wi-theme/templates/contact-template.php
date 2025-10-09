@@ -4,7 +4,7 @@
  */
 get_header();
 
-$next_url       = content_url('uploads/next-contact/index.html?v=18');
+$next_url       = content_url('uploads/next-contact/index.html?v=19');
 $form_html      = do_shortcode('[wi_contact_form]');
 $plugin_css_url = plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
 
@@ -212,24 +212,59 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
       window.scrollTo({top:r.top + window.pageYOffset - 80, behavior:'smooth'});
     }
   }
-  function injectAssets(doc){
-    if(!doc.getElementById('wi-contact-front-css')){
-      const l=doc.createElement('link'); l.id='wi-contact-front-css'; l.rel='stylesheet'; l.href=CSS_URL; doc.head.appendChild(l);
-    }
-    if(!doc.getElementById('wi-danke-style')){
-      const st=doc.createElement('style'); st.id='wi-danke-style';
-      st.textContent=`
-        .wi-danke-overlay{position:fixed;inset:0;min-height:100vh;display:flex;flex-direction:column;
-          align-items:center;justify-content:center;z-index:999999;padding:24px;text-align:center;
-          background:#ffed00;color:#000}
-        .wi-danke-title{font-weight:800;font-size:clamp(48px,10vw,140px);line-height:.95;margin:18px 0 10px}
-        .wi-danke-sub{font-size:clamp(16px,2.6vw,22px)}
-        .wi-danke-hand{width:min(28vw,240px);height:auto;display:block;animation:wi-bounce 1.3s ease infinite}
-        @keyframes wi-bounce{0%,20%,53%,80%,100%{transform:none}40%,43%{transform:translateY(-16px)}70%{transform:translateY(-9px)}90%{transform:translateY(-4px)}}
-        .wi-danke-overlay.wi-error{background:#111;color:#fff}
-      `; doc.head.appendChild(st);
-    }
+function injectAssets(doc){
+  // plugin CSS (kao pre)
+  if(!doc.getElementById('wi-contact-front-css')){
+    const l=doc.createElement('link');
+    l.id='wi-contact-front-css';
+    l.rel='stylesheet';
+    l.href=CSS_URL;
+    doc.head.appendChild(l);
   }
+
+  // Danke stil (kao pre)
+  if(!doc.getElementById('wi-danke-style')){
+    const st=doc.createElement('style'); st.id='wi-danke-style';
+    st.textContent=`
+      .wi-danke-overlay{position:fixed;inset:0;min-height:100vh;display:flex;flex-direction:column;
+        align-items:center;justify-content:center;z-index:999999;padding:24px;text-align:center;
+        background:#ffed00;color:#000}
+      .wi-danke-title{font-weight:800;font-size:clamp(48px,10vw,140px);line-height:.95;margin:18px 0 10px}
+      .wi-danke-sub{font-size:clamp(16px,2.6vw,22px)}
+      .wi-danke-hand{width:min(28vw,240px);height:auto;display:block;animation:wi-bounce 1.3s ease infinite}
+      @keyframes wi-bounce{0%,20%,53%,80%,100%{transform:none}40%,43%{transform:translateY(-16px)}70%{transform:translateY(-9px)}90%{transform:translateY(-4px)}}
+      .wi-danke-overlay.wi-error{background:#111;color:#fff}
+    `;
+    doc.head.appendChild(st);
+  }
+
+  // 🔧 VH FIX – spusti documentElement na realnu visinu sadržaja
+  if(!doc.getElementById('wi-vh-fix')){
+    const fx=doc.createElement('style'); fx.id='wi-vh-fix';
+    fx.textContent = `
+      html, body, #__next, #wi-contact-root, main{
+        min-height:0 !important;
+        height:auto !important;
+        overflow-x:hidden !important;
+      }
+      /* ubij sve Tailwind util-e koji forsiraju ekran */
+      .min-h-screen, .h-screen { min-height:auto !important; height:auto !important; }
+      [class*="min-h-screen"], [class*="h-screen"] { min-height:auto !important; height:auto !important; }
+      /* inline stilovi sa vh */
+      [style*="vh"]{ min-height:auto !important; height:auto !important; }
+    `;
+    doc.head.appendChild(fx);
+  }
+
+  // sigurnosno – odmah izmeri i “reflow”
+  try{
+    doc.documentElement.style.scrollBehavior = 'auto';
+    // gurka: ako je već postavljen 100vh na root, reset će stupiti tek posle reflow-a
+    void doc.body.offsetHeight;
+  }catch(_){}
+}
+
+
   function isThreeColGrid(el){if(!el)return false;const cs=getComputedStyle(el);const cols=(cs.gridTemplateColumns||'').split(' ').filter(Boolean).length;return cols>=3||el.className.includes('md:grid-cols-3');}
   function renderPills(doc){
     let root=doc.getElementById('wp-pills-root');
@@ -265,6 +300,55 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
       try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch {}
     });
   }
+// --- Child → Parent: pošalji realnu visinu na osnovu geometrije tela --- //
+function startHeightPinger(doc){
+  if (doc.__wiPinger) return;           // jednom i nikad više
+  doc.__wiPinger = true;
+
+  const w = iframe.contentWindow;
+
+  // Izmeri "stvarno dno" sadržaja: najveći bottom svih direktnih childova <body>
+  function measureRealHeight(){
+    try{
+      const kids = Array.from(doc.body.children);
+      let maxBottom = 0;
+      for (const el of kids){
+        const r = el.getBoundingClientRect();
+        if (isFinite(r.bottom)) maxBottom = Math.max(maxBottom, r.bottom);
+      }
+      // fallback ako telo nema decu (ne bi trebalo, ali za svaki slučaj)
+      if (maxBottom < 1) {
+        const rB = doc.body.getBoundingClientRect();
+        const rH = doc.documentElement.getBoundingClientRect();
+        maxBottom = Math.max(rB.bottom || 0, rH.bottom || 0);
+      }
+
+      const h = Math.ceil(maxBottom);   // u iFrame-u nema scrolla, pa je ovo realna visina
+      // pošalji parentu (slušaš već na 'wi-iframe-height')
+      w.parent.postMessage({ type: 'wi-iframe-height', height: h }, '*');
+    }catch(_){}
+  }
+
+  // Reaguj na sve promene
+  try {
+    // promene layout-a
+    new ResizeObserver(measureRealHeight).observe(doc.documentElement);
+    // promene u DOM-u
+    new MutationObserver(measureRealHeight).observe(doc.body, {
+      childList: true, subtree: true, attributes: true
+    });
+  } catch(_){}
+
+  // prozorski eventi
+  w.addEventListener('load',   measureRealHeight, {passive:true});
+  w.addEventListener('resize', measureRealHeight, {passive:true});
+
+  // nekoliko inicijalnih tikova + keep-alive
+  setTimeout(measureRealHeight, 50);
+  setTimeout(measureRealHeight, 300);
+  setTimeout(measureRealHeight, 900);
+  setInterval(measureRealHeight, 800);  // safety ping
+}
 
   /* ===== NOVO: reCAPTCHA loader u IFRAME-u + submit helper ===== */
   function loadRecaptchaIntoIframe(doc){
@@ -346,6 +430,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     const o=ensureDanke(d); o.classList.remove('wi-error');
     bringIntoView(); fitFromDOM();
     setTimeout(()=>o.remove(),5000);
+    try{ startHeightPinger(d); }catch(_){}
   }
   function showError(){
     const d=iframe.contentDocument||iframe.contentWindow?.document; if(!d)return; injectAssets(d);
@@ -454,7 +539,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
 
     renderPills(doc); wireCTA(doc); installDelegation(doc); syncHidden(doc);
     fitFromDOM();
-
+startHeightPinger(doc);
     try{
       if('ResizeObserver' in window){ new ResizeObserver(()=>fitFromDOM()).observe(doc.documentElement); }
       const mo=new MutationObserver(()=>{ wireCTA(doc); fitFromDOM(); });

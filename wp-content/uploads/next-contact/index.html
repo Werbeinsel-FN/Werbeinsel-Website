@@ -423,5 +423,51 @@
     <script>
       self.__next_f.push([1, 'e:"$9:metadata"\n']);
     </script>
+    <script id="wi-autoheight-beacon">
+(function () {
+  function post(h){ try{ parent.postMessage({ type:'wi-iframe-height', height:h }, '*'); }catch(_){ } }
+
+  function measure(){
+    var d=document, b=d.body, e=d.documentElement;
+    var h=Math.max(
+      b.scrollHeight, e.scrollHeight,
+      b.offsetHeight, e.offsetHeight,
+      b.clientHeight, e.clientHeight,
+      (b.getBoundingClientRect?.().bottom||0),
+      (e.getBoundingClientRect?.().bottom||0)
+    );
+    return Math.max(400, Math.ceil(h));
+  }
+
+  var last=0, raf=0;
+  function tick(force){
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(function(){
+      var h=measure();
+      if(force || Math.abs(h-last)>2){ last=h; post(h); }
+    });
+  }
+
+  // inicijalno + resize/orientation/zoom/DOM promene
+  window.addEventListener('load', ()=>tick(true), {passive:true});
+  window.addEventListener('resize', ()=>tick(true), {passive:true});
+  window.addEventListener('orientationchange', ()=>tick(true), {passive:true});
+  if (window.visualViewport){
+    visualViewport.addEventListener('resize', ()=>tick(true), {passive:true});
+    visualViewport.addEventListener('scroll', ()=>tick(), {passive:true});
+  }
+  new MutationObserver(()=>tick()).observe(document.documentElement,{subtree:true,childList:true,attributes:true});
+  new ResizeObserver(()=>tick()).observe(document.documentElement);
+
+  // kratki “burst” posle gestova (pinch/zoom/lightbox)
+  ['touchstart','touchend','wheel','pointerup'].forEach(ev=>{
+    window.addEventListener(ev,()=>{
+      tick(true);
+      var n=0, t=setInterval(()=>{ tick(); if(++n>20) clearInterval(t); },100);
+    },{passive:true});
+  });
+})();
+</script>
+
   </body>
 </html>
