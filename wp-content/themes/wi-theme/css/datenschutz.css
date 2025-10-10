@@ -1,0 +1,116 @@
+/* TYPOGRAPHY */
+@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap");
+
+.datenschutz-main {
+  padding: 60px 32px;
+  font-family: "Poppins", sans-serif;
+  color: #000;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* TITLE */
+.datenschutz-title {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 800;
+  font-size: clamp(48px, 9.5vw, 170px);
+  line-height: 1;
+  margin-bottom: 2rem;
+}
+
+/* CONTENT LAYOUT */
+.content-container {
+  max-width: 1780px;
+  margin: 0 auto;
+}
+
+.inner-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.datenschutz-section {
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 700;
+  font-size: 34px !important;
+  margin-bottom: 1rem;
+}
+
+.section-content p,
+.section-text {
+  font-family: "Poppins", sans-serif;
+  font-size: 34px !important;
+  line-height: 1.7;
+  margin: 0.5rem 0;
+}
+
+/* COOKIE BOX */
+.cookie-box {
+  background-color: #ffed00;
+  border: 2px solid #000;
+  border-radius: 40px;
+  padding: 2rem;
+  margin-top: 3rem;
+}
+
+.cookie-title {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 700;
+  font-size: 34px;
+  margin-bottom: 1rem;
+}
+
+.cookie-text {
+  font-size: 34px;
+  margin-bottom: 1.5rem;
+}
+
+.cookie-button {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 40px;
+  padding: 12px 32px;
+  font-family: "Unbounded", sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 34px;
+}
+
+.cookie-button:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .datenschutz-title {
+    font-size: clamp(36px, 6vw, 80px);
+  }
+
+  .section-title {
+    font-size: 22px !important;
+  }
+
+  .cookie-title {
+    font-size: 20px;
+  }
+  .cookie-button {
+    font-size: 18px;
+  }
+  .cookie-text {
+    font-size: 20px;
+  }
+  .section-content p,
+  .section-text {
+    font-size: 22px !important;
+  }
+}
