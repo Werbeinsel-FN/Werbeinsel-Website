@@ -40,6 +40,14 @@
     font-size: 64px;
   }
 }
+@media (max-width: 640px) {
+  #impressum-main h3 {
+    font-size: 20px !important;
+  }
+  #impressum-main p {
+    font-size: 20px !important;
+  }
+}
 @media (min-width: 768px) {
   #impressum-main h1 {
     font-size: 120px;
@@ -57,16 +65,16 @@
 #impressum-main h3 {
   font-family: "Poppins", sans-serif !important;
   font-weight: 700 !important; /* bold */
-  font-size: 26.25px !important; /* oko 26.25px */
+  font-size: 34px !important; /* oko 26.25px */
   line-height: 1.2 !important;
   color: #000;
-  margin: 0 0 21px; /* tačno 21px bottom */
+  margin: 0 0 32px; /* tačno 21px bottom */
   text-align: center;
 }
 #impressum-main p {
   font-family: "Poppins", sans-serif;
   font-weight: 400; /* semi-bold */
-  font-size: 15.75px; /* ~15.75px */
+  font-size: 34px; /* ~15.75px */
   line-height: 1.5; /* oko 24px visine reda */
   color: #000;
   margin: 0 0 10.5px; /* ~10.5px kao u Figmi */
