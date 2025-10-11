@@ -783,20 +783,51 @@ function wi_home_intro_box_cb($post){
         'quicktags'=>false,
     ]);
 }
-/* =========================
- *  IMPRESSUM (metabox na Edit Page)
- * ========================= */
-
-// 2.1 Specifikacija sekcija + podrazumevane vrednosti (kao u pluginu)
-function wi_impressum_sections_spec() {
-    return [
-        'tmg'     => 'ANGABEN GEMÄSS § 5 TMG',
-        'kontakt' => 'KONTAKT',
-        'ustid'   => 'UMSATZSTEUER-ID',
-    ];
+// Pomoćnik: napravi Gutenberg blok markup za jednu sekciju (h3 + više p)
+function wi_build_impressum_section_block($title, $paras) {
+    $html  = '<!-- wp:group {"className":"text-center impressum-section"} --><div class="wp-block-group text-center impressum-section">';
+    $html .= '<!-- wp:heading {"level":3,"className":"text-3xl poppins-bold text-black mb-6"} -->';
+    $html .= '<h3 class="text-3xl poppins-bold text-black mb-6">' . esc_html($title) . '</h3>';
+    $html .= '<!-- /wp:heading -->';
+    $html .= '<!-- wp:group {"className":"poppins text-lg text-black space-y-3"} --><div class="wp-block-group poppins text-lg text-black space-y-3">';
+    foreach ($paras as $idx => $p) {
+        $p = trim($p);
+        if ($p === '') continue;
+        $strong = $idx === 0 ? '<strong>' . esc_html($p) . '</strong>' : esc_html($p);
+        $html .= '<!-- wp:paragraph --><p>' . $strong . '</p><!-- /wp:paragraph -->';
+    }
+    $html .= '</div><!-- /wp:group -->';
+    $html .= '</div><!-- /wp:group -->';
+    return $html;
 }
-function wi_impressum_defaults() {
-    return [
+
+// Jednokratna migracija metabox -> post_content (samo za stranu koja koristi Impressum template)
+add_action('admin_init', function () {
+    if (!is_admin()) return;
+
+    // Nadji stranicu sa šablonom "impressum.php" ili slug-om "impressum"
+    $page = get_page_by_path('impressum', OBJECT, 'page');
+    if (!$page) {
+        $q = new WP_Query([
+            'post_type'      => 'page',
+            'posts_per_page' => 1,
+            'meta_query'     => [[
+                'key'     => '_wp_page_template',
+                'value'   => 'impressum',
+                'compare' => 'LIKE',
+            ]],
+            'fields'         => 'all',
+        ]);
+        if ($q->have_posts()) $page = $q->posts[0];
+        wp_reset_postdata();
+    }
+    if (!$page) return;
+
+    // Ako već ima sadržaj u editoru, ne radi ništa (pretpostavljamo da je migrirano).
+    if (!empty($page->post_content)) return;
+
+    // Učitaj metabox podatke ili defaulte
+    $defs = [
         'tmg' => [
             'title' => 'ANGABEN GEMÄSS § 5 TMG',
             'paras' => ['WERBEINSEL','Flughafen 76/3','88046 Friedrichshafen','Deutschland'],
@@ -810,191 +841,23 @@ function wi_impressum_defaults() {
             'paras' => ['Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:','DE322482204'],
         ],
     ];
-}
-
-// 2.2 Da li je ova stranica Impressum template?
-function wi_is_impressum_template($post_id){
-    $tpl = (string) get_page_template_slug($post_id); // npr. "impressum.php"
-    if ($tpl && ( $tpl === 'impressum.php' || strpos($tpl, 'impressum') !== false )) {
-        return true;
-    }
-    // fallback: ako je slug stranice "impressum"
-    $p = get_post($post_id);
-    if ($p && $p->post_name === 'impressum') {
-        return true;
-    }
-    return false;
-}
-
-// 2.3 Registruj metabox SAMO na Impressum stranici
-add_action('add_meta_boxes_page', function($post){
-    if (!$post instanceof WP_Post) return;
-    if (!wi_is_impressum_template($post->ID)) return;
-
-    add_meta_box(
-        'wi_impressum_box',
-        __('Impressum – sekcije', 'wi'),
-        'wi_impressum_metabox_render',
-        'page',
-        'normal',
-        'high'
-    );
-});
-
-// 2.4 Render polja (repeater kao u pluginu)
-function wi_impressum_metabox_render($post){
-    wp_nonce_field('wi_impressum_save','wi_impressum_nonce');
-
-    $defs = wi_impressum_defaults();
-    $spec = wi_impressum_sections_spec();
-    $data = get_post_meta($post->ID, '_wi_impressum_data', true);
-    if (!is_array($data)) { $data = []; }
-    // merge defaults
-    $data = wp_parse_args($data, $defs);
-    ?>
-    <style>
-      .wi-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;margin:16px 0}
-      .wi-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
-      .wi-para{display:flex;gap:8px;align-items:center;margin:8px 0}
-      .wi-para input{flex:1}
-      .wi-ghost{opacity:.55}
-    </style>
-    <?php foreach ($spec as $key => $label):
-        $title = $data[$key]['title'] ?? $defs[$key]['title'];
-        $paras = $data[$key]['paras'] ?? $defs[$key]['paras'];
-        $name_title = "_wi_impressum_data[$key][title]";
-        $name_paras = "_wi_impressum_data[$key][paras]";
-    ?>
-      <div class="wi-card">
-        <h2 style="margin:0 0 10px;"><?php echo esc_html($label); ?></h2>
-
-        <div class="wi-grid">
-          <div>
-            <label><strong>H3 naslov</strong></label>
-            <input type="text" class="regular-text" name="<?php echo esc_attr($name_title); ?>" value="<?php echo esc_attr($title); ?>">
-          </div>
-        </div>
-
-        <div class="wi-paras" data-name="<?php echo esc_attr($name_paras); ?>">
-          <!-- proto red (skriven) -->
-          <div class="wi-para wi-proto wi-ghost" style="display:none">
-            <input type="text" value="" placeholder="Tekst paragrafa">
-            <button class="button button-secondary wi-del" type="button">Ukloni</button>
-          </div>
-
-          <?php if (is_array($paras)): foreach ($paras as $p): ?>
-            <div class="wi-para">
-              <input type="text" name="<?php echo esc_attr($name_paras); ?>[]" value="<?php echo esc_attr($p); ?>" placeholder="Tekst paragrafa">
-              <button class="button button-secondary wi-del" type="button">Ukloni</button>
-            </div>
-          <?php endforeach; endif; ?>
-        </div>
-
-        <p><button type="button" class="button button-primary wi-add">+ Dodaj paragraf</button></p>
-      </div>
-    <?php endforeach; ?>
-
-    <script>
-    (function($){
-      $(function(){
-        $('.wi-add').on('click', function(e){
-          e.preventDefault();
-          const card = $(this).closest('.wi-card');
-          const list = card.find('.wi-paras');
-          const proto= list.find('.wi-proto').first().clone();
-          proto.removeClass('wi-proto wi-ghost').show();
-          // dodaj name na input
-          const base = list.data('name');
-          proto.find('input').attr('name', base+'[]').val('');
-          list.append(proto);
-        });
-        $(document).on('click', '.wi-del', function(e){
-          e.preventDefault();
-          const row = $(this).closest('.wi-para');
-          const list= row.parent();
-          if(list.find('.wi-para').length>1){ row.remove(); } else { row.find('input').val(''); }
-        });
-      });
-    })(jQuery);
-    </script>
-    <?php
-}
-
-// 2.5 Snimi podatke
-add_action('save_post_page', function($post_id){
-    if (!isset($_POST['wi_impressum_nonce']) || !wp_verify_nonce($_POST['wi_impressum_nonce'], 'wi_impressum_save')) return;
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!current_user_can('edit_page', $post_id)) return;
-
-    // snimamo samo ako je zaista Impressum stranica
-    if (!wi_is_impressum_template($post_id)) return;
-
-    $defs = wi_impressum_defaults();
-    $spec = wi_impressum_sections_spec();
-
-    $in = isset($_POST['_wi_impressum_data']) && is_array($_POST['_wi_impressum_data']) ? $_POST['_wi_impressum_data'] : [];
-    $out = [];
-
-    foreach ($spec as $key => $label) {
-        $title = isset($in[$key]['title']) ? sanitize_text_field(wp_unslash($in[$key]['title'])) : '';
-        $paras = isset($in[$key]['paras']) && is_array($in[$key]['paras']) ? $in[$key]['paras'] : [];
-
-        $clean = [];
-        foreach ($paras as $p) {
-            $p = trim(wp_unslash($p));
-            if ($p !== '') $clean[] = sanitize_text_field($p);
-        }
-        if (empty($clean)) $clean = $defs[$key]['paras'];
-
-        $out[$key] = [
-            'title' => ($title !== '' ? $title : $defs[$key]['title']),
-            'paras' => $clean,
-        ];
-    }
-    update_post_meta($post_id, '_wi_impressum_data', $out);
-});
-
-// 2.6 Template helper: dohvati uvek kompletne podatke za dati page ID
-function wi_get_impressum_data($post_id){
-    $defs = wi_impressum_defaults();
-    $meta = get_post_meta($post_id, '_wi_impressum_data', true);
+    $meta = get_post_meta($page->ID, '_wi_impressum_data', true);
     if (!is_array($meta)) $meta = [];
-    return wp_parse_args($meta, $defs);
-}
+    $data = wp_parse_args($meta, $defs);
 
-// 2.7 Jednokratna migracija iz starog plugina (ako postoji opcija)
-add_action('admin_init', function(){
-    $opt = get_option('wi_impressum_options', null);
-    if (!is_array($opt)) return;
+    // Sastavi blok sadržaj
+    $content  = '';
+    $content .= wi_build_impressum_section_block($data['tmg']['title'],     (array)$data['tmg']['paras']);
+    $content .= wi_build_impressum_section_block($data['kontakt']['title'], (array)$data['kontakt']['paras']);
+    $content .= wi_build_impressum_section_block($data['ustid']['title'],   (array)$data['ustid']['paras']);
 
-    // pokušaj naći stranicu Impressum po slugu ili po template-u
-    $page_id = 0;
-    $by_slug = get_page_by_path('impressum', OBJECT, 'page');
-    if ($by_slug) $page_id = (int) $by_slug->ID;
-
-    if (!$page_id) {
-        // fallback: nađi prvu stranicu sa template-om koji sadrži 'impressum'
-        $q = new WP_Query([
-            'post_type' => 'page',
-            'posts_per_page' => 1,
-            'meta_query' => [
-                [
-                    'key' => '_wp_page_template',
-                    'value' => 'impressum',
-                    'compare' => 'LIKE',
-                ]
-            ]
-        ]);
-        if ($q->have_posts()) { $page_id = (int) $q->posts[0]->ID; }
-        wp_reset_postdata();
-    }
-
-    if ($page_id && !get_post_meta($page_id, '_wi_impressum_data', true)) {
-        update_post_meta($page_id, '_wi_impressum_data', wp_parse_args($opt, wi_impressum_defaults()));
-        // (opciono) možeš obrisati opciju posle migracije:
-        // delete_option('wi_impressum_options');
-    }
+    // Upis u post_content
+    wp_update_post([
+        'ID'           => $page->ID,
+        'post_content' => $content,
+    ]);
 });
+
 /* =========================
  *  DATENSCHUTZ (metabox na Edit Page)
  * ========================= */
