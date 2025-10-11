@@ -978,4 +978,82 @@ add_action('admin_init', function () {
         'post_content' => $content,
     ]);
 });
+/* ===== AGBs: migracija u Gutenberg blokove (jednokratno) ===== */
+
+// Default sadržaj (možeš prilagoditi)
+function wi_agbs_defaults() {
+  return [
+    [
+      'title' => '§ 1 GELTUNGSBEREICH',
+      'text'  => 'Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der AGENCY GmbH und ihren Kunden. Abweichende Bedingungen des Kunden werden nur dann Vertragsbestandteil, wenn wir diesen ausdrücklich schriftlich zustimmen.'
+    ],
+    [
+      'title' => '§ 2 VERTRAGSSCHLUSS',
+      'text'  => 'Unsere Angebote sind freibleibend und unverbindlich. Der Vertrag kommt durch unsere schriftliche Auftragsbestätigung oder durch Beginn der Ausführung zustande.'
+    ],
+    [
+      'title' => '§ 3 PREISE UND ZAHLUNGSBEDINGUNGEN',
+      'text'  => 'Alle Preise verstehen sich netto zuzüglich der gesetzlichen Umsatzsteuer. Rechnungen sind innerhalb von 14 Tagen nach Rechnungsdatum zur Zahlung fällig.'
+    ],
+  ];
+}
+
+// Helper: jedna sekcija = H3 + p (sa tvojim klasama)
+function wi_agbs_section_block($title, $text) {
+  $html  = '<!-- wp:group --><div class="wp-block-group">';
+  $html .= '<!-- wp:heading {"level":3,"className":"text-2xl unbounded-bold text-black mb-4"} -->';
+  $html .= '<h3 class="text-2xl unbounded-bold text-black mb-4">'.esc_html($title).'</h3>';
+  $html .= '<!-- /wp:heading -->';
+  $html .= '<!-- wp:paragraph {"className":"poppins text-black leading-relaxed"} -->';
+  $html .= '<p class="poppins text-black leading-relaxed">'.wp_kses_post($text).'</p>';
+  $html .= '<!-- /wp:paragraph -->';
+  $html .= '</div><!-- /wp:group -->';
+  return $html;
+}
+
+// Prepoznaj AGBs stranicu
+function wi_is_agbs_template($post_id){
+  $tpl = (string) get_page_template_slug($post_id);
+  if ($tpl && ( $tpl === 'agbs.php' || strpos($tpl, 'agbs') !== false )) return true;
+  $p = get_post($post_id);
+  return ($p && in_array($p->post_name, ['agbs','agb','agb-s','a-g-b','bedingungen'], true));
+}
+
+// Migracija (radi samo ako je editor prazan)
+add_action('admin_init', function () {
+  if (!is_admin()) return;
+
+  // Prvo probaj slug
+  $page = get_page_by_path('agbs', OBJECT, 'page');
+  if (!$page) $page = get_page_by_path('agb', OBJECT, 'page');
+
+  // Ako nije nađeno po slugu, probaj po template-u
+  if (!$page) {
+    $q = new WP_Query([
+      'post_type'      => 'page',
+      'posts_per_page' => 1,
+      'meta_query'     => [[
+        'key'     => '_wp_page_template',
+        'value'   => 'agbs',
+        'compare' => 'LIKE',
+      ]],
+    ]);
+    if ($q->have_posts()) $page = $q->posts[0];
+    wp_reset_postdata();
+  }
+  if (!$page) return;
+
+  if (!empty($page->post_content)) return; // već ima sadržaj, ne diramo
+
+  $defs = wi_agbs_defaults();
+  $content = '';
+  foreach ($defs as $sec) {
+    $content .= wi_agbs_section_block($sec['title'], $sec['text']);
+  }
+
+  wp_update_post([
+    'ID'           => $page->ID,
+    'post_content' => $content,
+  ]);
+});
 
