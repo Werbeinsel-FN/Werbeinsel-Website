@@ -857,12 +857,55 @@ add_action('admin_init', function () {
         'post_content' => $content,
     ]);
 });
+/* ===== Datenschutz: migracija metabox -> post_content (jednokratno) ===== */
 
-/* =========================
- *  DATENSCHUTZ (metabox na Edit Page)
- * ========================= */
+// Helperi za generisanje blok markupa
+function wi_ds_block_section_list($title, $lines) {
+    $html  = '<!-- wp:group {"className":"datenschutz-section text-center"} -->';
+    $html .= '<div class="wp-block-group datenschutz-section text-center">';
+    $html .= '<!-- wp:heading {"level":3,"className":"section-title"} -->';
+    $html .= '<h3 class="section-title">'.esc_html($title).'</h3>';
+    $html .= '<!-- /wp:heading -->';
+    $html .= '<!-- wp:group {"className":"section-content"} --><div class="wp-block-group section-content">';
+    foreach ((array)$lines as $p) {
+        $p = trim($p);
+        if ($p==='') continue;
+        $html .= '<!-- wp:paragraph --><p>'.esc_html($p).'</p><!-- /wp:paragraph -->';
+    }
+    $html .= '</div><!-- /wp:group -->';
+    $html .= '</div><!-- /wp:group -->';
+    return $html;
+}
 
-// Sekcije + default vrednosti
+function wi_ds_block_section_text($title, $text) {
+    $html  = '<!-- wp:group {"className":"datenschutz-section"} -->';
+    $html .= '<div class="wp-block-group datenschutz-section">';
+    $html .= '<!-- wp:heading {"level":3,"className":"section-title"} -->';
+    $html .= '<h3 class="section-title">'.esc_html($title).'</h3>';
+    $html .= '<!-- /wp:heading -->';
+    $html .= '<!-- wp:paragraph {"className":"section-text"} -->';
+    $html .= '<p class="section-text">'.wp_kses_post($text).'</p>';
+    $html .= '<!-- /wp:paragraph -->';
+    $html .= '</div><!-- /wp:group -->';
+    return $html;
+}
+
+function wi_ds_block_cookie_box($title, $text) {
+    $html  = '<!-- wp:group {"className":"cookie-box"} -->';
+    $html .= '<div class="wp-block-group cookie-box">';
+    $html .= '<!-- wp:heading {"level":4,"className":"cookie-title"} -->';
+    $html .= '<h4 class="cookie-title">'.esc_html($title).'</h4>';
+    $html .= '<!-- /wp:heading -->';
+    $html .= '<!-- wp:paragraph {"className":"cookie-text"} -->';
+    $html .= '<p class="cookie-text">'.wp_kses_post($text).'</p>';
+    $html .= '<!-- /wp:paragraph -->';
+    // Dugme ostaje fiksno po zahtevu
+    $html .= '<!-- wp:html --><button class="cookie-button">EINSTELLUNGEN BEARBEITEN</button><!-- /wp:html -->';
+    $html .= '</div><!-- /wp:group -->';
+    return $html;
+}
+
+// Vrati podrazumevane vrednosti (isti kao kod tebe)
 function wi_datenschutz_defaults() {
     return [
         'verantwortlicher' => [
@@ -880,12 +923,11 @@ function wi_datenschutz_defaults() {
         'cookie' => [
             'title' => 'COOKIE-EINSTELLUNGEN',
             'text'  => 'Verwalten Sie Ihre Cookie-Präferenzen und Datenschutzeinstellungen.',
-            // dugme ostaje hard-code u templatu
         ],
     ];
 }
 
-// Da li je Datenschutz template (ili slug)
+// Prepoznaj Datenschutz stranicu (template ili slug)
 function wi_is_datenschutz_template($post_id){
     $tpl = (string) get_page_template_slug($post_id);
     if ($tpl && ( $tpl === 'datenschutz.php' || strpos($tpl, 'datenschutz') !== false )) return true;
@@ -893,167 +935,47 @@ function wi_is_datenschutz_template($post_id){
     return ($p && $p->post_name === 'datenschutz');
 }
 
-// Registracija metaboxa samo na Datenschutz stranici
-add_action('add_meta_boxes_page', function($post){
-    if (!$post instanceof WP_Post) return;
-    if (!wi_is_datenschutz_template($post->ID)) return;
+// Jednokratna migracija u editor
+add_action('admin_init', function () {
+    if (!is_admin()) return;
 
-    add_meta_box(
-        'wi_datenschutz_box',
-        __('Datenschutz – sadržaj', 'wi'),
-        'wi_datenschutz_metabox_render',
-        'page',
-        'normal',
-        'high'
-    );
-});
+    // Nađi stranicu: prvo slug, pa po template-u
+    $page = get_page_by_path('datenschutz', OBJECT, 'page');
+    if (!$page) {
+        $q = new WP_Query([
+            'post_type'      => 'page',
+            'posts_per_page' => 1,
+            'meta_query'     => [[
+                'key'     => '_wp_page_template',
+                'value'   => 'datenschutz',
+                'compare' => 'LIKE',
+            ]],
+        ]);
+        if ($q->have_posts()) $page = $q->posts[0];
+        wp_reset_postdata();
+    }
+    if (!$page) return;
 
-// Render metaboxa
-function wi_datenschutz_metabox_render($post){
-    wp_nonce_field('wi_datenschutz_save','wi_datenschutz_nonce');
+    // Ako već postoji sadržaj u editoru, ne diramo (pretpostavka: već migrirano)
+    if (!empty($page->post_content)) return;
 
+    // Učitaj metabox podatke ili defaulte
     $defs = wi_datenschutz_defaults();
-    $data = get_post_meta($post->ID, '_wi_datenschutz_data', true);
-    if (!is_array($data)) $data = [];
-    $data = wp_parse_args($data, $defs);
-
-    $v = $data; // alias
-    ?>
-    <style>
-      .wi-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;margin:16px 0}
-      .wi-para{display:flex;gap:8px;align-items:center;margin:8px 0}
-      .wi-para input{flex:1}
-      .wi-ghost{opacity:.55}
-      .wi-full{width:100%}
-    </style>
-
-    <!-- VERANTWORTLICHER (title + repeater lines) -->
-    <div class="wi-card">
-      <h2>VERANTWORTLICHER</h2>
-      <p><label><strong>H3 naslov</strong></label>
-      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[verantwortlicher][title]" value="<?php echo esc_attr($v['verantwortlicher']['title']); ?>"></p>
-
-      <div class="wi-paras" data-name="_wi_datenschutz_data[verantwortlicher][paras]">
-        <div class="wi-para wi-proto wi-ghost" style="display:none">
-          <input type="text" value="" placeholder="Red (paragraf)">
-          <button class="button button-secondary wi-del" type="button">Ukloni</button>
-        </div>
-        <?php foreach ($v['verantwortlicher']['paras'] as $p): ?>
-          <div class="wi-para">
-            <input type="text" name="_wi_datenschutz_data[verantwortlicher][paras][]" value="<?php echo esc_attr($p); ?>">
-            <button class="button button-secondary wi-del" type="button">Ukloni</button>
-          </div>
-        <?php endforeach; ?>
-      </div>
-      <p><button type="button" class="button button-primary wi-add">+ Dodaj red</button></p>
-    </div>
-
-    <!-- ERHEBUNG (title + textarea) -->
-    <div class="wi-card">
-      <h2>ERHEBUNG UND VERARBEITUNG …</h2>
-      <p><label><strong>H3 naslov</strong></label>
-      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[erhebung][title]" value="<?php echo esc_attr($v['erhebung']['title']); ?>"></p>
-      <p><label><strong>Tekst</strong></label>
-      <textarea class="wi-full" rows="5" name="_wi_datenschutz_data[erhebung][text]"><?php echo esc_textarea($v['erhebung']['text']); ?></textarea></p>
-    </div>
-
-    <!-- RECHTE (title + textarea) -->
-    <div class="wi-card">
-      <h2>IHRE RECHTE</h2>
-      <p><label><strong>H3 naslov</strong></label>
-      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[rechte][title]" value="<?php echo esc_attr($v['rechte']['title']); ?>"></p>
-      <p><label><strong>Tekst</strong></label>
-      <textarea class="wi-full" rows="5" name="_wi_datenschutz_data[rechte][text]"><?php echo esc_textarea($v['rechte']['text']); ?></textarea></p>
-    </div>
-
-    <!-- COOKIE BOX (title + text) – dugme ostaje hard-code -->
-    <div class="wi-card">
-      <h2>COOKIE-EINSTELLUNGEN</h2>
-      <p><label><strong>Naslov</strong></label>
-      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[cookie][title]" value="<?php echo esc_attr($v['cookie']['title']); ?>"></p>
-      <p><label><strong>Tekst</strong></label>
-      <textarea class="wi-full" rows="4" name="_wi_datenschutz_data[cookie][text]"><?php echo esc_textarea($v['cookie']['text']); ?></textarea></p>
-      <p style="opacity:.7">Napomena: tekst na dugmetu se ne menja ovde.</p>
-    </div>
-
-    <script>
-    (function($){
-      $(function(){
-        $('.wi-add').on('click', function(e){
-          e.preventDefault();
-          const card = $(this).closest('.wi-card');
-          const list = card.find('.wi-paras');
-          const proto= list.find('.wi-proto').first().clone();
-          proto.removeClass('wi-proto wi-ghost').show();
-          const base = list.data('name');
-          proto.find('input').attr('name', base+'[]').val('');
-          list.append(proto);
-        });
-        $(document).on('click', '.wi-del', function(e){
-          e.preventDefault();
-          const row = $(this).closest('.wi-para');
-          const list= row.parent();
-          if(list.find('.wi-para').length>1){ row.remove(); } else { row.find('input').val(''); }
-        });
-      });
-    })(jQuery);
-    </script>
-    <?php
-}
-
-// Snimanje
-add_action('save_post_page', function($post_id){
-    if (!isset($_POST['wi_datenschutz_nonce']) || !wp_verify_nonce($_POST['wi_datenschutz_nonce'], 'wi_datenschutz_save')) return;
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!current_user_can('edit_page', $post_id)) return;
-    if (!wi_is_datenschutz_template($post_id)) return;
-
-    $defs = wi_datenschutz_defaults();
-    $in   = isset($_POST['_wi_datenschutz_data']) && is_array($_POST['_wi_datenschutz_data']) ? $_POST['_wi_datenschutz_data'] : [];
-    $out  = [];
-
-    // Verantwortlicher
-    $vt = isset($in['verantwortlicher']['title']) ? sanitize_text_field(wp_unslash($in['verantwortlicher']['title'])) : '';
-    $vp = isset($in['verantwortlicher']['paras']) ? (array)$in['verantwortlicher']['paras'] : [];
-    $vp_clean = [];
-    foreach ($vp as $p){ $p = trim(wp_unslash($p)); if ($p!=='') $vp_clean[] = sanitize_text_field($p); }
-    if (empty($vp_clean)) $vp_clean = $defs['verantwortlicher']['paras'];
-    $out['verantwortlicher'] = [
-        'title' => ($vt !== '' ? $vt : $defs['verantwortlicher']['title']),
-        'paras' => $vp_clean,
-    ];
-
-    // Erhebung
-    $et = isset($in['erhebung']['title']) ? sanitize_text_field(wp_unslash($in['erhebung']['title'])) : '';
-    $ex = isset($in['erhebung']['text'])  ? wp_kses_post(wp_unslash($in['erhebung']['text'])) : '';
-    $out['erhebung'] = [
-        'title' => ($et !== '' ? $et : $defs['erhebung']['title']),
-        'text'  => ($ex !== '' ? $ex : $defs['erhebung']['text']),
-    ];
-
-    // Rechte
-    $rt = isset($in['rechte']['title']) ? sanitize_text_field(wp_unslash($in['rechte']['title'])) : '';
-    $rx = isset($in['rechte']['text'])  ? wp_kses_post(wp_unslash($in['rechte']['text'])) : '';
-    $out['rechte'] = [
-        'title' => ($rt !== '' ? $rt : $defs['rechte']['title']),
-        'text'  => ($rx !== '' ? $rx : $defs['rechte']['text']),
-    ];
-
-    // Cookie
-    $ct = isset($in['cookie']['title']) ? sanitize_text_field(wp_unslash($in['cookie']['title'])) : '';
-    $cx = isset($in['cookie']['text'])  ? wp_kses_post(wp_unslash($in['cookie']['text'])) : '';
-    $out['cookie'] = [
-        'title' => ($ct !== '' ? $ct : $defs['cookie']['title']),
-        'text'  => ($cx !== '' ? $cx : $defs['cookie']['text']),
-    ];
-
-    update_post_meta($post_id, '_wi_datenschutz_data', $out);
-});
-
-// Helper za template
-function wi_get_datenschutz_data($post_id){
-    $defs = wi_datenschutz_defaults();
-    $meta = get_post_meta($post_id, '_wi_datenschutz_data', true);
+    $meta = get_post_meta($page->ID, '_wi_datenschutz_data', true);
     if (!is_array($meta)) $meta = [];
-    return wp_parse_args($meta, $defs);
-}
+    $data = wp_parse_args($meta, $defs);
+
+    // Sastavi Gutenberg sadržaj
+    $content  = '';
+    $content .= wi_ds_block_section_list($data['verantwortlicher']['title'], (array)$data['verantwortlicher']['paras']);
+    $content .= wi_ds_block_section_text($data['erhebung']['title'], $data['erhebung']['text']);
+    $content .= wi_ds_block_section_text($data['rechte']['title'],   $data['rechte']['text']);
+    $content .= wi_ds_block_cookie_box($data['cookie']['title'],     $data['cookie']['text']);
+
+    // Upis u post_content
+    wp_update_post([
+        'ID'           => $page->ID,
+        'post_content' => $content,
+    ]);
+});
+
