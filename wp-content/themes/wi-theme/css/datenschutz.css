@@ -114,3 +114,8 @@
     font-size: 22px !important;
   }
 }
+@media (max-width: 450px) {
+  .datenschutz-title {
+    font-size: 30px;
+  }
+}

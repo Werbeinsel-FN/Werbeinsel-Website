@@ -433,16 +433,7 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 // }
 // add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
 // === HEADER VIDEO META BOX (samo za Template: Home) ===
-add_action('add_meta_boxes', function () {
-    add_meta_box(
-        'wi_home_header_video',
-        __('Header video (MP4)', 'wi'),
-        'wi_home_header_video_cb',
-        'page',
-        'side',
-        'default'
-    );
-});
+
 
 function wi_home_header_video_cb($post) {
     // Prikaži samo ako je izabran Home template
@@ -525,46 +516,7 @@ add_action('after_setup_theme', function(){
     add_theme_support('post-thumbnails');
 });
 // === HOME: "Grüß Gott!" sekcija (naslov + tekst) ===
-add_action('add_meta_boxes', function () {
-    add_meta_box(
-        'wi_home_intro_box',
-        __('Intro sekcija (ispod hero)', 'wi'),
-        function($post){
-            // prikaži samo na Home template-u
-            $tpl = get_page_template_slug($post->ID);
-            if ($tpl !== 'home.php' && $tpl !== 'template-home.php' && $tpl !== 'page-home.php') {
-                echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
-                return;
-            }
 
-            wp_nonce_field('wi_home_intro_save','wi_home_intro_nonce');
-
-            $title = get_post_meta($post->ID, '_wi_intro_title', true);
-            $text  = get_post_meta($post->ID, '_wi_intro_text', true);
-            ?>
-            <p><label for="wi_intro_title"><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label></p>
-            <input id="wi_intro_title" name="wi_intro_title" type="text" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Grüß Gott!">
-
-            <p style="margin-top:12px;"><strong><?php esc_html_e('Tekst', 'wi'); ?></strong></p>
-            <?php
-            // mali editor samo za paragraf
-            wp_editor(
-                $text,
-                'wi_intro_text',
-                [
-                    'textarea_name' => 'wi_intro_text',
-                    'media_buttons' => false,
-                    'textarea_rows' => 6,
-                    'teeny'         => true,
-                    'quicktags'     => false,
-                ]
-            );
-        },
-        'page',
-        'normal',
-        'high'
-    );
-});
 
 add_action('save_post_page', function($post_id){
     if (!isset($_POST['wi_home_intro_nonce']) || !wp_verify_nonce($_POST['wi_home_intro_nonce'], 'wi_home_intro_save')) return;
@@ -577,57 +529,9 @@ add_action('save_post_page', function($post_id){
     if ($title !== '') update_post_meta($post_id, '_wi_intro_title', $title); else delete_post_meta($post_id, '_wi_intro_title');
     if ($text  !== '') update_post_meta($post_id, '_wi_intro_text',  $text ); else delete_post_meta($post_id, '_wi_intro_text');
 });
-add_action('add_meta_boxes', function () {
-    add_meta_box(
-        'wi_home_intro_box',
-        __('Intro sekcija (ispod hero)', 'wi'),
-        function($post){
-            $tpl = get_page_template_slug($post->ID);
 
-            // ako template slug ne sadrži "home", prekini
-            if (strpos($tpl, 'home') === false) {
-                echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
-                return;
-            }
-
-            wp_nonce_field('wi_home_intro_save','wi_home_intro_nonce');
-
-            $title = get_post_meta($post->ID, '_wi_intro_title', true);
-            $text  = get_post_meta($post->ID, '_wi_intro_text', true);
-            ?>
-            <p><label for="wi_intro_title"><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label></p>
-            <input id="wi_intro_title" name="wi_intro_title" type="text" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Grüß Gott!">
-
-            <p style="margin-top:12px;"><strong><?php esc_html_e('Tekst', 'wi'); ?></strong></p>
-            <?php
-            wp_editor(
-                $text,
-                'wi_intro_text',
-                [
-                    'textarea_name' => 'wi_intro_text',
-                    'media_buttons' => false,
-                    'textarea_rows' => 6,
-                    'teeny'         => true,
-                    'quicktags'     => false,
-                ]
-            );
-        },
-        'page',
-        'normal',
-        'high'
-    );
-});
 /* === SERVICES sekcija (pre OUR CLIENTS) =============================== */
-add_action('add_meta_boxes', function () {
-    add_meta_box(
-        'wi_home_services',
-        __('Services sekcija (pre OUR CLIENTS)', 'wi'),
-        'wi_home_services_cb',
-        'page',
-        'normal',
-        'high'
-    );
-});
+
 
 function wi_home_services_cb($post){
     $tpl = get_page_template_slug($post->ID);
@@ -741,11 +645,88 @@ add_action('admin_enqueue_scripts', function($hook){
         wp_enqueue_media();
     }
 });
+// Helper: da li je stranica na Home template-u?
+function wi_is_home_template($post_id){
+    $tpl = (string) get_page_template_slug($post_id);
+    if (!$tpl) return false;
+    return in_array($tpl, ['home.php','template-home.php','page-home.php'], true)
+        || strpos($tpl, 'home') !== false;
+}
+
+// Registruj HOME metaboxove samo na Home template-u
+function wi_register_home_metaboxes($post){
+    if (!$post instanceof WP_Post) return;
+    if (!wi_is_home_template($post->ID)) return;
+
+    // Header video (MP4)
+    add_meta_box(
+        'wi_home_header_video',
+        __('Header video (MP4)', 'wi'),
+        'wi_home_header_video_cb',
+        'page',
+        'side',
+        'default'
+    );
+
+    // Intro (ispod hero)
+    add_meta_box(
+        'wi_home_intro_box',
+        __('Intro sekcija (ispod hero)', 'wi'),
+        'wi_home_intro_box_cb',
+        'page',
+        'normal',
+        'high'
+    );
+
+    // Services (pre OUR CLIENTS)
+    add_meta_box(
+        'wi_home_services',
+        __('Services sekcija (pre OUR CLIENTS)', 'wi'),
+        'wi_home_services_cb',
+        'page',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes_page', 'wi_register_home_metaboxes');
+
 /** ---------------------------
  *  CTA (pre footera) – metabox
  *  Key: _wi_cta_title (dozvoljen <br>)
  * --------------------------- */
-add_action('add_meta_boxes', function () {
+function wi_is_cta_allowed($post_id){
+    // 1) Ako je ovo postavljena "Front page" (Settings → Reading), prikaži CTA
+    $front_id = (int) get_option('page_on_front');
+    if ($front_id && $front_id === (int) $post_id) {
+        return true;
+    }
+
+    // 2) Ako template slug odgovara nekom od "home" fajlova, prikaži CTA
+    $tpl = (string) get_page_template_slug($post_id); // može biti '' (prazno) za Default Template
+    $allowed_exact = [
+        'home.php',
+        'template-home.php',
+        'page-home.php',
+        'home-template.php',
+        'front-page.php',
+    ];
+
+    if (in_array($tpl, $allowed_exact, true)) {
+        return true;
+    }
+
+    // 3) Labava provera: ako sadrži "home" u nazivu fajla
+    if ($tpl !== '' && strpos($tpl, 'home') !== false) {
+        return true;
+    }
+
+    // Inače: nema CTA
+    return false;
+}
+function wi_register_cta_metabox($post){
+    if (!$post instanceof WP_Post) return;
+    if (!wi_is_cta_allowed($post->ID)) return;
+
     add_meta_box(
         'wi_cta_box',
         __('CTA sekcija (pre footera)', 'wi'),
@@ -754,7 +735,9 @@ add_action('add_meta_boxes', function () {
         'normal',
         'default'
     );
-});
+}
+add_action('add_meta_boxes_page', 'wi_register_cta_metabox');
+
 function wi_render_cta_box($post) {
     // (uklonili smo uslov koji je davao poruku)
     wp_nonce_field('wi_save_cta_box', 'wi_cta_nonce');
@@ -783,3 +766,431 @@ add_action('save_post', function ($post_id) {
     $clean = wp_kses($raw, $allowed);
     update_post_meta($post_id, '_wi_cta_title', $clean);
 });
+function wi_home_intro_box_cb($post){
+    wp_nonce_field('wi_home_intro_save','wi_home_intro_nonce');
+    $title = get_post_meta($post->ID, '_wi_intro_title', true);
+    $text  = get_post_meta($post->ID, '_wi_intro_text', true);
+    ?>
+    <p><label for="wi_intro_title"><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label></p>
+    <input id="wi_intro_title" name="wi_intro_title" type="text" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Grüß Gott!">
+    <p style="margin-top:12px;"><strong><?php esc_html_e('Tekst', 'wi'); ?></strong></p>
+    <?php
+    wp_editor($text,'wi_intro_text',[
+        'textarea_name'=>'wi_intro_text',
+        'media_buttons'=>false,
+        'textarea_rows'=>6,
+        'teeny'=>true,
+        'quicktags'=>false,
+    ]);
+}
+/* =========================
+ *  IMPRESSUM (metabox na Edit Page)
+ * ========================= */
+
+// 2.1 Specifikacija sekcija + podrazumevane vrednosti (kao u pluginu)
+function wi_impressum_sections_spec() {
+    return [
+        'tmg'     => 'ANGABEN GEMÄSS § 5 TMG',
+        'kontakt' => 'KONTAKT',
+        'ustid'   => 'UMSATZSTEUER-ID',
+    ];
+}
+function wi_impressum_defaults() {
+    return [
+        'tmg' => [
+            'title' => 'ANGABEN GEMÄSS § 5 TMG',
+            'paras' => ['WERBEINSEL','Flughafen 76/3','88046 Friedrichshafen','Deutschland'],
+        ],
+        'kontakt' => [
+            'title' => 'KONTAKT',
+            'paras' => ['Telefon: +49 7541 700 57 44','E-Mail: hallo@werbeinsel.de'],
+        ],
+        'ustid' => [
+            'title' => 'UMSATZSTEUER-ID',
+            'paras' => ['Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:','DE322482204'],
+        ],
+    ];
+}
+
+// 2.2 Da li je ova stranica Impressum template?
+function wi_is_impressum_template($post_id){
+    $tpl = (string) get_page_template_slug($post_id); // npr. "impressum.php"
+    if ($tpl && ( $tpl === 'impressum.php' || strpos($tpl, 'impressum') !== false )) {
+        return true;
+    }
+    // fallback: ako je slug stranice "impressum"
+    $p = get_post($post_id);
+    if ($p && $p->post_name === 'impressum') {
+        return true;
+    }
+    return false;
+}
+
+// 2.3 Registruj metabox SAMO na Impressum stranici
+add_action('add_meta_boxes_page', function($post){
+    if (!$post instanceof WP_Post) return;
+    if (!wi_is_impressum_template($post->ID)) return;
+
+    add_meta_box(
+        'wi_impressum_box',
+        __('Impressum – sekcije', 'wi'),
+        'wi_impressum_metabox_render',
+        'page',
+        'normal',
+        'high'
+    );
+});
+
+// 2.4 Render polja (repeater kao u pluginu)
+function wi_impressum_metabox_render($post){
+    wp_nonce_field('wi_impressum_save','wi_impressum_nonce');
+
+    $defs = wi_impressum_defaults();
+    $spec = wi_impressum_sections_spec();
+    $data = get_post_meta($post->ID, '_wi_impressum_data', true);
+    if (!is_array($data)) { $data = []; }
+    // merge defaults
+    $data = wp_parse_args($data, $defs);
+    ?>
+    <style>
+      .wi-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;margin:16px 0}
+      .wi-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+      .wi-para{display:flex;gap:8px;align-items:center;margin:8px 0}
+      .wi-para input{flex:1}
+      .wi-ghost{opacity:.55}
+    </style>
+    <?php foreach ($spec as $key => $label):
+        $title = $data[$key]['title'] ?? $defs[$key]['title'];
+        $paras = $data[$key]['paras'] ?? $defs[$key]['paras'];
+        $name_title = "_wi_impressum_data[$key][title]";
+        $name_paras = "_wi_impressum_data[$key][paras]";
+    ?>
+      <div class="wi-card">
+        <h2 style="margin:0 0 10px;"><?php echo esc_html($label); ?></h2>
+
+        <div class="wi-grid">
+          <div>
+            <label><strong>H3 naslov</strong></label>
+            <input type="text" class="regular-text" name="<?php echo esc_attr($name_title); ?>" value="<?php echo esc_attr($title); ?>">
+          </div>
+        </div>
+
+        <div class="wi-paras" data-name="<?php echo esc_attr($name_paras); ?>">
+          <!-- proto red (skriven) -->
+          <div class="wi-para wi-proto wi-ghost" style="display:none">
+            <input type="text" value="" placeholder="Tekst paragrafa">
+            <button class="button button-secondary wi-del" type="button">Ukloni</button>
+          </div>
+
+          <?php if (is_array($paras)): foreach ($paras as $p): ?>
+            <div class="wi-para">
+              <input type="text" name="<?php echo esc_attr($name_paras); ?>[]" value="<?php echo esc_attr($p); ?>" placeholder="Tekst paragrafa">
+              <button class="button button-secondary wi-del" type="button">Ukloni</button>
+            </div>
+          <?php endforeach; endif; ?>
+        </div>
+
+        <p><button type="button" class="button button-primary wi-add">+ Dodaj paragraf</button></p>
+      </div>
+    <?php endforeach; ?>
+
+    <script>
+    (function($){
+      $(function(){
+        $('.wi-add').on('click', function(e){
+          e.preventDefault();
+          const card = $(this).closest('.wi-card');
+          const list = card.find('.wi-paras');
+          const proto= list.find('.wi-proto').first().clone();
+          proto.removeClass('wi-proto wi-ghost').show();
+          // dodaj name na input
+          const base = list.data('name');
+          proto.find('input').attr('name', base+'[]').val('');
+          list.append(proto);
+        });
+        $(document).on('click', '.wi-del', function(e){
+          e.preventDefault();
+          const row = $(this).closest('.wi-para');
+          const list= row.parent();
+          if(list.find('.wi-para').length>1){ row.remove(); } else { row.find('input').val(''); }
+        });
+      });
+    })(jQuery);
+    </script>
+    <?php
+}
+
+// 2.5 Snimi podatke
+add_action('save_post_page', function($post_id){
+    if (!isset($_POST['wi_impressum_nonce']) || !wp_verify_nonce($_POST['wi_impressum_nonce'], 'wi_impressum_save')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_page', $post_id)) return;
+
+    // snimamo samo ako je zaista Impressum stranica
+    if (!wi_is_impressum_template($post_id)) return;
+
+    $defs = wi_impressum_defaults();
+    $spec = wi_impressum_sections_spec();
+
+    $in = isset($_POST['_wi_impressum_data']) && is_array($_POST['_wi_impressum_data']) ? $_POST['_wi_impressum_data'] : [];
+    $out = [];
+
+    foreach ($spec as $key => $label) {
+        $title = isset($in[$key]['title']) ? sanitize_text_field(wp_unslash($in[$key]['title'])) : '';
+        $paras = isset($in[$key]['paras']) && is_array($in[$key]['paras']) ? $in[$key]['paras'] : [];
+
+        $clean = [];
+        foreach ($paras as $p) {
+            $p = trim(wp_unslash($p));
+            if ($p !== '') $clean[] = sanitize_text_field($p);
+        }
+        if (empty($clean)) $clean = $defs[$key]['paras'];
+
+        $out[$key] = [
+            'title' => ($title !== '' ? $title : $defs[$key]['title']),
+            'paras' => $clean,
+        ];
+    }
+    update_post_meta($post_id, '_wi_impressum_data', $out);
+});
+
+// 2.6 Template helper: dohvati uvek kompletne podatke za dati page ID
+function wi_get_impressum_data($post_id){
+    $defs = wi_impressum_defaults();
+    $meta = get_post_meta($post_id, '_wi_impressum_data', true);
+    if (!is_array($meta)) $meta = [];
+    return wp_parse_args($meta, $defs);
+}
+
+// 2.7 Jednokratna migracija iz starog plugina (ako postoji opcija)
+add_action('admin_init', function(){
+    $opt = get_option('wi_impressum_options', null);
+    if (!is_array($opt)) return;
+
+    // pokušaj naći stranicu Impressum po slugu ili po template-u
+    $page_id = 0;
+    $by_slug = get_page_by_path('impressum', OBJECT, 'page');
+    if ($by_slug) $page_id = (int) $by_slug->ID;
+
+    if (!$page_id) {
+        // fallback: nađi prvu stranicu sa template-om koji sadrži 'impressum'
+        $q = new WP_Query([
+            'post_type' => 'page',
+            'posts_per_page' => 1,
+            'meta_query' => [
+                [
+                    'key' => '_wp_page_template',
+                    'value' => 'impressum',
+                    'compare' => 'LIKE',
+                ]
+            ]
+        ]);
+        if ($q->have_posts()) { $page_id = (int) $q->posts[0]->ID; }
+        wp_reset_postdata();
+    }
+
+    if ($page_id && !get_post_meta($page_id, '_wi_impressum_data', true)) {
+        update_post_meta($page_id, '_wi_impressum_data', wp_parse_args($opt, wi_impressum_defaults()));
+        // (opciono) možeš obrisati opciju posle migracije:
+        // delete_option('wi_impressum_options');
+    }
+});
+/* =========================
+ *  DATENSCHUTZ (metabox na Edit Page)
+ * ========================= */
+
+// Sekcije + default vrednosti
+function wi_datenschutz_defaults() {
+    return [
+        'verantwortlicher' => [
+            'title' => 'VERANTWORTLICHER',
+            'paras' => ['AGENCY GmbH','Musterstraße 123','12345 Berlin','Deutschland','E-Mail: datenschutz@agency.com'],
+        ],
+        'erhebung' => [
+            'title' => 'ERHEBUNG UND VERARBEITUNG PERSONENBEZOGENER DATEN',
+            'text'  => 'Wir erheben und verarbeiten personenbezogene Daten nur, soweit dies zur Erfüllung unserer vertraglichen Pflichten oder zur Wahrung berechtigter Interessen erforderlich ist.',
+        ],
+        'rechte' => [
+            'title' => 'IHRE RECHTE',
+            'text'  => 'Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch und Datenübertragbarkeit.',
+        ],
+        'cookie' => [
+            'title' => 'COOKIE-EINSTELLUNGEN',
+            'text'  => 'Verwalten Sie Ihre Cookie-Präferenzen und Datenschutzeinstellungen.',
+            // dugme ostaje hard-code u templatu
+        ],
+    ];
+}
+
+// Da li je Datenschutz template (ili slug)
+function wi_is_datenschutz_template($post_id){
+    $tpl = (string) get_page_template_slug($post_id);
+    if ($tpl && ( $tpl === 'datenschutz.php' || strpos($tpl, 'datenschutz') !== false )) return true;
+    $p = get_post($post_id);
+    return ($p && $p->post_name === 'datenschutz');
+}
+
+// Registracija metaboxa samo na Datenschutz stranici
+add_action('add_meta_boxes_page', function($post){
+    if (!$post instanceof WP_Post) return;
+    if (!wi_is_datenschutz_template($post->ID)) return;
+
+    add_meta_box(
+        'wi_datenschutz_box',
+        __('Datenschutz – sadržaj', 'wi'),
+        'wi_datenschutz_metabox_render',
+        'page',
+        'normal',
+        'high'
+    );
+});
+
+// Render metaboxa
+function wi_datenschutz_metabox_render($post){
+    wp_nonce_field('wi_datenschutz_save','wi_datenschutz_nonce');
+
+    $defs = wi_datenschutz_defaults();
+    $data = get_post_meta($post->ID, '_wi_datenschutz_data', true);
+    if (!is_array($data)) $data = [];
+    $data = wp_parse_args($data, $defs);
+
+    $v = $data; // alias
+    ?>
+    <style>
+      .wi-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;margin:16px 0}
+      .wi-para{display:flex;gap:8px;align-items:center;margin:8px 0}
+      .wi-para input{flex:1}
+      .wi-ghost{opacity:.55}
+      .wi-full{width:100%}
+    </style>
+
+    <!-- VERANTWORTLICHER (title + repeater lines) -->
+    <div class="wi-card">
+      <h2>VERANTWORTLICHER</h2>
+      <p><label><strong>H3 naslov</strong></label>
+      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[verantwortlicher][title]" value="<?php echo esc_attr($v['verantwortlicher']['title']); ?>"></p>
+
+      <div class="wi-paras" data-name="_wi_datenschutz_data[verantwortlicher][paras]">
+        <div class="wi-para wi-proto wi-ghost" style="display:none">
+          <input type="text" value="" placeholder="Red (paragraf)">
+          <button class="button button-secondary wi-del" type="button">Ukloni</button>
+        </div>
+        <?php foreach ($v['verantwortlicher']['paras'] as $p): ?>
+          <div class="wi-para">
+            <input type="text" name="_wi_datenschutz_data[verantwortlicher][paras][]" value="<?php echo esc_attr($p); ?>">
+            <button class="button button-secondary wi-del" type="button">Ukloni</button>
+          </div>
+        <?php endforeach; ?>
+      </div>
+      <p><button type="button" class="button button-primary wi-add">+ Dodaj red</button></p>
+    </div>
+
+    <!-- ERHEBUNG (title + textarea) -->
+    <div class="wi-card">
+      <h2>ERHEBUNG UND VERARBEITUNG …</h2>
+      <p><label><strong>H3 naslov</strong></label>
+      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[erhebung][title]" value="<?php echo esc_attr($v['erhebung']['title']); ?>"></p>
+      <p><label><strong>Tekst</strong></label>
+      <textarea class="wi-full" rows="5" name="_wi_datenschutz_data[erhebung][text]"><?php echo esc_textarea($v['erhebung']['text']); ?></textarea></p>
+    </div>
+
+    <!-- RECHTE (title + textarea) -->
+    <div class="wi-card">
+      <h2>IHRE RECHTE</h2>
+      <p><label><strong>H3 naslov</strong></label>
+      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[rechte][title]" value="<?php echo esc_attr($v['rechte']['title']); ?>"></p>
+      <p><label><strong>Tekst</strong></label>
+      <textarea class="wi-full" rows="5" name="_wi_datenschutz_data[rechte][text]"><?php echo esc_textarea($v['rechte']['text']); ?></textarea></p>
+    </div>
+
+    <!-- COOKIE BOX (title + text) – dugme ostaje hard-code -->
+    <div class="wi-card">
+      <h2>COOKIE-EINSTELLUNGEN</h2>
+      <p><label><strong>Naslov</strong></label>
+      <input type="text" class="regular-text wi-full" name="_wi_datenschutz_data[cookie][title]" value="<?php echo esc_attr($v['cookie']['title']); ?>"></p>
+      <p><label><strong>Tekst</strong></label>
+      <textarea class="wi-full" rows="4" name="_wi_datenschutz_data[cookie][text]"><?php echo esc_textarea($v['cookie']['text']); ?></textarea></p>
+      <p style="opacity:.7">Napomena: tekst na dugmetu se ne menja ovde.</p>
+    </div>
+
+    <script>
+    (function($){
+      $(function(){
+        $('.wi-add').on('click', function(e){
+          e.preventDefault();
+          const card = $(this).closest('.wi-card');
+          const list = card.find('.wi-paras');
+          const proto= list.find('.wi-proto').first().clone();
+          proto.removeClass('wi-proto wi-ghost').show();
+          const base = list.data('name');
+          proto.find('input').attr('name', base+'[]').val('');
+          list.append(proto);
+        });
+        $(document).on('click', '.wi-del', function(e){
+          e.preventDefault();
+          const row = $(this).closest('.wi-para');
+          const list= row.parent();
+          if(list.find('.wi-para').length>1){ row.remove(); } else { row.find('input').val(''); }
+        });
+      });
+    })(jQuery);
+    </script>
+    <?php
+}
+
+// Snimanje
+add_action('save_post_page', function($post_id){
+    if (!isset($_POST['wi_datenschutz_nonce']) || !wp_verify_nonce($_POST['wi_datenschutz_nonce'], 'wi_datenschutz_save')) return;
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_page', $post_id)) return;
+    if (!wi_is_datenschutz_template($post_id)) return;
+
+    $defs = wi_datenschutz_defaults();
+    $in   = isset($_POST['_wi_datenschutz_data']) && is_array($_POST['_wi_datenschutz_data']) ? $_POST['_wi_datenschutz_data'] : [];
+    $out  = [];
+
+    // Verantwortlicher
+    $vt = isset($in['verantwortlicher']['title']) ? sanitize_text_field(wp_unslash($in['verantwortlicher']['title'])) : '';
+    $vp = isset($in['verantwortlicher']['paras']) ? (array)$in['verantwortlicher']['paras'] : [];
+    $vp_clean = [];
+    foreach ($vp as $p){ $p = trim(wp_unslash($p)); if ($p!=='') $vp_clean[] = sanitize_text_field($p); }
+    if (empty($vp_clean)) $vp_clean = $defs['verantwortlicher']['paras'];
+    $out['verantwortlicher'] = [
+        'title' => ($vt !== '' ? $vt : $defs['verantwortlicher']['title']),
+        'paras' => $vp_clean,
+    ];
+
+    // Erhebung
+    $et = isset($in['erhebung']['title']) ? sanitize_text_field(wp_unslash($in['erhebung']['title'])) : '';
+    $ex = isset($in['erhebung']['text'])  ? wp_kses_post(wp_unslash($in['erhebung']['text'])) : '';
+    $out['erhebung'] = [
+        'title' => ($et !== '' ? $et : $defs['erhebung']['title']),
+        'text'  => ($ex !== '' ? $ex : $defs['erhebung']['text']),
+    ];
+
+    // Rechte
+    $rt = isset($in['rechte']['title']) ? sanitize_text_field(wp_unslash($in['rechte']['title'])) : '';
+    $rx = isset($in['rechte']['text'])  ? wp_kses_post(wp_unslash($in['rechte']['text'])) : '';
+    $out['rechte'] = [
+        'title' => ($rt !== '' ? $rt : $defs['rechte']['title']),
+        'text'  => ($rx !== '' ? $rx : $defs['rechte']['text']),
+    ];
+
+    // Cookie
+    $ct = isset($in['cookie']['title']) ? sanitize_text_field(wp_unslash($in['cookie']['title'])) : '';
+    $cx = isset($in['cookie']['text'])  ? wp_kses_post(wp_unslash($in['cookie']['text'])) : '';
+    $out['cookie'] = [
+        'title' => ($ct !== '' ? $ct : $defs['cookie']['title']),
+        'text'  => ($cx !== '' ? $cx : $defs['cookie']['text']),
+    ];
+
+    update_post_meta($post_id, '_wi_datenschutz_data', $out);
+});
+
+// Helper za template
+function wi_get_datenschutz_data($post_id){
+    $defs = wi_datenschutz_defaults();
+    $meta = get_post_meta($post_id, '_wi_datenschutz_data', true);
+    if (!is_array($meta)) $meta = [];
+    return wp_parse_args($meta, $defs);
+}

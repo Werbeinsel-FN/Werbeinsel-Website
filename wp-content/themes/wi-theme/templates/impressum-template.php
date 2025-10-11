@@ -4,7 +4,8 @@
  * Description: Template for the Impressum page
  */
 
-get_header(); ?>
+get_header(); 
+?>
 
 <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/css/impressum.css?v=<?php echo filemtime(get_template_directory() . '/css/impressum.css'); ?>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -12,38 +13,26 @@ get_header(); ?>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap" rel="stylesheet">
 
 <?php
-// Lokalne defaulte koristimo ako plugin nije aktivan ili opcije nisu popunjene
-function wi_impressum_defaults() {
-  return [
-    'tmg' => [
-      'title' => 'ANGABEN GEMÄSS § 5 TMG',
-      'paras' => ['WERBEINSEL','Flughafen 76/3','88046 Friedrichshafen','Deutschland'],
-    ],
-    'kontakt' => [
-      'title' => 'KONTAKT',
-      'paras' => ['Telefon: +49 7541 700 57 44','E-Mail: hallo@werbeinsel.de'],
-    ],
-    'ustid' => [
-      'title' => 'UMSATZSTEUER-ID',
-      'paras' => ['Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:','DE322482204'],
-    ],
-  ];
-}
-
-// Učitaj podatke iz plugina ako postoji, inače defaulte
-$defaults = wi_impressum_defaults();
-if (class_exists('WI_Impressum_Manager')) {
-  $data = WI_Impressum_Manager::get_data();
-  // osiguraj da svaka sekcija postoji i ima paras; ako ne, dopuni defaultima
-  foreach (['tmg','kontakt','ustid'] as $k) {
-    if (empty($data[$k]) || !is_array($data[$k])) { $data[$k] = $defaults[$k]; }
-    if (empty($data[$k]['title'])) { $data[$k]['title'] = $defaults[$k]['title']; }
-    if (empty($data[$k]['paras']) || !is_array($data[$k]['paras'])) { $data[$k]['paras'] = $defaults[$k]['paras']; }
-  }
-} else {
-  $data = $defaults;
-}
+// Uzimamo podatke iz metaboxa (functions.php).
+// Ako helper ne postoji (npr. na dev-u), koristimo defaulte.
+$data = function_exists('wi_get_impressum_data')
+    ? wi_get_impressum_data(get_the_ID())
+    : [
+        'tmg' => [
+          'title' => 'ANGABEN GEMÄSS § 5 TMG',
+          'paras' => ['WERBEINSEL','Flughafen 76/3','88046 Friedrichshafen','Deutschland'],
+        ],
+        'kontakt' => [
+          'title' => 'KONTAKT',
+          'paras' => ['Telefon: +49 7541 700 57 44','E-Mail: hallo@werbeinsel.de'],
+        ],
+        'ustid' => [
+          'title' => 'UMSATZSTEUER-ID',
+          'paras' => ['Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:','DE322482204'],
+        ],
+      ];
 ?>
+
 
 <main id="impressum-main">
 
