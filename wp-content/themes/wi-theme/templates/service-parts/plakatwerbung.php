@@ -4,34 +4,39 @@
  * Var: $slug, $svc, $page_title, $page_id
  */
 
-// 1) Učitaj SAMO ovde CSS
+/* 1) CSS samo ovde */
 $css_path = get_stylesheet_directory() . '/css/service-plakatwerbung.css';
 $css_url  = get_stylesheet_directory_uri() . '/css/service-plakatwerbung.css';
 if (file_exists($css_path)) { $css_url .= '?v=' . filemtime($css_path); }
 echo '<link rel="stylesheet" href="'.esc_url($css_url).'">';
 
-// 2) Slike za slider: prvo iz plugina/featured (ako postoji), pa Unsplash
+/* 2) Učitaj meta iz admin metabox-a (functions.php) */
+$meta = function_exists('wi_get_plakat_meta') ? wi_get_plakat_meta($page_id) : [];
+
+/* 3) Slike za slider: iz meta (attachment IDs) + na kraj dodaj grid/featured sliku ako postoji */
 $slides = [];
-if (!empty($svc['image_url'])) $slides[] = $svc['image_url']; // ostavi grid/featured ako postoji
-
-// stabilne landscape slike sa Picsum (uvek rade, fiksni ID)
-$slides = [
-  'https://picsum.photos/id/1011/1600/900',
-  'https://picsum.photos/id/1015/1600/900',
-  'https://picsum.photos/id/1020/1600/900',
-  'https://picsum.photos/id/1035/1600/900',
-  'https://picsum.photos/id/1043/1600/900',
-  'https://picsum.photos/id/1059/1600/900',
-  'https://picsum.photos/id/1067/1600/900',
-];
-
-// ako ima grid/featured sliku – dodaj je NA KRAJ
-if (!empty($svc['image_url'])) {
-  $slides[] = $svc['image_url'];
+if (!empty($meta['hero_ids']) && is_array($meta['hero_ids'])) {
+  foreach ($meta['hero_ids'] as $aid) {
+    $u = wp_get_attachment_image_url((int)$aid, 'full');
+    if ($u) $slides[] = $u;
+  }
 }
+/* Fallback ako ništa nije podešeno u metaboxu – tvoj stari set */
+if (empty($slides)) {
+  $slides = [
+    'https://picsum.photos/id/1011/1600/900',
+    'https://picsum.photos/id/1015/1600/900',
+    'https://picsum.photos/id/1020/1600/900',
+    'https://picsum.photos/id/1035/1600/900',
+    'https://picsum.photos/id/1043/1600/900',
+    'https://picsum.photos/id/1059/1600/900',
+    'https://picsum.photos/id/1067/1600/900',
+  ];
+}
+/* ako ima grid/featured iz plugina – dodaj je na kraj */
+if (!empty($svc['image_url'])) { $slides[] = $svc['image_url']; }
 
 $slides = array_values(array_unique(array_filter($slides)));
-
 $carousel_id = 'plakatwerbung-hero'; // jedinstveni ID
 ?>
 
@@ -68,46 +73,57 @@ $carousel_id = 'plakatwerbung-hero'; // jedinstveni ID
     </div>
   </div>
 </section>
+
 <section class="svc-intro">
   <div class="content-container svc-intro__wrap">
     <h2 class="svc-intro__title">
-      <span>PLAKAT</span><br><span>WERBUNG</span>
+      <?php
+        // naslov na 2+ reda (Enter u metaboxu pravi novi red)
+        $intro_title = (string)($meta['intro_title'] ?? "PLAKAT\nWERBUNG");
+        $lines = preg_split('/\r\n|\r|\n/', $intro_title);
+        foreach ($lines as $k => $line) {
+          if ($line === '') continue;
+          echo '<span>'.esc_html($line).'</span>';
+          if ($k < count($lines)-1) echo '<br>';
+        }
+      ?>
     </h2>
     <p class="svc-intro__lead">
-      Plakatwerbung ist eine der effektivsten Formen der Außenwerbung. Mit strategisch platzierten Plakaten
-      erreichen Sie täglich tausende von potenziellen Kunden genau dort, wo sie leben, arbeiten und einkaufen.
-      WERBEINSEL sorgt dafür, dass Ihre Botschaft im Straßenbild unübersehbar wird.
+      <?php echo esc_html($meta['intro_text'] ?? ''); ?>
     </p>
   </div>
 </section>
+
 <section class="svc-steps">
   <div class="content-container">
-    <h2 class="svc-steps__title">ÜBERLEGE<br>NOCH</h2>
+    <h2 class="svc-steps__title"><?php echo nl2br(esc_html($meta['steps_title'] ?? "ÜBERLEGE\nNOCH")); ?></h2>
   </div>
 </section>
+
 <?php
-  // promeni na pravu mapu kad budeš imao asset u Media Library
-  $region_img_url = 'https://picsum.photos/id/1016/1600/1200';
+  // Region slika iz metaboxa (attachment ID) – ako nema, fallback
+  $region_img_url = '';
+  if (!empty($meta['region_id'])) {
+    $region_img_url = wp_get_attachment_image_url((int)$meta['region_id'], 'full');
+  }
+  if (!$region_img_url) {
+    $region_img_url = 'https://picsum.photos/id/1016/1600/1200';
+  }
 ?>
 <section class="svc-region">
   <div class="content-container svc-region__wrap">
-    <h2 class="svc-region__title">REGION</h2>
+    <h2 class="svc-region__title"><?php echo esc_html($meta['region_title'] ?? 'REGION'); ?></h2>
 
     <div class="svc-region__grid">
       <div class="svc-region__col">
         <div class="svc-region__text">
-          <p class="svc-region__p">
-            Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten
-            Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.
-          </p>
-          <p class="svc-region__p">
-            Mit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an
-            hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen.
-          </p>
-          <p class="svc-region__p">
-            Mit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an
-            hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen.
-          </p>
+          <?php
+          $paras = isset($meta['region_paras']) && is_array($meta['region_paras']) ? $meta['region_paras'] : [];
+          foreach ($paras as $p) {
+            if (trim($p) === '') continue;
+            echo '<p class="svc-region__p">'.esc_html($p).'</p>';
+          }
+          ?>
         </div>
       </div>
 
@@ -122,19 +138,21 @@ $carousel_id = 'plakatwerbung-hero'; // jedinstveni ID
     </div>
   </div>
 </section>
+
 <?php
-// pokušaj da pronađeš /contact, fallback na /kontakt/
+// pokušaj da pronađeš /kontakt/, fallback
 $contact_url = get_permalink( get_page_by_path('kontakt') );
 if (!$contact_url) $contact_url = home_url('/kontakt/');
 ?>
 <section class="svc-cta">
   <div class="content-container svc-cta__wrap">
-    <h2 class="svc-cta__title">BEREIT FÜR<br>MAXIMUM IMPACT?</h2>
+    <h2 class="svc-cta__title"><?php echo nl2br(esc_html($meta['cta_title'] ?? "BEREIT FÜR\nMAXIMUM IMPACT?")); ?></h2>
     <a class="svc-cta__btn" href="<?php echo esc_url($contact_url); ?>">
-      JA
+      <?php echo esc_html($meta['cta_btn_text'] ?? 'JA'); ?>
     </a>
   </div>
 </section>
+
 <section class="svc-faq">
   <div class="content-container svc-faq__wrap">
     <div class="svc-faq__head">
@@ -149,14 +167,14 @@ if (!$contact_url) $contact_url = home_url('/kontakt/');
         <div class="svc-faq__item">
           <button class="svc-faq__btn" type="button" aria-expanded="false">
             <h3 class="svc-faq__q"><?php echo esc_html($q); ?></h3>
-    <span class="svc-faq__plus" aria-hidden="true">
-  <svg viewBox="0 0 24 24" class="svc-faq__icon" focusable="false">
-    <path class="svc-faq__icon-h" d="M5 12h14"></path>
-    <path class="svc-faq__icon-v" d="M12 5v14"></path>
-  </svg>
-</span>
+            <span class="svc-faq__plus" aria-hidden="true">
+              <svg viewBox="0 0 24 24" class="svc-faq__icon" focusable="false">
+                <path class="svc-faq__icon-h" d="M5 12h14"></path>
+                <path class="svc-faq__icon-v" d="M12 5v14"></path>
+              </svg>
+            </span>
           </button>
-          <div class="svc-faq__panel" >
+          <div class="svc-faq__panel">
             <div class="svc-faq__a">
               <?php echo $a !== '' ? wp_kses_post($a) : '—'; ?>
             </div>
@@ -164,16 +182,28 @@ if (!$contact_url) $contact_url = home_url('/kontakt/');
         </div>
       <?php }
 
-      // Stavke (možeš dopuniti odgovor kasnije)
-      svc_faq_item('Wie lange im Voraus sollte ich meine Plakatwerbung buchen?', 'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf.');
-      svc_faq_item('Welche Plakatgrößen bieten Sie an?', 'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.');
-      svc_faq_item('Erstellen Sie auch das Design für die Plakate?', 'Ja, unser Grafikteam übernimmt Konzeption, Layout und Druckdaten.');
-      svc_faq_item('Wie wählen Sie die Standorte für meine Plakate aus?', 'Nach Zielgruppe, Frequenz und Sichtachsen – mit Fokus auf Premium-Standorte.');
-      svc_faq_item('Was passiert bei schlechtem Wetter oder Vandalismus?', 'Regelmäßige Kontrollen; beschädigte Plakate ersetzen wir nach Absprache zeitnah.');
+      // Stavke iz metaboxa (ako nema – fallback na defaulte iz helpera)
+      $faqs = isset($meta['faq']) && is_array($meta['faq']) ? $meta['faq'] : [];
+      if (!empty($faqs)) {
+        foreach ($faqs as $row) {
+          $q = isset($row['q']) ? $row['q'] : '';
+          $a = isset($row['a']) ? $row['a'] : '';
+          if (trim($q) === '') continue;
+          svc_faq_item($q, $a);
+        }
+      } else {
+        // Fallback (nikad praktično ne bi trebalo, ali da ne bude prazno)
+        svc_faq_item('Wie lange im Voraus sollte ich meine Plakatwerbung buchen?', 'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf.');
+        svc_faq_item('Welche Plakatgrößen bieten Sie an?', 'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.');
+        svc_faq_item('Erstellen Sie auch das Design für die Plakate?', 'Ja, unser Grafikteam übernimmt Konzeption, Layout und Druckdaten.');
+        svc_faq_item('Wie wählen Sie die Standorte für meine Plakate aus?', 'Nach Zielgruppe, Frequenz und Sichtachsen – mit Fokus auf Premium-Standorte.');
+        svc_faq_item('Was passiert bei schlechtem Wetter oder Vandalismus?', 'Regelmäßige Kontrollen; beschädigte Plakate ersetzen wir nach Absprache zeitnah.');
+      }
       ?>
     </div>
   </div>
 </section>
+
 <section class="svc-quote">
   <div class="content-container svc-quote__wrap">
     <div class="svc-quote__stage">
@@ -186,30 +216,20 @@ if (!$contact_url) $contact_url = home_url('/kontakt/');
 
       <div class="svc-quote__viewport">
         <?php
-        // možeš slobodno menjati/širiti listu
-        $quotes = [
-          [
-            'text'   => '„Exzellente Standortwahl und perfekte Ausführung. Unsere Markenbekanntheit ist durch die strategisch platzierten Plakate enorm gestiegen. Absolut empfehlenswert!“',
-            'org'    => 'Bodensee Events AG',
-            'person' => 'Sandra Müller, Geschäftsführerin',
-          ],
-          [
-            'text'   => '„Sichtbar bessere Reichweite im Stadtgebiet. Planung, Plakatierung und Reporting waren top.“',
-            'org'    => 'City Kultur GmbH',
-            'person' => 'Lukas Hartmann, Marketing',
-          ],
-          [
-            'text'   => '„Schnelle Umsetzung und sehr gute Standorte – wir buchen wieder.“',
-            'org'    => 'Seepark Center',
-            'person' => 'Mira Hoffmann, Leitung Kommunikation',
-          ],
-        ];
+        $quotes = isset($meta['quotes']) && is_array($meta['quotes']) ? $meta['quotes'] : [];
+        if (empty($quotes)) {
+          $quotes = [
+            ['text'=>'„Exzellente Standortwahl und perfekte Ausführung. Unsere Markenbekanntheit ist durch die strategisch platzierten Plakate enorm gestiegen. Absolut empfehlenswert!“','org'=>'Bodensee Events AG','person'=>'Sandra Müller, Geschäftsführerin'],
+            ['text'=>'„Sichtbar bessere Reichweite im Stadtgebiet. Planung, Plakatierung und Reporting waren top.“','org'=>'City Kultur GmbH','person'=>'Lukas Hartmann, Marketing'],
+            ['text'=>'„Schnelle Umsetzung und sehr gute Standorte – wir buchen wieder.“','org'=>'Seepark Center','person'=>'Mira Hoffmann, Leitung Kommunikation'],
+          ];
+        }
         foreach ($quotes as $i => $q): ?>
           <figure class="svc-quote__slide<?php echo $i===0 ? ' is-active' : ''; ?>">
-            <blockquote class="svc-quote__txt"><?php echo esc_html($q['text']); ?></blockquote>
+            <blockquote class="svc-quote__txt"><?php echo esc_html($q['text'] ?? ''); ?></blockquote>
             <figcaption class="svc-quote__meta">
-              <div class="svc-quote__org"><?php echo esc_html($q['org']); ?></div>
-              <div class="svc-quote__person"><?php echo esc_html($q['person']); ?></div>
+              <div class="svc-quote__org"><?php echo esc_html($q['org'] ?? ''); ?></div>
+              <div class="svc-quote__person"><?php echo esc_html($q['person'] ?? ''); ?></div>
             </figcaption>
           </figure>
         <?php endforeach; ?>
@@ -225,9 +245,8 @@ if (!$contact_url) $contact_url = home_url('/kontakt/');
   </div>
 </section>
 
-<section class="svc-detail__content content-container">
-  <?php while (have_posts()) : the_post(); the_content(); endwhile; ?>
-</section>
+<!-- NEMA the_content() – izbegavamo duplikate -->
+
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   const root = document.querySelector('.svc-quote');
@@ -291,7 +310,6 @@ document.addEventListener('DOMContentLoaded', function(){
     const panel = item.querySelector('.svc-faq__panel');
     item.classList.add('is-open');
     btn.setAttribute('aria-expanded','true');
-    // mora posle reflow-a da se pročita scrollHeight
     requestAnimationFrame(() => {
       panel.style.maxHeight = panel.scrollHeight + 'px';
     });
@@ -312,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   });
 
-  // na resize osveži maxHeight otvorenog panela (da ne iseče sadržaj)
+  // na resize osveži maxHeight otvorenog panela
   window.addEventListener('resize', () => {
     const open = root.querySelector('.svc-faq__item.is-open .svc-faq__panel');
     if (open) open.style.maxHeight = open.scrollHeight + 'px';
@@ -320,13 +338,11 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   const root = document.getElementById('plakatwerbung-hero');
   if (!root) return;
 
-  const viewport = root.querySelector('.svc-hero-carousel__viewport');
   let slides = Array.from(root.querySelectorAll('.svc-hero-carousel__bg'));
 
   // 1) preflight – zadrži samo slike koje se mogu učitati
@@ -373,4 +389,3 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 </script>
-

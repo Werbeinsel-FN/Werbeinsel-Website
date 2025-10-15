@@ -1057,3 +1057,288 @@ add_action('admin_init', function () {
   ]);
 });
 
+/* ===== Plakatwerbung admin UI (bez ACF) ===== */
+
+function wi_is_plakatwerbung_page($post_id){
+  if (!$post_id) return false;
+  $tpl  = (string) get_page_template_slug($post_id);
+  $slug = (string) get_post_field('post_name', $post_id);
+  $is_service_detail = $tpl && (strpos($tpl, 'service-detail') !== false);
+  return $is_service_detail && $slug === 'plakatwerbung';
+}
+
+function wi_plakat_defaults(){
+  return [
+    'hero_ids'    => [], // attachment IDs
+    'intro_title' => "PLAKAT\nWERBUNG",
+    'intro_text'  => 'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...',
+    'steps_title' => "ÜBERLEGE\nNOCH",
+    'region_title'=> 'REGION',
+    'region_paras'=> [
+      'Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung...',
+      'Mit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden...',
+      'Mit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden...'
+    ],
+    'region_id'   => 0, // attachment ID
+    'cta_title'   => "BEREIT FÜR\nMAXIMUM IMPACT?",
+    'cta_btn_text'=> 'JA',
+    'faq'         => [
+      ['q'=>'Wie lange im Voraus...','a'=>'Idealerweise 2–4&nbsp;Wochen...'],
+      ['q'=>'Welche Plakatgrößen...','a'=>'DIN A1, DIN A0...'],
+      ['q'=>'Erstellen Sie auch das Design...','a'=>'Ja, unser Grafikteam...'],
+      ['q'=>'Wie wählen Sie die Standorte...','a'=>'Nach Zielgruppe, Frequenz...'],
+      ['q'=>'Was passiert bei schlechtem Wetter...','a'=>'Regelmäßige Kontrollen...'],
+    ],
+    'quotes'      => [
+      ['text'=>'„Exzellente Standortwahl ...“','org'=>'Bodensee Events AG','person'=>'Sandra Müller'],
+      ['text'=>'„Sichtbar bessere Reichweite ...“','org'=>'City Kultur GmbH','person'=>'Lukas Hartmann'],
+      ['text'=>'„Schnelle Umsetzung ...“','org'=>'Seepark Center','person'=>'Mira Hoffmann'],
+    ],
+  ];
+}
+
+function wi_get_plakat_meta($post_id){
+  $d = wi_plakat_defaults();
+  $m = get_post_meta($post_id, '_wi_plakat', true);
+  if (!is_array($m)) $m = [];
+  $m = wp_parse_args($m, $d);
+  // osiguraj tipove
+  $m['hero_ids']  = array_values(array_filter(array_map('intval', (array)$m['hero_ids'])));
+  $m['region_id'] = (int) $m['region_id'];
+  $m['faq']       = array_map(fn($r)=>['q'=> (string)($r['q']??''), 'a'=> (string)($r['a']??'')], (array)$m['faq']);
+  $m['quotes']    = array_map(fn($r)=>['text'=> (string)($r['text']??''), 'org'=> (string)($r['org']??''), 'person'=> (string)($r['person']??'')], (array)$m['quotes']);
+  return $m;
+}
+
+add_action('add_meta_boxes_page', function($post){
+  if (!$post instanceof WP_Post) return;
+  if (!wi_is_plakatwerbung_page($post->ID)) return;
+
+  add_meta_box('wi_plakat_box', 'Plakatwerbung – slike i tekst', 'wi_plakat_metabox', 'page', 'normal', 'high');
+});
+
+function wi_plakat_metabox($post){
+  wp_nonce_field('wi_plakat_save','wi_plakat_nonce');
+  $m = wi_get_plakat_meta($post->ID);
+
+  // Media za hero
+  $hero_thumbs = array_map(function($id){
+    $src = wp_get_attachment_image_url($id, 'medium');
+    return $src ? '<li data-id="'.$id.'"><img src="'.esc_url($src).'"><button type="button" class="button-link delete">&times;</button></li>' : '';
+  }, $m['hero_ids']);
+  $hero_thumbs = implode('', array_filter($hero_thumbs));
+
+  // Region img
+  $region_src = $m['region_id'] ? wp_get_attachment_image_url($m['region_id'], 'large') : '';
+
+  ?>
+  <style>
+    .wi-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;margin:16px 0}
+    .wi-row{display:grid;gap:12px}
+    #wi-hero-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;padding:0}
+    #wi-hero-list li{list-style:none;position:relative}
+    #wi-hero-list img{display:block;width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #ddd}
+    #wi-hero-list .delete{position:absolute;right:2px;top:2px;background:#000;color:#fff;border-radius:50%;line-height:1;width:20px;height:20px;text-align:center}
+    .wi-rep table{width:100%;border-collapse:collapse}
+    .wi-rep th,.wi-rep td{border-bottom:1px solid #eee;padding:6px}
+    .wi-rep input,.wi-rep textarea{width:100%}
+    .wi-note{opacity:.7;font-size:12px}
+  </style>
+
+  <div class="wi-card">
+    <h2>Hero galerija (više slika)</h2>
+    <input type="hidden" id="wi-hero-ids" name="_wi_plakat[hero_ids]" value="<?php echo esc_attr(implode(',', $m['hero_ids'])); ?>">
+    <ul id="wi-hero-list"><?php echo $hero_thumbs ?: '<li class="wi-note">Nema slika još.</li>'; ?></ul>
+    <p>
+      <button type="button" class="button" id="wi-hero-add">Dodaj/izmeni slike</button>
+      <span class="wi-note">Prevuci za promenу redosleda.</span>
+    </p>
+  </div>
+
+  <div class="wi-card">
+    <h2>Intro</h2>
+    <div class="wi-row">
+      <label>Naslov (multi-line, koristi Enter)</label>
+      <input type="text" class="regular-text" name="_wi_plakat[intro_title]" value="<?php echo esc_attr($m['intro_title']); ?>">
+      <label>Tekst</label>
+      <textarea name="_wi_plakat[intro_text]" rows="3"><?php echo esc_textarea($m['intro_text']); ?></textarea>
+    </div>
+  </div>
+
+  <div class="wi-card">
+    <h2>Steps naslov</h2>
+    <input type="text" class="regular-text" name="_wi_plakat[steps_title]" value="<?php echo esc_attr($m['steps_title']); ?>">
+  </div>
+
+  <div class="wi-card">
+    <h2>Region</h2>
+    <div class="wi-row">
+      <label>Naslov</label>
+      <input type="text" name="_wi_plakat[region_title]" value="<?php echo esc_attr($m['region_title']); ?>">
+      <label>Paragrafi (jedan po liniji)</label>
+      <textarea name="_wi_plakat[region_paras]" rows="4"><?php echo esc_textarea(implode("\n",$m['region_paras'])); ?></textarea>
+
+      <label>Slika</label>
+      <input type="hidden" id="wi-region-id" name="_wi_plakat[region_id]" value="<?php echo (int)$m['region_id']; ?>">
+      <div id="wi-region-preview"><?php echo $region_src?'<img src="'.esc_url($region_src).'" style="max-width:240px;border:1px solid #ddd;border-radius:6px">':'<em class="wi-note">Nema slike</em>'; ?></div>
+      <p><button type="button" class="button" id="wi-region-pick">Odaberi sliku</button>
+         <button type="button" class="button button-link-delete" id="wi-region-clear">Ukloni</button></p>
+    </div>
+  </div>
+
+  <div class="wi-card wi-rep">
+    <h2>FAQ</h2>
+    <table id="wi-faq"><thead><tr><th>Pitanje</th><th>Odgovor (HTML dozvoljen)</th><th></th></tr></thead><tbody>
+      <?php foreach ($m['faq'] as $row): ?>
+      <tr>
+        <td><input type="text" name="_wi_plakat[faq_q][]" value="<?php echo esc_attr($row['q']); ?>"></td>
+        <td><textarea name="_wi_plakat[faq_a][]" rows="2"><?php echo esc_textarea($row['a']); ?></textarea></td>
+        <td><button type="button" class="button wi-del">&times;</button></td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody></table>
+    <p><button type="button" class="button" id="wi-faq-add">+ Dodaj</button></p>
+  </div>
+
+  <div class="wi-card wi-rep">
+    <h2>Citati</h2>
+    <table id="wi-quotes"><thead><tr><th>Tekst</th><th>Organizacija</th><th>Osoba</th><th></th></tr></thead><tbody>
+      <?php foreach ($m['quotes'] as $q): ?>
+      <tr>
+        <td><textarea name="_wi_plakat[q_text][]" rows="2"><?php echo esc_textarea($q['text']); ?></textarea></td>
+        <td><input type="text" name="_wi_plakat[q_org][]" value="<?php echo esc_attr($q['org']); ?>"></td>
+        <td><input type="text" name="_wi_plakat[q_person][]" value="<?php echo esc_attr($q['person']); ?>"></td>
+        <td><button type="button" class="button wi-del">&times;</button></td>
+      </tr>
+      <?php endforeach; ?>
+    </tbody></table>
+    <p><button type="button" class="button" id="wi-quote-add">+ Dodaj</button></p>
+  </div>
+
+  <div class="wi-card">
+    <h2>CTA</h2>
+    <label>Naslov</label>
+    <input type="text" name="_wi_plakat[cta_title]" value="<?php echo esc_attr($m['cta_title']); ?>">
+    <label>Dugme – tekst</label>
+    <input type="text" name="_wi_plakat[cta_btn_text]" value="<?php echo esc_attr($m['cta_btn_text']); ?>">
+    <p class="wi-note">Link ostaje /kontakt/ (kao i do sada).</p>
+  </div>
+
+  <script>
+  (function($){
+    // Media
+    $(function(){
+      // gallery
+      let frame;
+      $('#wi-hero-add').on('click', function(e){
+        e.preventDefault();
+        if (!frame) {
+          frame = wp.media({ title: 'Odaberi slike (više)', multiple: true, library:{type:'image'} });
+          frame.on('select', function(){
+            const ids=[], list = $('#wi-hero-list').empty();
+            frame.state().get('selection').each(function(att){
+              ids.push(att.id);
+              list.append('<li data-id="'+att.id+'"><img src="'+att.attributes.sizes.medium.url+'"><button type="button" class="button-link delete">&times;</button></li>');
+            });
+            $('#wi-hero-ids').val(ids.join(','));
+          });
+        }
+        frame.open();
+      });
+      $('#wi-hero-list').on('click','.delete',function(){
+        $(this).closest('li').remove();
+        const ids = $('#wi-hero-list li').map(function(){return $(this).data('id');}).get();
+        $('#wi-hero-ids').val(ids.join(','));
+      }).sortable({
+        update:function(){
+          const ids = $('#wi-hero-list li').map(function(){return $(this).data('id');}).get();
+          $('#wi-hero-ids').val(ids.join(','));
+        }
+      });
+
+      // region image
+      let rframe;
+      $('#wi-region-pick').on('click', function(e){
+        e.preventDefault();
+        if (!rframe) {
+          rframe = wp.media({ title:'Odaberi sliku', multiple:false, library:{type:'image'} });
+          rframe.on('select', function(){
+            const att = rframe.state().get('selection').first().toJSON();
+            $('#wi-region-id').val(att.id);
+            $('#wi-region-preview').html('<img src="'+(att.sizes.large?att.sizes.large.url:att.url)+'" style="max-width:240px;border:1px solid #ddd;border-radius:6px">');
+          });
+        }
+        rframe.open();
+      });
+      $('#wi-region-clear').on('click', function(e){
+        e.preventDefault(); $('#wi-region-id').val('0'); $('#wi-region-preview').html('<em class="wi-note">Nema slike</em>');
+      });
+
+      // repeaters
+      $('#wi-faq-add').on('click', function(){
+        $('#wi-faq tbody').append('<tr><td><input type="text" name="_wi_plakat[faq_q][]" value=""></td><td><textarea name="_wi_plakat[faq_a][]" rows="2"></textarea></td><td><button type="button" class="button wi-del">&times;</button></td></tr>');
+      });
+      $('#wi-quotes').on('click','.wi-del', function(){ $(this).closest('tr').remove(); });
+      $('#wi-faq').on('click','.wi-del', function(){ $(this).closest('tr').remove(); });
+      $('#wi-quote-add').on('click', function(){
+        $('#wi-quotes tbody').append('<tr><td><textarea name="_wi_plakat[q_text][]" rows="2"></textarea></td><td><input type="text" name="_wi_plakat[q_org][]" value=""></td><td><input type="text" name="_wi_plakat[q_person][]" value=""></td><td><button type="button" class="button wi-del">&times;</button></td></tr>');
+      });
+    });
+  })(jQuery);
+  </script>
+  <?php
+}
+
+add_action('admin_enqueue_scripts', function($hook){
+  if (in_array($hook, ['post-new.php','post.php'], true)) {
+    wp_enqueue_media();
+    wp_enqueue_script('jquery-ui-sortable');
+  }
+});
+
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_plakat_nonce']) || !wp_verify_nonce($_POST['wi_plakat_nonce'], 'wi_plakat_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+  if (!wi_is_plakatwerbung_page($post_id)) return;
+
+  $defs = wi_plakat_defaults(); $in = $_POST['_wi_plakat'] ?? []; $out = [];
+
+  // hero ids
+  $ids = array_filter(array_map('intval', explode(',', (string)($in['hero_ids'] ?? ''))));
+  $out['hero_ids'] = !empty($ids) ? $ids : $defs['hero_ids'];
+
+  // intro/steps
+  $out['intro_title'] = trim((string)($in['intro_title'] ?? '')) ?: $defs['intro_title'];
+  $out['intro_text']  = trim((string)($in['intro_text']  ?? '')) ?: $defs['intro_text'];
+  $out['steps_title'] = trim((string)($in['steps_title'] ?? '')) ?: $defs['steps_title'];
+
+  // region
+  $out['region_title'] = trim((string)($in['region_title'] ?? '')) ?: $defs['region_title'];
+  $paras = preg_split('/\r\n|\r|\n/', (string)($in['region_paras'] ?? ''));
+  $paras = array_values(array_filter(array_map('trim', (array)$paras)));
+  $out['region_paras'] = !empty($paras) ? array_map('sanitize_text_field', $paras) : $defs['region_paras'];
+  $out['region_id'] = max(0, (int)($in['region_id'] ?? 0));
+
+  // CTA
+  $out['cta_title']    = trim((string)($in['cta_title'] ?? '')) ?: $defs['cta_title'];
+  $out['cta_btn_text'] = trim((string)($in['cta_btn_text'] ?? '')) ?: $defs['cta_btn_text'];
+
+  // FAQ
+  $qs = $in['faq_q'] ?? []; $as = $in['faq_a'] ?? []; $faq=[];
+  foreach ((array)$qs as $k=>$q) {
+    $q = trim((string)$q); $a = trim((string)($as[$k] ?? ''));
+    if ($q==='') continue; $faq[] = ['q'=>sanitize_text_field($q),'a'=>wp_kses_post($a)];
+  }
+  $out['faq'] = !empty($faq)?$faq:$defs['faq'];
+
+  // Quotes
+  $t = $in['q_text'] ?? []; $o = $in['q_org'] ?? []; $p = $in['q_person'] ?? []; $qq=[];
+  foreach ((array)$t as $k=>$txt) {
+    $txt = trim((string)$txt); if ($txt==='') continue;
+    $qq[] = ['text'=>sanitize_text_field($txt),'org'=>sanitize_text_field($o[$k] ?? ''),'person'=>sanitize_text_field($p[$k] ?? '')];
+  }
+  $out['quotes'] = !empty($qq)?$qq:$defs['quotes'];
+
+  update_post_meta($post_id, '_wi_plakat', $out);
+});
