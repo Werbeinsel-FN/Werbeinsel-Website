@@ -124,8 +124,8 @@ $carousel_id = 'plakatwerbung-hero'; // jedinstveni ID
 </section>
 <?php
 // pokušaj da pronađeš /contact, fallback na /kontakt/
-$contact_url = get_permalink( get_page_by_path('contact') );
-if (!$contact_url) $contact_url = home_url('/contact/');
+$contact_url = get_permalink( get_page_by_path('kontakt') );
+if (!$contact_url) $contact_url = home_url('/kontakt/');
 ?>
 <section class="svc-cta">
   <div class="content-container svc-cta__wrap">
