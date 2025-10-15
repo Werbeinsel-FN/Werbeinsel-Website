@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Werbeinsel Services Manager
- * Description: Uređivanje sadržaja "Services" stranice + detalja servisa (slider i sadržaj ispod) + Verteilergebiet + FAQ.
- * Version: 2.1.0
+ * Description: Uređivanje sadržaja "Services" stranice (grid). (Varijanta bez "Service Details" modula.)
+ * Version: 2.1.1
  * Author: Werbeinsel
  */
 
@@ -10,23 +10,18 @@ if (!defined('ABSPATH')) exit;
 
 class WI_Services_Manager {
   const OPT_KEY_LIST    = 'wi_services_options';
-  const OPT_KEY_DETAILS = 'wi_service_details';
   const CAP             = 'manage_options';
   const PAGE_SLUG       = 'wi-services';
-  const PAGE_SLUG_DET   = 'wi-service-details';
-  const QV_TAG          = 'wi_service';
 
   public function __construct() {
-    add_action('admin_menu',              [$this, 'menu']);
-    add_action('admin_init',              [$this, 'register']);
-    add_action('admin_enqueue_scripts',   [$this, 'assets']);
+    // Admin
+    add_action('admin_menu',            [$this, 'menu']);
+    add_action('admin_init',            [$this, 'register']);
+    add_action('admin_enqueue_scripts', [$this, 'assets']);
 
-    add_action('init',                    [$this, 'rewrites']);
-    add_filter('query_vars',              [$this, 'query_vars']);
-    add_filter('template_include',        [$this, 'template_loader']);
-
-    register_activation_hook(__FILE__,    [$this, 'activate']);
-    register_deactivation_hook(__FILE__,  [$this, 'deactivate']);
+    // Aktivacija/deaktivacija (nema rewrites više)
+    register_activation_hook(__FILE__,  [$this, 'activate']);
+    register_deactivation_hook(__FILE__,[$this, 'deactivate']);
   }
 
   public function menu() {
@@ -39,19 +34,10 @@ class WI_Services_Manager {
       'dashicons-layout',
       58
     );
-    add_submenu_page(
-      self::PAGE_SLUG,
-      __('Service Details','wi'),
-      __('Service Details','wi'),
-      self::CAP,
-      self::PAGE_SLUG_DET,
-      [$this, 'render_details']
-    );
   }
 
   public function register() {
-    register_setting('wi_services_group',         self::OPT_KEY_LIST,    [$this, 'sanitize_list']);
-    register_setting('wi_service_details_group',  self::OPT_KEY_DETAILS, [$this, 'sanitize_details']);
+    register_setting('wi_services_group', self::OPT_KEY_LIST, [$this, 'sanitize_list']);
   }
 
   private function groups_spec() {
@@ -62,34 +48,9 @@ class WI_Services_Manager {
     ];
   }
 
-  /** Defaults used when nothing is saved yet (titles only) */
-  private function defaults_map() {
-    return [
-      'out_of_home' => [
-        ['title'=>'Plakatwerbung'],
-        ['title'=>'Großflächenwerbung'],
-        ['title'=>'Digital Signage'],
-        ['title'=>'Transit Advertising'],
-        ['title'=>'Guerilla Marketing'],
-        ['title'=>'Ambient Advertising'],
-      ],
-      'pixel_code' => [
-        ['title'=>'Corporate Design'],
-        ['title'=>'Webentwicklung'],
-        ['title'=>'Print Design'],
-        ['title'=>'UI/UX Design'],
-      ],
-      'lass_kleben' => [
-        ['title'=>'Neonreklame'],
-        ['title'=>'LED-Displays'],
-        ['title'=>'Leuchtschriften'],
-      ],
-    ];
-  }
-
-  /** Admin assets */
+  /** Admin assets — ostavljeno samo za glavnu stranicu (grid) */
   public function assets($hook) {
-    $is_ours = (isset($_GET['page']) && ( $_GET['page'] === self::PAGE_SLUG || $_GET['page'] === self::PAGE_SLUG_DET ));
+    $is_ours = (isset($_GET['page']) && $_GET['page'] === self::PAGE_SLUG);
     if (!$is_ours) return;
 
     wp_enqueue_media();
@@ -109,9 +70,6 @@ class WI_Services_Manager {
         .wi-wrap .regular-text, .wi-wrap textarea{width:100%;max-width:100%}
         .wi-wrap select{width:100%}
         .muted{opacity:.7;font-size:12px}
-        .slide-box{border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fff}
-        .faq-item{border:1px dashed #e5e7eb;border-radius:12px;padding:12px;background:#fff;margin-bottom:10px}
-        .faq-actions{display:flex;gap:8px;margin-top:6px}
         @media (max-width: 960px){ .wi-row{flex-direction:column} .wi-img{width:100%;height:160px} }
       </style>
       <script>
@@ -130,7 +88,6 @@ class WI_Services_Manager {
           }
 
           document.addEventListener('click', function(e){
-            // GRID image
             const gridPick = e.target.closest('.wi-upload');
             const gridRm   = e.target.closest('.wi-remove');
             if (gridPick){
@@ -155,76 +112,9 @@ class WI_Services_Manager {
               triggerChange(input);
               return;
             }
-
-            // SLIDER media
-            const slidePick = e.target.closest('.wi-slide-upload');
-            const slideRm   = e.target.closest('.wi-slide-remove');
-            if (slidePick){
-              e.preventDefault();
-              const wrap = slidePick.closest('.slide-box');
-              const idEl  = wrap.querySelector('.wi-slide-bg-id');
-              const urlEl = wrap.querySelector('.wi-slide-bg-url');
-              openMedia(function(att){
-                idEl.value  = att.id || '';
-                urlEl.value = att.url || '';
-                triggerChange(idEl);
-                triggerChange(urlEl);
-              });
-              return;
-            }
-            if (slideRm){
-              e.preventDefault();
-              const wrap = slideRm.closest('.slide-box');
-              const idEl  = wrap.querySelector('.wi-slide-bg-id');
-              const urlEl = wrap.querySelector('.wi-slide-bg-url');
-              idEl.value = '';
-              urlEl.value = '';
-              triggerChange(idEl);
-              triggerChange(urlEl);
-              return;
-            }
-
-            // FAQ add/remove
-            if (e.target.matches('.wi-faq-add')) {
-              e.preventDefault();
-              const list = e.target.closest('.card').querySelector('.wi-faq-list');
-              const index = list.children.length;
-              const tmpl = document.getElementById('wi-faq-template').content.cloneNode(true);
-              // rename inputs to correct index
-              tmpl.querySelectorAll('[data-name]').forEach(function(el){
-                const field = el.getAttribute('data-name');
-                el.setAttribute('name', el.getAttribute('name').replace('__INDEX__', index));
-              });
-              list.appendChild(tmpl);
-              return;
-            }
-            if (e.target.matches('.wi-faq-remove')) {
-              e.preventDefault();
-              const item = e.target.closest('.faq-item');
-              if (item) item.remove();
-              return;
-            }
           });
         })();
       </script>
-      <!-- FAQ template -->
-      <template id="wi-faq-template">
-        <div class="faq-item">
-          <div>
-            <label>Pitanje</label>
-            <input type="text" class="regular-text" data-name="q"
-              name="<?php echo self::OPT_KEY_DETAILS; ?>[services][__SLUG__][faq][__INDEX__][q]" value="">
-          </div>
-          <div>
-            <label>Odgovor</label>
-            <textarea rows="3" data-name="a"
-              name="<?php echo self::OPT_KEY_DETAILS; ?>[services][__SLUG__][faq][__INDEX__][a]"></textarea>
-          </div>
-          <div class="faq-actions">
-            <button type="button" class="button wi-faq-remove">Ukloni pitanje</button>
-          </div>
-        </div>
-      </template>
     <?php });
   }
 
@@ -334,344 +224,7 @@ class WI_Services_Manager {
     return $out;
   }
 
-  /* --------------------- Service Details --------------------- */
-
-  private function all_services_indexed() {
-    $saved    = get_option(self::OPT_KEY_LIST, []);
-    $groups   = $saved['groups'] ?? [];
-    $defaults = $this->defaults_map();
-    $spec     = $this->groups_spec();
-
-    foreach ($spec as $gk => $s) {
-      for ($i=0; $i<$s['count']; $i++) {
-        $title = '';
-        if (isset($groups[$gk][$i]['title']) && $groups[$gk][$i]['title'] !== '') {
-          $title = $groups[$gk][$i]['title'];
-        } elseif (!empty($defaults[$gk][$i]['title'])) {
-          $title = $defaults[$gk][$i]['title'];
-        }
-        if ($title === '') continue;
-        $groups[$gk][$i]['title'] = $title;
-      }
-    }
-
-    $list = [];
-    foreach ($groups as $group_key => $items) {
-      foreach ((array)$items as $i => $it) {
-        if (empty($it['title'])) continue;
-        $slug = sanitize_title($it['title']);
-        $list[$slug] = [
-          'title' => $it['title'],
-          'group' => $group_key,
-          'index' => $i,
-          'slug'  => $slug,
-        ];
-      }
-    }
-    ksort($list);
-    return $list;
-  }
-/** Rekurzivno spaja $saved preko $defaults, ne pregazajući postojeće vrednosti praznim stringom */
-private function merge_defaults(array $defaults, $saved) {
-  if (!is_array($saved)) return $defaults;
-
-  $out = $defaults;
-
-  // prvo prepiši poznate ključeve
-  foreach ($defaults as $k => $defVal) {
-    if (array_key_exists($k, $saved)) {
-      $savVal = $saved[$k];
-      if (is_array($defVal)) {
-        $out[$k] = $this->merge_defaults($defVal, is_array($savVal) ? $savVal : []);
-      } else {
-        // koristi sačuvano samo ako nije '' (prazan string)
-        $out[$k] = ($savVal !== '' ? $savVal : $defVal);
-      }
-    }
-  }
-
-  // zadrži i dodatne ključeve kojih nema u defaultu (npr. dodatna FAQ pitanja)
-  foreach ($saved as $k => $v) {
-    if (!array_key_exists($k, $defaults)) {
-      $out[$k] = $v;
-    }
-  }
-
-  return $out;
-}
-
-  public function render_details() {
-    if (!current_user_can(self::CAP)) return;
-
-    $services = $this->all_services_indexed();
-    if (!$services) {
-      foreach ($this->defaults_map() as $g => $arr) {
-        foreach ($arr as $i => $it) {
-          if (empty($it['title'])) continue;
-          $slug = sanitize_title($it['title']);
-          $services[$slug] = ['title'=>$it['title'],'group'=>$g,'index'=>$i,'slug'=>$slug];
-        }
-      }
-      ksort($services);
-    }
-
-    $firstKey = $services ? array_key_first($services) : '';
-    $selected = isset($_GET['service']) ? sanitize_title(wp_unslash($_GET['service'])) : $firstKey;
-
-    $det = get_option(self::OPT_KEY_DETAILS, []);
-$det = get_option(self::OPT_KEY_DETAILS, []);
-
-// podrazumevane vrednosti
-$defaults_cur = [
-  'slides' => [
-    ['h1'=>'PLAKATWERBUNG','h2'=>'Authentische Plakatwerbung','text'=>'So sieht professionelle Straßenwerbung in der Praxis aus','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-    ['h1'=>'PLAKATWERBUNG','h2'=>'Professionelle Außenwerbung','text'=>'Ihre Marke im städtischen Umfeld präsentieren','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-    ['h1'=>'PLAKATWERBUNG','h2'=>'Großformat-Werbung','text'=>'Maximale Aufmerksamkeit durch beeindruckende Größe','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-    ['h1'=>'PLAKATWERBUNG','h2'=>'Strategische Platzierung','text'=>'An hochfrequentierten Verkehrsknotenpunkten','bg_type'=>'image','bg_id'=>0,'bg_url'=>''],
-  ],
-  'below' => [
-    'title'=>'IHRE BOTSCHAFT AUF DIE STRAßE',
-    'text'=>'Plakatwerbung ist eine der effektivsten Formen der Außenwerbung...'
-  ],
-  'dist'  => [
-    'title'=>'UNSER VERTEILERGEBIET',
-    'text'=>"Wir plakatieren in der gesamten Region Friedrichshafen und Umgebung. Unsere strategisch ausgewählten Standorte garantieren maximale Sichtbarkeit für Ihre Kampagne.\n\nMit über 50 Premium-Standorten erreichen Sie täglich tausende von potenziellen Kunden an hochfrequentierten Verkehrsknotenpunkten, Einkaufszentren und zentralen Stadtbereichen."
-  ],
-  'faq'   => [
-    ['q'=>'Wie lange im Voraus sollte ich meine Plakatwerbung buchen?','a'=>'Idealerweise 2–4&nbsp;Wochen im Voraus. Bei größeren Kampagnen empfehlen wir mehr Vorlauf, damit Standorte optimal geplant werden können.'],
-    ['q'=>'Welche Plakatgrößen bieten Sie an?','a'=>'Gängige Formate sind DIN&nbsp;A1 und DIN&nbsp;A0. Sonderformate sind nach Absprache möglich.'],
-    ['q'=>'Erstellen Sie auch das Design für die Plakate?','a'=>'Ja. Unser Grafikteam erstellt auf Wunsch ein wirkungsstarkes Layout inkl. Druckdaten.'],
-    ['q'=>'Wie wählen Sie die Standorte für meine Plakate aus?','a'=>'Auf Basis von Zielgruppe, Frequenz und Sichtachsen wählen wir Premium-Standorte mit hoher Reichweite.'],
-    ['q'=>'Was passiert bei schlechtem Wetter oder Vandalismus?','a'=>'Wir kontrollieren regelmäßig. Beschädigte Plakate werden nach Absprache zeitnah ersetzt.'],
-  ],
-];
-
-// uzmi sačuvane vrednosti za izabrani servis (ako postoje)
-$saved_for_selected = isset($det[$selected]) && is_array($det[$selected]) ? $det[$selected] : [];
-
-// rekurzivni merge: sačuvano ima prednost, a prazna polja se popunjavaju defaultima
-$cur = $this->merge_defaults($defaults_cur, $saved_for_selected);
-
-// dodatno: osiguraj 4 slajda tako što popunimo nedostajuće indekse
-for ($i=0; $i<4; $i++) {
-  $cur['slides'][$i] = $this->merge_defaults($defaults_cur['slides'][$i], $cur['slides'][$i] ?? []);
-}
-
-    
-    ?>
-    <div class="wrap wi-wrap">
-      <h1>Service Details</h1>
-      <form method="post" action="options.php">
-        <?php settings_fields('wi_service_details_group'); ?>
-        <input type="hidden" name="<?php echo self::OPT_KEY_DETAILS; ?>[__editing_slug]" value="<?php echo esc_attr($selected); ?>">
-
-        <div class="card">
-          <h2>Odaberi servis</h2>
-          <select onchange="location.href='?page=<?php echo esc_attr(self::PAGE_SLUG_DET); ?>&service='+this.value">
-            <?php foreach($services as $slug => $s): ?>
-              <option value="<?php echo esc_attr($slug); ?>" <?php selected($slug, $selected); ?>>
-                <?php echo esc_html($s['title']); ?> (<?php echo esc_html($slug); ?>)
-              </option>
-            <?php endforeach; ?>
-          </select>
-          <p class="muted">URL: <code><?php echo esc_html( home_url('/services/'.$selected.'/') ); ?></code></p>
-        </div>
-
-        <div class="card">
-          <h2>Slider (do 4 slajda)</h2>
-          <div class="wi-grid">
-            <?php for($i=0; $i<4; $i++):
-              $sl = $cur['slides'][$i] ?? ['h1'=>'','h2'=>'','text'=>'','bg_type'=>'image','bg_id'=>0,'bg_url'=>''];
-            ?>
-              <div class="slide-box">
-                <strong>Slide <?php echo $i+1; ?></strong>
-                <div class="wi-col" style="margin-top:8px">
-                  <div>
-                    <label>Naslov (H1)</label>
-                    <input type="text" class="regular-text" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][slides][<?php echo $i; ?>][h1]" value="<?php echo esc_attr($sl['h1']); ?>">
-                  </div>
-                  <div>
-                    <label>Podnaslov (H2)</label>
-                    <input type="text" class="regular-text" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][slides][<?php echo $i; ?>][h2]" value="<?php echo esc_attr($sl['h2']); ?>">
-                  </div>
-                  <div>
-                    <label>Tekst</label>
-                    <textarea rows="3" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][slides][<?php echo $i; ?>][text]"><?php echo esc_textarea($sl['text']); ?></textarea>
-                  </div>
-                  <div>
-                    <label>Pozadina</label>
-                    <select name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][slides][<?php echo $i; ?>][bg_type]">
-                      <option value="image" <?php selected(($sl['bg_type']??'image'),'image'); ?>>Slika</option>
-                      <option value="video" <?php selected(($sl['bg_type']??'image'),'video'); ?>>Video</option>
-                    </select>
-                  </div>
-                  <div class="wi-row">
-                    <div>
-                      <label>Media (slika ili video)</label>
-                      <input type="hidden" class="wi-slide-bg-id"  name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][slides][<?php echo $i; ?>][bg_id]" value="<?php echo esc_attr($sl['bg_id']); ?>">
-                      <input type="text" class="wi-slide-bg-url regular-text" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][slides][<?php echo $i; ?>][bg_url]" value="<?php echo esc_attr($sl['bg_url']); ?>" placeholder="URL (automatski se popuni pri odabiru)">
-                      <div style="margin-top:6px">
-                        <button type="button" class="button wi-slide-upload">Odaberi iz biblioteke</button>
-                        <button type="button" class="button wi-slide-remove">Ukloni</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <?php endfor; ?>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Sadržaj ispod slidera</h2>
-          <div class="wi-grid">
-            <div>
-              <label>Naslov</label>
-              <input type="text" class="regular-text" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][below][title]" value="<?php echo esc_attr($cur['below']['title'] ?? ''); ?>">
-            </div>
-            <div>
-              <label>Tekst</label>
-              <textarea rows="5" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][below][text]"><?php echo esc_textarea($cur['below']['text'] ?? ''); ?></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Verteilergebiet (naslov + tekst pored mape)</h2>
-          <div class="wi-grid">
-            <div>
-              <label>Naslov</label>
-              <input type="text" class="regular-text" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][dist][title]" value="<?php echo esc_attr($cur['dist']['title'] ?? ''); ?>">
-            </div>
-            <div>
-              <label>Tekst (podržava paragraf-e)</label>
-              <textarea rows="6" name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][dist][text]"><?php echo esc_textarea($cur['dist']['text'] ?? ''); ?></textarea>
-            </div>
-          </div>
-          <p class="muted">Ako ništa nije uneto, koristiće se podrazumevani (default) tekst.</p>
-        </div>
-
-        <div class="card">
-          <h2>FAQ (pitanja i odgovori)</h2>
-          <div class="wi-faq-list">
-            <?php
-              $faq = is_array($cur['faq'] ?? null) ? $cur['faq'] : [];
-              foreach ($faq as $i => $row):
-                $q = $row['q'] ?? '';
-                $a = $row['a'] ?? '';
-            ?>
-              <div class="faq-item">
-                <div>
-                  <label>Pitanje</label>
-                  <input type="text" class="regular-text"
-                    name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][faq][<?php echo (int)$i; ?>][q]"
-                    value="<?php echo esc_attr($q); ?>">
-                </div>
-                <div>
-                  <label>Odgovor</label>
-                  <textarea rows="3"
-                    name="<?php echo self::OPT_KEY_DETAILS; ?>[services][<?php echo esc_attr($selected); ?>][faq][<?php echo (int)$i; ?>][a]"><?php echo esc_textarea($a); ?></textarea>
-                </div>
-                <div class="faq-actions">
-                  <button type="button" class="button wi-faq-remove">Ukloni pitanje</button>
-                </div>
-              </div>
-            <?php endforeach; ?>
-          </div>
-          <p><button type="button" class="button button-primary wi-faq-add">+ Dodaj pitanje</button></p>
-
-          <script>
-            // Zameni placeholder __SLUG__ u template-u
-            document.addEventListener('DOMContentLoaded', function(){
-              const tpl = document.getElementById('wi-faq-template');
-              if (!tpl) return;
-              tpl.innerHTML = tpl.innerHTML.replaceAll('__SLUG__','<?php echo esc_js($selected); ?>');
-            });
-          </script>
-        </div>
-
-        <?php submit_button(); ?>
-      </form>
-    </div>
-    <?php
-  }
-
-  public function sanitize_details($input) {
-    $out = get_option(self::OPT_KEY_DETAILS, []);
-    $editing = isset($input['__editing_slug']) ? sanitize_title($input['__editing_slug']) : '';
-    if (!$editing) return $out;
-
-    $svcs = $input['services'][$editing] ?? [];
-
-    // Slides
-    $slides = [];
-    if (isset($svcs['slides']) && is_array($svcs['slides'])) {
-      foreach ($svcs['slides'] as $i => $sl) {
-        $slides[$i] = [
-          'h1'     => sanitize_text_field($sl['h1'] ?? ''),
-          'h2'     => sanitize_text_field($sl['h2'] ?? ''),
-          'text'   => wp_kses_post($sl['text'] ?? ''),
-          'bg_type'=> ($sl['bg_type'] ?? 'image') === 'video' ? 'video' : 'image',
-          'bg_id'  => isset($sl['bg_id']) ? absint($sl['bg_id']) : 0,
-          'bg_url' => esc_url_raw($sl['bg_url'] ?? ''),
-        ];
-      }
-    }
-
-    // Below
-    $below = [
-      'title' => sanitize_text_field($svcs['below']['title'] ?? ''),
-      'text'  => wp_kses_post($svcs['below']['text'] ?? ''),
-    ];
-
-    // Verteilergebiet
-    $dist = [
-      'title' => sanitize_text_field($svcs['dist']['title'] ?? ''),
-      'text'  => wp_kses_post($svcs['dist']['text'] ?? ''),
-    ];
-
-    // FAQ
-    $faq_clean = [];
-    if (isset($svcs['faq']) && is_array($svcs['faq'])) {
-      foreach ($svcs['faq'] as $row) {
-        $q = trim(wp_unslash($row['q'] ?? ''));
-        $a = trim(wp_unslash($row['a'] ?? ''));
-        if ($q === '' && $a === '') continue;
-        $faq_clean[] = [
-          'q' => sanitize_text_field($q),
-          'a' => wp_kses_post($a),
-        ];
-      }
-    }
-
-    if (!isset($out[$editing])) $out[$editing] = [];
-    $out[$editing]['slides'] = $slides;
-    $out[$editing]['below']  = $below;
-    $out[$editing]['dist']   = $dist;
-    $out[$editing]['faq']    = $faq_clean;
-
-    return $out;
-  }
-
-  /* --------------------- Frontend routing --------------------- */
-
-  public function rewrites() {
-    add_rewrite_tag('%'.self::QV_TAG.'%', '([^&]+)');
-    add_rewrite_rule('^services/([^/]+)/?$', 'index.php?'.self::QV_TAG.'=$matches[1]', 'top');
-  }
-  public function query_vars($vars) { $vars[] = self::QV_TAG; return $vars; }
-  public function template_loader($template) {
-    $slug = get_query_var(self::QV_TAG);
-    if ($slug) {
-      $file = plugin_dir_path(__FILE__) . 'templates/single-wi-service.php';
-      if (file_exists($file)) return $file;
-    }
-    return $template;
-  }
-  public function activate(){ $this->rewrites(); flush_rewrite_rules(false); }
-  public function deactivate(){ flush_rewrite_rules(false); }
-
-  /* --------------------- Data helper --------------------- */
+  /* --------------------- Data helper (bez detalja) --------------------- */
 
   public static function get_service_data_by_slug($slug) {
     $slug   = sanitize_title($slug);
@@ -690,9 +243,12 @@ for ($i=0; $i<4; $i++) {
         }
       }
     }
-    $details_all = get_option(self::OPT_KEY_DETAILS, []);
-    $details     = $details_all[$slug] ?? [];
-    return [$found, $details];
+    // Nema više OPT_KEY_DETAILS ni detalja
+    return [$found, []];
   }
+
+  public function activate(){ /* nema rewrite pravila, samo flush da bude čisto */ flush_rewrite_rules(false); }
+  public function deactivate(){ flush_rewrite_rules(false); }
 }
+
 new WI_Services_Manager();
