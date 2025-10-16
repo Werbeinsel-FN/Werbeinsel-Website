@@ -350,7 +350,7 @@
   padding-right: 20px; /* fallback ako content-container nije globalno stilizovan */
   margin-left: auto;
   margin-right: auto;
-  max-width: 1200px;
+  max-width: 1780px;
 }
 
 .svc-region__title {
@@ -411,6 +411,64 @@
   object-fit: cover;
   display: block;
 }
+/* ========= REGION fix (širine kolona, tipografija, odnos slike) ========= */
+
+/* 1) Na desktopu: tekst 60%, slika 40% + veći razmak */
+@media (min-width: 1024px) {
+  .svc-region__grid {
+    grid-template-columns: 2fr 2fr; /* tekst : slika */
+    column-gap: 34px; /* malo veći gap */
+    align-items: start;
+  }
+}
+
+/* 2) Poništi globalne max-width stilove na paragrafima unutar ove sekcije */
+.svc-region__text,
+.svc-region__p {
+  max-width: none !important;
+}
+
+/* 3) Smanji veličinu fonta teksta da linije budu duže (kao na slici 1) */
+.svc-region__p {
+  line-height: 1.6;
+}
+
+/* 4) Slika: stabilan odnos stranica + razumna max-širina na desktopu */
+@media (min-width: 1024px) {
+  .svc-region__imgwrap {
+    width: 100%;
+    max-width: 520px; /* približno izgled slici 1 */
+    aspect-ratio: 4 / 3; /* lepo popunjavanje okvira */
+    min-height: 0; /* ne treba više fiksni min-height */
+  }
+}
+.svc-region__col:last-child,
+.svc-region__imgwrap {
+  height: 100%; /* neka slika zauzme celu visinu */
+}
+/* 1) Omogući veću ukupnu širinu sekcije i centriraj je */
+.svc-region__wrap {
+  max-width: min(92vw, 1780px); /* šira od 1200, ali ne preko ekrana */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* 3) Pusti sliku da raste (ukloni stari cap) i neka popuni svoju kolonu */
+@media (min-width: 1024px) {
+  .svc-region__imgwrap {
+    max-width: none; /* skini eventualno ograničenje (npr. 520px) */
+    height: 100%;
+    aspect-ratio: 4 / 3; /* stabilan odnos; menjaj po ukusu */
+    display: flex;
+  }
+  .svc-region__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
 /* ========== CTA: Maximum Impact ========== */
 .svc-cta {
   background: #000;
@@ -423,7 +481,7 @@
   padding-left: 20px;
   padding-right: 20px; /* fallback */
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 1780px;
 }
 .svc-cta__title {
   font-family: "Unbounded", system-ui, -apple-system, "Segoe UI", Roboto,
@@ -522,7 +580,7 @@
   font-size: clamp(56px, 12vw, 175px);
   line-height: 0.9;
   color: #000;
-  margin: 0 0 16px;
+  margin: 0 0 32px;
 }
 .svc-faq__lead {
   font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -530,7 +588,7 @@
   font-size: clamp(18px, 2.2vw, 34px);
   line-height: 1.45;
   color: #000;
-  max-width: 56ch;
+  max-width: 40ch;
   margin: 0 auto;
 }
 
@@ -689,7 +747,7 @@
   font-family: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", Arial, "Noto Sans" !important;
   font-weight: 700;
-  font-size: clamp(20px, 2.2vw, 32px) !important;
+  font-size: clamp(15px, 1.2vw, 22px) !important;
   line-height: 1.25;
   letter-spacing: 0;
   text-transform: none;

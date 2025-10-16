@@ -1234,14 +1234,46 @@ function wi_plakat_metabox($post){
         e.preventDefault();
         if (!frame) {
           frame = wp.media({ title: 'Odaberi slike (više)', multiple: true, library:{type:'image'} });
-          frame.on('select', function(){
-            const ids=[], list = $('#wi-hero-list').empty();
-            frame.state().get('selection').each(function(att){
-              ids.push(att.id);
-              list.append('<li data-id="'+att.id+'"><img src="'+att.attributes.sizes.medium.url+'"><button type="button" class="button-link delete">&times;</button></li>');
-            });
-            $('#wi-hero-ids').val(ids.join(','));
-          });
+        frame.on('select', function(){
+  const selection = frame.state().get('selection');
+  const ids = [];
+  const list = $('#wi-hero-list').empty();
+
+  selection.each(function(attachment){
+    const att = attachment.toJSON();
+    ids.push(att.id);
+
+    // fallback ako nema medium
+    let thumb = att.url;
+    if (att.sizes) {
+      if (att.sizes.medium) {
+        thumb = att.sizes.medium.url;
+      } else if (att.sizes.thumbnail) {
+        thumb = att.sizes.thumbnail.url;
+      }
+    }
+
+    list.append(
+      '<li data-id="'+att.id+'">' +
+        '<img src="'+thumb+'">' +
+        '<button type="button" class="button-link delete">&times;</button>' +
+      '</li>'
+    );
+  });
+
+  $('#wi-hero-ids').val(ids.join(','));
+});
+frame.on('open', function(){
+  const selection = frame.state().get('selection');
+  const ids = ($('#wi-hero-ids').val() || '').split(',').map(id => parseInt(id,10)).filter(Boolean);
+
+  ids.forEach(function(id){
+    const attachment = wp.media.attachment(id);
+    attachment.fetch();
+    selection.add(attachment ? [attachment] : []);
+  });
+});
+
         }
         frame.open();
       });
