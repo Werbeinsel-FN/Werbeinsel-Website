@@ -1374,3 +1374,2324 @@ add_action('save_post_page', function($post_id){
 
   update_post_meta($post_id, '_wi_plakat', $out);
 });
+/**
+ * === Großflächenwerbung: metabox (galerija + tekst) — UI kao na screenshotu ===
+ * Stranica/slug: grossflaechenwerbung ili grossflachenwerbung
+ * Meta ključevi:
+ *   - _wi_gross_hero_ids   (array<int>)  — attachment ID-jevi za slider, sortirani
+ *   - _wi_gross_intro_text (string)      — tekst ispod slajdera
+ * Helper za partial:
+ *   - wi_get_gross_meta( int $post_id ): array{ hero_ids: int[], intro_text: string }
+ */
+
+/** ===== Helper: čitanje meta u strukturisanom obliku ===== */
+if (!function_exists('wi_get_gross_meta')) {
+  function wi_get_gross_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_gross_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_gross_intro_text', true);
+
+    // normalizacija
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/** ===== Registracija metabox-a: Page ekran ===== */
+add_action('add_meta_boxes', function () {
+  add_meta_box(
+    'wi_gross_mb',
+    __('Großflächenwerbung', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_gross_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/** ===== Render metabox-a ===== */
+function wi_gross_mb_render($post){
+  // dozvoli oba sluga
+$slug = sanitize_title( get_post_field('post_name', $post->ID) );
+
+// Dozvoli sve varijante: ss/ä→ae i čak jedno “s”
+$ok_slugs = [
+  'grossflaechenwerbung', // ss + ae
+  'grossflachenwerbung',  // ss + a
+  'grosflachenwerbung',   // s + a   <-- TVOJ SLUG sa screenshota
+];
+if ($slug !== 'grosflachenwerbung') {
+  // sakrij metabox potpuno u adminu
+  ?>
+  <script>
+    jQuery(function($){
+      $('#wi_gross_mb').closest('.postbox').hide();
+    });
+  </script>
+  <?php
+  return;
+}
+
+  wp_nonce_field('wi_gross_mb_save', 'wi_gross_mb_nonce');
+
+  $meta       = wi_get_gross_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails lista
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_gross_hero_ids" name="wi_gross_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_gross_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_gross_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_gross_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_gross_intro_text" name="wi_gross_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_gross_hero_ids');
+    const $list   = $('#wi_gross_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi select)
+    $('#wi_gross_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni jednu sliku
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+
+    // Sortable drag&drop
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/** ===== Snimanje meta ===== */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_gross_mb_nonce']) || !wp_verify_nonce($_POST['wi_gross_mb_nonce'], 'wi_gross_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+$slug = sanitize_title( get_post_field('post_name', $post_id) );
+$ok_slugs = ['grossflaechenwerbung','grossflachenwerbung','grosflachenwerbung'];
+if ( !in_array($slug, $ok_slugs, true) ) return;
+
+  // IDs
+  $csv = isset($_POST['wi_gross_hero_ids']) ? wp_unslash($_POST['wi_gross_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_gross_hero_ids', $ids);
+
+  // Tekst
+  $intro = isset($_POST['wi_gross_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_gross_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_gross_intro_text', $intro);
+});
+
+/** ===== Admin skripta: jQuery UI Sortable za drag&drop ===== */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Digital Signage – metabox (galerija + tekst) samo na toj stranici
+ * Slug varijante koje dozvoljavamo: digital-signage, digitalsignage
+ * Meta:
+ *   _wi_digital_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_digital_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_digital_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi (dodaj ako koristiš drugačije) */
+if (!function_exists('wi_digital_allowed_slugs')) {
+  function wi_digital_allowed_slugs(){
+    return ['digital-signage','digitalsignage'];
+  }
+}
+
+/* Helper za čitanje meta kao strukturisan niz */
+if (!function_exists('wi_get_digital_meta')) {
+  function wi_get_digital_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_digital_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_digital_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Digital Signage-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_digital_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_digital_mb',
+    __('Digital Signage', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_digital_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (UI: galerija + tekst) */
+function wi_digital_mb_render($post){
+  wp_nonce_field('wi_digital_mb_save', 'wi_digital_mb_nonce');
+
+  $meta       = wi_get_digital_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails HTML
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_digital_hero_ids" name="wi_digital_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_digital_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_digital_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_digital_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_digital_intro_text" name="wi_digital_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_digital_hero_ids');
+    const $list   = $('#wi_digital_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // media frame (multi)
+    $('#wi_digital_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // ukloni jednu
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+
+    // drag&drop sortiranje
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Digital Signage slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_digital_mb_nonce']) || !wp_verify_nonce($_POST['wi_digital_mb_nonce'], 'wi_digital_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_digital_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_digital_hero_ids']) ? wp_unslash($_POST['wi_digital_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_digital_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_digital_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_digital_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_digital_intro_text', $intro);
+});
+
+/* jQuery UI sortable za drag & drop (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Transit Advertising – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: transit-advertising, transitadvertising
+ * Meta:
+ *   _wi_transit_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_transit_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_transit_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_transit_allowed_slugs')) {
+  function wi_transit_allowed_slugs(){
+    return ['transit-advertising','transitadvertising'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_transit_meta')) {
+  function wi_get_transit_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_transit_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_transit_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Transit Advertising-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_transit_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_transit_mb',
+    __('Transit Advertising', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_transit_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_transit_mb_render($post){
+  wp_nonce_field('wi_transit_mb_save', 'wi_transit_mb_nonce');
+
+  $meta       = wi_get_transit_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_transit_hero_ids" name="wi_transit_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_transit_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_transit_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_transit_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_transit_intro_text" name="wi_transit_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_transit_hero_ids');
+    const $list   = $('#wi_transit_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_transit_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni jednu
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+
+    // Drag & drop sortiranje
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Transit slugu */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_transit_mb_nonce']) || !wp_verify_nonce($_POST['wi_transit_mb_nonce'], 'wi_transit_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_transit_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_transit_hero_ids']) ? wp_unslash($_POST['wi_transit_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_transit_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_transit_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_transit_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_transit_intro_text', $intro);
+});
+
+/* jQuery UI sortable za admin (ako nije već učitan) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Guerilla Marketing – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi (podržane obe varijante pisanja):
+ *   guerilla-marketing, guerillamarketing, guerrilla-marketing, guerrillamarketing
+ * Meta:
+ *   _wi_guerilla_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_guerilla_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_guerilla_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_guerilla_allowed_slugs')) {
+  function wi_guerilla_allowed_slugs(){
+    return ['guerilla-marketing','guerillamarketing','guerrilla-marketing','guerrillamarketing'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_guerilla_meta')) {
+  function wi_get_guerilla_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_guerilla_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_guerilla_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Guerilla Marketing-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_guerilla_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_guerilla_mb',
+    __('Guerilla Marketing', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_guerilla_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a */
+function wi_guerilla_mb_render($post){
+  wp_nonce_field('wi_guerilla_mb_save', 'wi_guerilla_mb_nonce');
+
+  $meta       = wi_get_guerilla_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_guerilla_hero_ids" name="wi_guerilla_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_guerilla_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_guerilla_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_guerilla_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_guerilla_intro_text" name="wi_guerilla_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_guerilla_hero_ids');
+    const $list   = $('#wi_guerilla_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_guerilla_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return;
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Guerilla Marketing slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_guerilla_mb_nonce']) || !wp_verify_nonce($_POST['wi_guerilla_mb_nonce'], 'wi_guerilla_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_guerilla_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_guerilla_hero_ids']) ? wp_unslash($_POST['wi_guerilla_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_guerilla_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_guerilla_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_guerilla_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_guerilla_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Ambient Advertising – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: ambient-advertising, ambientadvertising
+ * Meta:
+ *   _wi_ambient_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_ambient_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_ambient_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_ambient_allowed_slugs')) {
+  function wi_ambient_allowed_slugs(){
+    return ['ambient-advertising','ambientadvertising'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_ambient_meta')) {
+  function wi_get_ambient_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_ambient_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_ambient_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Ambient Advertising-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_ambient_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_ambient_mb',
+    __('Ambient Advertising', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_ambient_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_ambient_mb_render($post){
+  wp_nonce_field('wi_ambient_mb_save', 'wi_ambient_mb_nonce');
+
+  $meta       = wi_get_ambient_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_ambient_hero_ids" name="wi_ambient_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_ambient_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_ambient_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_ambient_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_ambient_intro_text" name="wi_ambient_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_ambient_hero_ids');
+    const $list   = $('#wi_ambient_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_ambient_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Uklanjanje i sortiranje
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Ambient slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_ambient_mb_nonce']) || !wp_verify_nonce($_POST['wi_ambient_mb_nonce'], 'wi_ambient_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_ambient_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_ambient_hero_ids']) ? wp_unslash($_POST['wi_ambient_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_ambient_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_ambient_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_ambient_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_ambient_intro_text', $intro);
+});
+
+/* jQuery UI sortable za admin */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Corporate Design – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: corporate-design, corporatedesign
+ * Meta:
+ *   _wi_corporate_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_corporate_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_corporate_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_corporate_allowed_slugs')) {
+  function wi_corporate_allowed_slugs(){
+    return ['corporate-design','corporatedesign'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_corporate_meta')) {
+  function wi_get_corporate_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_corporate_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_corporate_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Corporate Design-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_corporate_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_corporate_mb',
+    __('Corporate Design', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_corporate_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_corporate_mb_render($post){
+  wp_nonce_field('wi_corporate_mb_save', 'wi_corporate_mb_nonce');
+
+  $meta       = wi_get_corporate_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_corporate_hero_ids" name="wi_corporate_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_corporate_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_corporate_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_corporate_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_corporate_intro_text" name="wi_corporate_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_corporate_hero_ids');
+    const $list   = $('#wi_corporate_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_corporate_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni jednu i sortiraj
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Corporate slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_corporate_mb_nonce']) || !wp_verify_nonce($_POST['wi_corporate_mb_nonce'], 'wi_corporate_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_corporate_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_corporate_hero_ids']) ? wp_unslash($_POST['wi_corporate_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_corporate_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_corporate_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_corporate_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_corporate_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Webentwicklung – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: webentwicklung, web-entwicklung
+ * Meta:
+ *   _wi_web_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_web_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_web_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_web_allowed_slugs')) {
+  function wi_web_allowed_slugs(){
+    return ['webentwicklung','web-entwicklung'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_web_meta')) {
+  function wi_get_web_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_web_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_web_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Webentwicklung-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_web_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_web_mb',
+    __('Webentwicklung', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_web_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_web_mb_render($post){
+  wp_nonce_field('wi_web_mb_save', 'wi_web_mb_nonce');
+
+  $meta       = wi_get_web_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_web_hero_ids" name="wi_web_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_web_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_web_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_web_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_web_intro_text" name="wi_web_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_web_hero_ids');
+    const $list   = $('#wi_web_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_web_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni i sortiraj
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Webentwicklung slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_web_mb_nonce']) || !wp_verify_nonce($_POST['wi_web_mb_nonce'], 'wi_web_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_web_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_web_hero_ids']) ? wp_unslash($_POST['wi_web_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_web_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_web_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_web_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_web_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Print Design – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: print-design, printdesign
+ * Meta:
+ *   _wi_print_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_print_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_print_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_print_allowed_slugs')) {
+  function wi_print_allowed_slugs(){
+    return ['print-design','printdesign'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_print_meta')) {
+  function wi_get_print_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_print_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_print_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Print Design-a */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_print_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_print_mb',
+    __('Print Design', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_print_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_print_mb_render($post){
+  wp_nonce_field('wi_print_mb_save', 'wi_print_mb_nonce');
+
+  $meta       = wi_get_print_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_print_hero_ids" name="wi_print_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_print_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_print_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_print_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_print_intro_text" name="wi_print_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_print_hero_ids');
+    const $list   = $('#wi_print_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_print_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni i sortiraj
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Print Design slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_print_mb_nonce']) || !wp_verify_nonce($_POST['wi_print_mb_nonce'], 'wi_print_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_print_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_print_hero_ids']) ? wp_unslash($_POST['wi_print_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_print_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_print_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_print_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_print_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * UI/UX Design – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: ui-ux-design, uiux-design, ui-ux, uiuxdesign
+ * Meta:
+ *   _wi_uiux_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_uiux_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_uiux_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_uiux_allowed_slugs')) {
+  function wi_uiux_allowed_slugs(){
+    return ['ui-ux-design','uiux-design','ui-ux','uiuxdesign'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_uiux_meta')) {
+  function wi_get_uiux_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_uiux_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_uiux_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug UI/UX stranice */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_uiux_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_uiux_mb',
+    __('UI/UX Design', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_uiux_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_uiux_mb_render($post){
+  wp_nonce_field('wi_uiux_mb_save', 'wi_uiux_mb_nonce');
+
+  $meta       = wi_get_uiux_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_uiux_hero_ids" name="wi_uiux_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_uiux_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_uiux_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_uiux_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_uiux_intro_text" name="wi_uiux_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_uiux_hero_ids');
+    const $list   = $('#wi_uiux_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_uiux_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni i sortiraj
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za UI/UX slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_uiux_mb_nonce']) || !wp_verify_nonce($_POST['wi_uiux_mb_nonce'], 'wi_uiux_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_uiux_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_uiux_hero_ids']) ? wp_unslash($_POST['wi_uiux_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_uiux_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_uiux_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_uiux_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_uiux_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Neonreklame – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: neonreklame, neon-reklame
+ * Meta:
+ *   _wi_neon_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_neon_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_neon_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_neon_allowed_slugs')) {
+  function wi_neon_allowed_slugs(){
+    return ['neonreklame','neon-reklame'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_neon_meta')) {
+  function wi_get_neon_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_neon_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_neon_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Neonreklame */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_neon_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_neon_mb',
+    __('Neonreklame', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_neon_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_neon_mb_render($post){
+  wp_nonce_field('wi_neon_mb_save', 'wi_neon_mb_nonce');
+
+  $meta       = wi_get_neon_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_neon_hero_ids" name="wi_neon_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_neon_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_neon_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_neon_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_neon_intro_text" name="wi_neon_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_neon_hero_ids');
+    const $list   = $('#wi_neon_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_neon_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Ukloni i sortiraj
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Neonreklame slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_neon_mb_nonce']) || !wp_verify_nonce($_POST['wi_neon_mb_nonce'], 'wi_neon_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_neon_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_neon_hero_ids']) ? wp_unslash($_POST['wi_neon_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_neon_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_neon_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_neon_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_neon_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * LED-Displays – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: led-displays, leddisplays, led-display, leddisplay
+ * Meta:
+ *   _wi_led_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_led_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_led_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_led_allowed_slugs')) {
+  function wi_led_allowed_slugs(){
+    return ['led-displays','leddisplays','led-display','leddisplay'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_led_meta')) {
+  function wi_get_led_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_led_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_led_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* Metabox SAMO kada je slug LED-Displays */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_led_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_led_mb',
+    __('LED-Displays', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_led_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_led_mb_render($post){
+  wp_nonce_field('wi_led_mb_save', 'wi_led_mb_nonce');
+
+  $meta       = wi_get_led_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_led_hero_ids" name="wi_led_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_led_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_led_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_led_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_led_intro_text" name="wi_led_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_led_hero_ids');
+    const $list   = $('#wi_led_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_led_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Uklanjanje i sortiranje
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za LED slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_led_mb_nonce']) || !wp_verify_nonce($_POST['wi_led_mb_nonce'], 'wi_led_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_led_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_led_hero_ids']) ? wp_unslash($_POST['wi_led_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_led_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_led_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_led_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_led_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});
+/* ============================================================
+ * Leuchtschriften – metabox (galerija + tekst) samo na toj stranici
+ * Dozvoljeni slugovi: leuchtschriften, leucht-schriften
+ * Meta:
+ *   _wi_leucht_hero_ids   (array<int>) – ID-jevi slika za slider
+ *   _wi_leucht_intro_text (string)     – tekst ispod slajdera
+ * Helper:
+ *   wi_get_leucht_meta( int $post_id ): array{ hero_ids:int[], intro_text:string }
+ * ============================================================ */
+
+/* Dozvoljeni slugovi */
+if (!function_exists('wi_leucht_allowed_slugs')) {
+  function wi_leucht_allowed_slugs(){
+    return ['leuchtschriften','leucht-schriften'];
+  }
+}
+
+/* Helper: čitanje meta */
+if (!function_exists('wi_get_leucht_meta')) {
+  function wi_get_leucht_meta($post_id){
+    $hero_ids   = get_post_meta($post_id, '_wi_leucht_hero_ids', true);
+    $intro_text = get_post_meta($post_id, '_wi_leucht_intro_text', true);
+
+    if (!is_array($hero_ids)) {
+      if (is_string($hero_ids) && trim($hero_ids) !== '') {
+        $hero_ids = array_map('intval', array_filter(array_map('trim', explode(',', $hero_ids))));
+      } else {
+        $hero_ids = [];
+      }
+    } else {
+      $hero_ids = array_map('intval', $hero_ids);
+    }
+
+    return [
+      'hero_ids'   => $hero_ids,
+      'intro_text' => is_string($intro_text) ? $intro_text : '',
+    ];
+  }
+}
+
+/* add_meta_box SAMO kada je slug Leuchtschriften */
+add_action('add_meta_boxes_page', function () {
+  global $post;
+  if (!$post instanceof WP_Post) return;
+
+  $slug = sanitize_title($post->post_name);
+  if (!in_array($slug, wi_leucht_allowed_slugs(), true)) return;
+
+  add_meta_box(
+    'wi_leucht_mb',
+    __('Leuchtschriften', 'wi') . ': ' . __('Hero galerija (više slika)', 'wi'),
+    'wi_leucht_mb_render',
+    'page',
+    'normal',
+    'high'
+  );
+});
+
+/* Render metabox-a (galerija + tekst) */
+function wi_leucht_mb_render($post){
+  wp_nonce_field('wi_leucht_mb_save', 'wi_leucht_mb_nonce');
+
+  $meta       = wi_get_leucht_meta($post->ID);
+  $ids        = $meta['hero_ids'];
+  $ids_csv    = implode(',', $ids);
+  $intro_text = $meta['intro_text'];
+
+  // thumbnails
+  $thumbs_html = '';
+  foreach ($ids as $aid){
+    $src = wp_get_attachment_image_url($aid, 'medium');
+    if ($src) {
+      $thumbs_html .= '<li class="wi-gal-thumb" data-id="'.esc_attr($aid).'">
+        <img src="'.esc_url($src).'" alt="">
+        <button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>
+      </li>';
+    }
+  }
+  ?>
+  <style>
+    .wi-gal-row{margin:14px 0 20px;}
+    .wi-gal-label{font-weight:600; display:block; margin-bottom:8px;}
+    .wi-gal-actions{display:flex; align-items:center; gap:10px;}
+    .wi-gal-hint{opacity:.7;}
+    .wi-gal-list{display:flex; gap:16px; flex-wrap:wrap; padding:0; margin:12px 0 10px; list-style:none;}
+    .wi-gal-thumb{position:relative; width:220px; height:140px; border-radius:10px; overflow:hidden; background:#f6f7f7; border:1px solid #e3e5e8; cursor:grab;}
+    .wi-gal-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+    .wi-gal-x{
+      position:absolute; top:8px; right:8px; width:26px; height:26px; border-radius:999px;
+      background:#111; color:#fff; border:0; line-height:26px; font-size:18px; cursor:pointer;
+      display:inline-grid; place-items:center; opacity:.9;
+    }
+    .wi-gal-x:hover{opacity:1}
+    .wi-gal-text{width:100%; min-height:110px;}
+  </style>
+
+  <div class="wi-gal-row">
+    <span class="wi-gal-label"><?php esc_html_e('Hero galerija (više slika)', 'wi'); ?></span>
+    <input type="hidden" id="wi_leucht_hero_ids" name="wi_leucht_hero_ids" value="<?php echo esc_attr($ids_csv); ?>">
+    <div class="wi-gal-actions">
+      <button type="button" class="button button-primary" id="wi_leucht_pick"><?php esc_html_e('Dodaj/izmeni slike', 'wi'); ?></button>
+      <span class="wi-gal-hint"><?php esc_html_e('Prevuci za promenu redosleda.', 'wi'); ?></span>
+    </div>
+    <ul class="wi-gal-list" id="wi_leucht_list"><?php echo $thumbs_html; ?></ul>
+  </div>
+
+  <div class="wi-gal-row">
+    <label class="wi-gal-label" for="wi_leucht_intro_text"><?php esc_html_e('Tekst', 'wi'); ?></label>
+    <textarea id="wi_leucht_intro_text" name="wi_leucht_intro_text" class="wi-gal-text" placeholder="<?php esc_attr_e('Unesite tekst ispod slajdera…', 'wi'); ?>"><?php echo esc_textarea($intro_text); ?></textarea>
+  </div>
+
+  <script>
+  jQuery(function($){
+    let frame;
+    const $hidden = $('#wi_leucht_hero_ids');
+    const $list   = $('#wi_leucht_list');
+
+    function refreshHidden(){
+      const ids = [];
+      $list.find('.wi-gal-thumb').each(function(){ ids.push($(this).data('id')); });
+      $hidden.val(ids.join(','));
+    }
+
+    // Media frame (multi)
+    $('#wi_leucht_pick').on('click', function(e){
+      e.preventDefault();
+      if (frame) { frame.open(); return; }
+      frame = wp.media({
+        title: '<?php echo esc_js(__('Odaberi slike za slider', 'wi')); ?>',
+        button: { text: '<?php echo esc_js(__('Sačuvaj izbor', 'wi')); ?>' },
+        multiple: true,
+        library: { type: 'image' }
+      });
+      frame.on('select', function(){
+        const selection = frame.state().get('selection');
+        selection.each(function(att){
+          const a = att.toJSON();
+          const id  = a.id;
+          const src = (a.sizes && a.sizes.medium ? a.sizes.medium.url : a.url);
+          if ($list.find('.wi-gal-thumb[data-id="'+id+'"]').length) return; // bez duplikata
+          $list.append(
+            '<li class="wi-gal-thumb" data-id="'+id+'">'+
+              '<img src="'+src+'" alt="">'+
+              '<button type="button" class="wi-gal-x" aria-label="Ukloni">×</button>'+
+            '</li>'
+          );
+        });
+        refreshHidden();
+      });
+      frame.open();
+    });
+
+    // Uklanjanje i sortiranje
+    $list.on('click', '.wi-gal-x', function(){
+      $(this).closest('.wi-gal-thumb').remove();
+      refreshHidden();
+    });
+    if ($.fn.sortable) {
+      $list.sortable({ items: '> .wi-gal-thumb', update: refreshHidden });
+    }
+  });
+  </script>
+  <?php
+}
+
+/* Snimanje meta SAMO za Leuchtschriften slugove */
+add_action('save_post_page', function($post_id){
+  if (!isset($_POST['wi_leucht_mb_nonce']) || !wp_verify_nonce($_POST['wi_leucht_mb_nonce'], 'wi_leucht_mb_save')) return;
+  if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+  if (!current_user_can('edit_page', $post_id)) return;
+
+  $slug = sanitize_title( get_post_field('post_name', $post_id) );
+  if (!in_array($slug, wi_leucht_allowed_slugs(), true)) return;
+
+  // slike
+  $csv = isset($_POST['wi_leucht_hero_ids']) ? wp_unslash($_POST['wi_leucht_hero_ids']) : '';
+  $ids = [];
+  if (is_string($csv) && trim($csv) !== '') {
+    $ids = array_map('intval', array_filter(array_map('trim', explode(',', $csv))));
+  }
+  update_post_meta($post_id, '_wi_leucht_hero_ids', $ids);
+
+  // tekst
+  $intro = isset($_POST['wi_leucht_intro_text']) ? wp_kses_post(wp_unslash($_POST['wi_leucht_intro_text'])) : '';
+  update_post_meta($post_id, '_wi_leucht_intro_text', $intro);
+});
+
+/* jQuery UI sortable (admin) */
+add_action('admin_enqueue_scripts', function($hook){
+  if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+  wp_enqueue_script('jquery-ui-sortable');
+});

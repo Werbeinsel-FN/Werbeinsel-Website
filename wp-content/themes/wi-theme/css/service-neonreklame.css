@@ -179,8 +179,8 @@
 
 .svc-intro__title {
   /* 175px na desktopu, responsivno naniže */
-  font-size: clamp(56px, 12vw, 175px);
-  /* font-size: clamp(40px, 10vw, 155px); */
+  /* font-size: clamp(56px, 12vw, 175px); */
+  font-size: clamp(30px, 10vw, 155px);
   line-height: 0.9;
   font-weight: 800; /* ekv. extrabold */
   letter-spacing: -0.02em;
