@@ -146,8 +146,8 @@
 }
 /* ========== Plakatwerbung Intro (ispod karusela) ========== */
 .svc-intro {
-  margin-top: 114px;
-  margin-bottom: 100px;
+  margin-top: 64px;
+  margin-bottom: 64px;
   text-align: center;
 }
 
@@ -158,7 +158,10 @@
   font-weight: 800; /* ekv. extrabold */
   letter-spacing: -0.02em;
   color: #000;
-  margin-bottom: 32px;
+  margin: 0 auto 64px;
+  text-align: center;
+  max-width: 2000px;
+  display: block;
 }
 
 .svc-intro__lead {
@@ -166,7 +169,7 @@
     Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
     "Segoe UI Emoji";
   max-width: 72ch; /* ~max-w-6xl sadržaj */
-  margin: 24px auto 0; /* razmak ispod naslova */
+  margin: 0 auto 0; /* razmak ispod naslova */
   font-size: clamp(18px, 2.2vw, 34px);
   line-height: 1.5; /* relaxed */
   color: #000;

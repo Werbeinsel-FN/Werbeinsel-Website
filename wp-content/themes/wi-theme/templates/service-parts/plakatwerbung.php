@@ -41,7 +41,20 @@ $carousel_id = 'plakatwerbung-hero'; // jedinstveni ID
 ?>
 
 <section id="<?php echo esc_attr($carousel_id); ?>" class="svc-hero-carousel">
+  
   <div class="svc-hero-carousel__wrap">
+      <h2 class="svc-intro__title">
+      <?php
+        // naslov na 2+ reda (Enter u metaboxu pravi novi red)
+        $intro_title = (string)($meta['intro_title'] ?? "PLAKAT\nWERBUNG");
+        $lines = preg_split('/\r\n|\r|\n/', $intro_title);
+        foreach ($lines as $k => $line) {
+          if ($line === '') continue;
+          echo '<span>'.esc_html($line).'</span>';
+          if ($k < count($lines)-1) echo '<br>';
+        }
+      ?>
+    </h2>
     <div class="svc-hero-carousel__viewport">
 
       <?php foreach ($slides as $i => $url): ?>
@@ -76,18 +89,7 @@ $carousel_id = 'plakatwerbung-hero'; // jedinstveni ID
 
 <section class="svc-intro">
   <div class="content-container svc-intro__wrap">
-    <h2 class="svc-intro__title">
-      <?php
-        // naslov na 2+ reda (Enter u metaboxu pravi novi red)
-        $intro_title = (string)($meta['intro_title'] ?? "PLAKAT\nWERBUNG");
-        $lines = preg_split('/\r\n|\r|\n/', $intro_title);
-        foreach ($lines as $k => $line) {
-          if ($line === '') continue;
-          echo '<span>'.esc_html($line).'</span>';
-          if ($k < count($lines)-1) echo '<br>';
-        }
-      ?>
-    </h2>
+  
     <p class="svc-intro__lead">
       <?php echo esc_html($meta['intro_text'] ?? ''); ?>
     </p>
