@@ -124,8 +124,8 @@
 }
 
 .svc-hero-carousel__dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.5);
   border: 0;
@@ -134,8 +134,8 @@
 }
 @media (min-width: 640px) {
   .svc-hero-carousel__dot {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
   }
 }
 .svc-hero-carousel__dot.is-active {
@@ -144,6 +144,32 @@
 .svc-hero-carousel__dot:hover {
   opacity: 0.9;
 }
+.svc-hero-carousel__dot {
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: inline-block;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.svc-hero-carousel__dot::before {
+  content: "";
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.svc-hero-carousel__dot.is-active::before {
+  background: #ffed00;
+}
+.svc-hero-carousel__dot:hover::before {
+  opacity: 0.9;
+}
+
 /* ========== Plakatwerbung Intro (ispod karusela) ========== */
 .svc-intro {
   margin-top: 64px;
