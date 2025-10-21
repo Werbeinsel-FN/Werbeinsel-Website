@@ -62,7 +62,7 @@ $services_title = get_post_meta(get_the_ID(), '_wi_services_title', true);
 
 // podrazumevani linkovi do sekcija na /services/
 $default_targets = [
-  1 => home_url('/services/#strasse'),
+  1 => home_url('/services/#plakatwerbung'),
   2 => home_url('/services/#lass-kleben'),
   3 => home_url('/services/#pixel-code'),
 ];
