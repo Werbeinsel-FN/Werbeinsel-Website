@@ -90,7 +90,7 @@ if (!function_exists('wi_service_detail_url')) {
 <main id="services-main" class="svc-page">
 
   <!-- AUF DIE STRAßE (žuta) -->
-  <section class="svc-section svc-section--yellow">
+  <section id="strasse" class="svc-section svc-section--yellow">
     <div class="svc-container content-container">
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['ooh']); ?></h2>
       <div class="svc-grid svc-grid--3">
@@ -108,7 +108,7 @@ if (!function_exists('wi_service_detail_url')) {
   </section>
 
   <!-- PIXEL & CODE (crna, u sredini) -->
-  <section class="svc-section svc-section--dark">
+  <section id="pixel-code" class="svc-section svc-section--dark">
     <div class="svc-container content-container">
       <h2 class="svc-hl svc-hl--white"><?php echo esc_html($H['pix']); ?></h2>
       <div class="svc-grid svc-grid--2cols">
@@ -139,7 +139,7 @@ if (!function_exists('wi_service_detail_url')) {
   </section>
 
   <!-- LASS KLEBEN (žuta, na dnu) -->
-  <section class="svc-section svc-section--yellow">
+  <section id="lass-kleben" class="svc-section svc-section--yellow">
     <div class="svc-container content-container">
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['kle']); ?></h2>
       <div class="svc-grid svc-grid--3-md">
