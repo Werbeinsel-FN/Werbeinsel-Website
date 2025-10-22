@@ -53,8 +53,8 @@
   text-align: center;
 }
 h2 {
-  font-family: "Poppins", sans-serif;
-  margin: 1rem 0;
+  font-family: "Poppins", sans-serif !important;
+  margin: 2rem 0;
 }
 p {
   font-family: "Poppins", sans-serif;
