@@ -63,6 +63,13 @@ p {
   margin: 1rem 0;
   text-align: center;
 }
+li {
+  font-family: "Poppins", sans-serif;
+  font-size: 34px !important;
+  line-height: 1.7;
+  margin: 1rem 0;
+  text-align: center;
+}
 /* COOKIE BOX */
 .cookie-box {
   background-color: #ffed00;
