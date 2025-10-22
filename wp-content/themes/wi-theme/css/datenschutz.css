@@ -71,29 +71,27 @@ li {
   text-align: center;
 }
 ul {
-  list-style: none; /* uklanjamo standardne bullet-e */
+  list-style: none; /* sakrivamo defaultne tačkice */
+  padding-left: 20px; /* malo uvučemo ceo tekst s leve strane */
   margin: 0;
-  padding: 0;
-  position: relative; /* referenca za ::before u <li> */
 }
 
 /* Svaka stavka */
 ul li {
   position: relative;
-  margin: 0.4rem 0;
-  /* Tekst počinje desno od centralne linije (50%) + mali razmak */
-  padding-left: calc(50% + 14px);
+  margin: 6px 0;
+  line-height: 1.6;
 }
 
 /* Crtamo tačku tačno na sredini */
 ul li::before {
   content: "•";
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%); /* centriraj sam simbol */
-  top: 0.35em; /* fino poravnanje po vertikali uz tekst */
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%); /* centriramo tačku vertikalno */
+  font-size: 1.2em;
   line-height: 1;
-  font-size: 1.1em; /* po želji: veličina tačke */
 }
 /* COOKIE BOX */
 .cookie-box {
