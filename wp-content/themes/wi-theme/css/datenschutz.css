@@ -68,7 +68,7 @@ li {
   font-size: 34px !important;
   line-height: 1.7;
   margin: 1rem 0;
-  text-align: center;
+  text-align: left;
 }
 ul {
   list-style: none; /* sakrivamo defaultne tačkice */
@@ -160,6 +160,9 @@ ul li::before {
     font-size: 22px !important;
   }
   p {
+    font-size: 18px !important;
+  }
+  li {
     font-size: 18px !important;
   }
 }
