@@ -70,6 +70,29 @@ li {
   margin: 1rem 0;
   text-align: center;
 }
+ul {
+  list-style-position: inside;
+  display: table;
+  margin: 0 auto; /* zentriert die gesamte Liste horizontal */
+  padding: 0;
+}
+
+ul li {
+  display: table-row;
+}
+
+ul li::before {
+  content: "•";
+  display: table-cell;
+  text-align: center;
+  width: 20px; /* Abstand zwischen Punkt und Text */
+}
+
+ul li {
+  display: table-cell;
+  padding-left: 10px;
+  vertical-align: middle;
+}
 /* COOKIE BOX */
 .cookie-box {
   background-color: #ffed00;
@@ -137,7 +160,7 @@ li {
     font-size: 22px !important;
   }
   p {
-    font-size: 22px !important;
+    font-size: 18px !important;
   }
 }
 @media (max-width: 450px) {
