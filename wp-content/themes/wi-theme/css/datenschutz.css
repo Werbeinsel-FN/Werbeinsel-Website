@@ -126,6 +126,12 @@ p {
   .section-text {
     font-size: 22px !important;
   }
+  h2 {
+    font-size: 22px !important;
+  }
+  p {
+    font-size: 22px !important;
+  }
 }
 @media (max-width: 450px) {
   .datenschutz-title {
