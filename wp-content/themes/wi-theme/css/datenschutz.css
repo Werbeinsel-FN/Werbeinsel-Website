@@ -81,6 +81,7 @@ ul li {
   position: relative;
   margin: 6px 0;
   line-height: 1.6;
+  padding-left: 40px;
 }
 
 /* Crtamo tačku tačno na sredini */
@@ -169,5 +170,8 @@ ul li::before {
 @media (max-width: 450px) {
   .datenschutz-title {
     font-size: 30px;
+  }
+  p {
+    font-size: 16px !important;
   }
 }
