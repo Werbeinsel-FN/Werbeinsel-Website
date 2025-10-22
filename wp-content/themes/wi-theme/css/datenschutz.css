@@ -37,7 +37,7 @@
 }
 
 .section-title {
-  font-family: "Unbounded", sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   font-size: 34px !important;
   margin-bottom: 1rem;
@@ -52,7 +52,13 @@
   margin: 0.5rem 0;
   text-align: center;
 }
-
+p {
+  font-family: "Poppins", sans-serif;
+  font-size: 34px !important;
+  line-height: 1.7;
+  margin: 1rem 0;
+  text-align: center;
+}
 /* COOKIE BOX */
 .cookie-box {
   background-color: #ffed00;
