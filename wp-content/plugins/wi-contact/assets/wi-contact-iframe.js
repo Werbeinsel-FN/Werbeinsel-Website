@@ -117,10 +117,19 @@
 
           var w = iframe.contentWindow;
           function fail(msg) {
-            console.warn(msg || "reCAPTCHA nije dostupna (iframe)");
-            alert(
-              "reCAPTCHA je blokirana ili nije učitana. Dozvoli Google skripte i pokušaj ponovo."
-            );
+            if (typeof console !== 'undefined' && console.warn) {
+              console.warn(msg || "reCAPTCHA nije dostupna (iframe)");
+            }
+            // Prikaži grešku korisniku bez alert() - forma ostaje dostupna za retry
+            if (form) {
+              var errorDiv = doc.createElement('div');
+              errorDiv.style.cssText = 'padding:12px;margin:12px 0;background:#fee;color:#c00;border:1px solid #fcc;border-radius:4px;';
+              errorDiv.textContent = 'reCAPTCHA je blokirana ili nije učitana. Dozvoli Google skripte i pokušaj ponovo.';
+              form.insertBefore(errorDiv, form.firstChild);
+              setTimeout(function() {
+                if (errorDiv.parentNode) errorDiv.parentNode.removeChild(errorDiv);
+              }, 10000);
+            }
           }
 
           if (w && w.grecaptcha && w.grecaptcha.execute) {

@@ -389,8 +389,10 @@ function startHeightPinger(doc){
     const tokenInput = doc.getElementById('wi_recaptcha_token');
 
     function fail(msg){
-      console.warn(msg || 'reCAPTCHA nije dostupna');
-      alert('reCAPTCHA je blokirana ili nije učitana. Dozvoli Google skripte i pokušaj ponovo.');
+      if (typeof console !== 'undefined' && console.warn) {
+        console.warn(msg || 'reCAPTCHA nije dostupna');
+      }
+      showError();
     }
 
     if (w && w.grecaptcha && w.grecaptcha.execute) {
@@ -446,45 +448,33 @@ function startHeightPinger(doc){
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
 
-    if (!frm.reportValidity()) {
-      const firstInvalid = doc.querySelector(':invalid');
-      try {
-        const r = iframe.getBoundingClientRect();
-        window.scrollTo({ top: window.pageYOffset + r.top - 80, behavior: 'smooth' });
-        if (firstInvalid) {
-          setTimeout(() => {
-            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstInvalid.focus({ preventScroll: true });
-          }, 250);
-        }
-      } catch {}
-      fitFromDOM();
-      return;
-    }
-
     try {
       syncHidden(doc);
 
       const fd = new FormData(frm);
       if (!fd.get('action')) fd.set('action', 'wi_contact_submit');
 
-      await fetch(POST_URL, {
+      const response = await fetch(POST_URL, {
         method: 'POST',
         body: fd,
-        credentials: 'include',
-        mode: 'no-cors'
+        credentials: 'include'
       });
 
-      showDanke();
+      const text = await response.text();
+      if (response.ok && (text === 'OK' || text.trim() === '')) {
+        showDanke();
 
-      try {
-        frm.reset();
-        clearLooseFields(doc);
-        doc.querySelectorAll('.wi-pill.wi-pill-active').forEach(b => b.classList.remove('wi-pill-active'));
-        syncHidden(doc);
-      } catch {}
+        try {
+          frm.reset();
+          clearLooseFields(doc);
+          doc.querySelectorAll('.wi-pill.wi-pill-active').forEach(b => b.classList.remove('wi-pill-active'));
+          syncHidden(doc);
+        } catch {}
 
-      fitFromDOM();
+        fitFromDOM();
+      } else {
+        showError();
+      }
     } catch (err) {
       showError();
     }
