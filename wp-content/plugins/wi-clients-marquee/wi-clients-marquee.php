@@ -396,7 +396,7 @@ class WI_Clients_Marquee {
 
         // Pri prvom merenju sačekaj da slike/SVG budu proračunate pa kreni
         setTimeout(() => { w = Math.max(widthOf(seqA), 1); resync(); last = performance.now(); rafId = requestAnimationFrame(step); }, 0);
-        window.addEventListener('resize', resync, {passive:true});
+        //window.addEventListener('resize', resync, {passive:true});
       });
     });
   })();
