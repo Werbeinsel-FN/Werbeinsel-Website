@@ -327,10 +327,16 @@ class WI_Clients_Marquee {
   ?>
   <script>
   (function(){
-    const onReady = (fn) => {
-      if (document.readyState === 'complete') fn();
-      else window.addEventListener('load', fn);
-    };
+   const onReady = (fn) => {
+  if (document.readyState === 'loading') {
+    // Pusti da se skripta izvrši odmah kad je DOM spreman,
+    // ne čekaj da se učitaju sve slike, video itd.
+    document.addEventListener('DOMContentLoaded', fn);
+  } else {
+    fn();
+  }
+};
+
 
     onReady(function(){
       const tracks = document.querySelectorAll('.clients-track');
