@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * Plugin Name: WI Clients Marquee
  * Description: Naizmenične crno/belo pilule sa logotipovima (3 reda). Admin: lista logotipa. Shortcode: [wi_clients_marquee].
@@ -200,9 +200,10 @@ class WI_Clients_Marquee {
       $html_logo = '';
 
       if ($image_id) {
-        $src = wp_get_attachment_image_url($image_id, 'large');
+        // PROMENA: koristimo 'medium' umesto 'large' i bez loading="lazy"
+        $src = wp_get_attachment_image_url($image_id, 'medium');
         if ($src) {
-          $html_logo = '<img src="'.esc_url($src).'" alt="'.esc_attr($alt).'" class="pill-logo pill-logo--img" loading="lazy">';
+          $html_logo = '<img src="'.esc_url($src).'" alt="'.esc_attr($alt).'" class="pill-logo pill-logo--img" decoding="async">';
         }
       }
       if (!$html_logo) {
@@ -235,7 +236,7 @@ class WI_Clients_Marquee {
     ob_start(); ?>
     <section class="clients">
       <div class="container">
-        <h2 class="clients-title">OUR CLIENTS 2</h2>
+        <h2 class="clients-title">OUR CLIENTS</h2>
       </div>
       <div class="clients-rows">
         <div class="clients-row"><?php echo $track($rows[0], 'clients-track--left'); ?></div>
@@ -327,16 +328,13 @@ class WI_Clients_Marquee {
   ?>
   <script>
   (function(){
-   const onReady = (fn) => {
-  if (document.readyState === 'loading') {
-    // Pusti da se skripta izvrši odmah kad je DOM spreman,
-    // ne čekaj da se učitaju sve slike, video itd.
-    document.addEventListener('DOMContentLoaded', fn);
-  } else {
-    fn();
-  }
-};
-
+    const onReady = (fn) => {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fn);
+      } else {
+        fn();
+      }
+    };
 
     onReady(function(){
       const tracks = document.querySelectorAll('.clients-track');
@@ -365,10 +363,10 @@ class WI_Clients_Marquee {
         seqB.style.transform = `translate3d(${b}px,0,0)`;
 
         let last = performance.now();
-        let rafId;
 
         function step(now){
-          const dt = (now - last)/1000; last = now;
+          const dt = (now - last)/1000;
+          last = now;
           const v  = dir * speed;
 
           a += v*dt;
@@ -385,30 +383,17 @@ class WI_Clients_Marquee {
 
           seqA.style.transform = `translate3d(${a}px,0,0)`;
           seqB.style.transform = `translate3d(${b}px,0,0)`;
-          rafId = requestAnimationFrame(step);
+          requestAnimationFrame(step);
         }
 
-        // Re-setup na resize bez “skoka”: zadržimo relativni offset
-        function resync(){
-          const total = 2*w;
-          // trenutni offset modulo w (relativno na A)
-          const rel = ((a % w) + w) % w;
-          w = Math.max(widthOf(seqA), 1);
-          a = (dir > 0 ? -w : 0) - rel;
-          b = a + w;
-          seqA.style.transform = `translate3d(${a}px,0,0)`;
-          seqB.style.transform = `translate3d(${b}px,0,0)`;
-        }
-
-        // Pri prvom merenju sačekaj da slike/SVG budu proračunate pa kreni
-        setTimeout(() => { w = Math.max(widthOf(seqA), 1); resync(); last = performance.now(); rafId = requestAnimationFrame(step); }, 0);
-        //window.addEventListener('resize', resync, {passive:true});
+        // POJEDNOSTAVLJENO: bez resync() i setTimeout-a
+        requestAnimationFrame(step);
       });
     });
   })();
   </script>
   <?php
-}
+ }
 
 
 }
