@@ -235,7 +235,7 @@ class WI_Clients_Marquee {
     ob_start(); ?>
     <section class="clients">
       <div class="container">
-        <h2 class="clients-title">OUR CLIENTS</h2>
+        <h2 class="clients-title">OUR CLIENTS 2</h2>
       </div>
       <div class="clients-rows">
         <div class="clients-row"><?php echo $track($rows[0], 'clients-track--left'); ?></div>
@@ -306,15 +306,15 @@ class WI_Clients_Marquee {
 }
 
 /* na BELOJ piluli: zadrži tamno (negativ ne treba), pojačaj kontrast */
-.pill.is-white img.pill-logo--img {
-  filter: grayscale(1) contrast(2.5) brightness(0.85) !important;
+.pill img.pill-logo--img {
+  filter: grayscale(1) contrast(2) !important;
 }
 /* (ostali tvoji stilovi za .pill i .pill-logo ostaju) */
   .pill.is-white img.pill-logo--img{
-    filter: grayscale(100%) contrast(600%) brightness(80%) !important;
+    filter: grayscale(1) contrast(2) !important;
   }
   .pill.is-black img.pill-logo--img{
-    filter: grayscale(100%) invert(100%) contrast(600%) brightness(95%) !important;
+    filter: grayscale(1) contrast(2) invert(1) !important;
   }
       @media (max-width:1200px){:root{--pill-w:320px;--pill-h:160px;--pill-gap:48px}}
       @media (max-width:900px){:root{--pill-w:260px;--pill-h:130px;--pill-gap:32px;--row-gap:40px}}
