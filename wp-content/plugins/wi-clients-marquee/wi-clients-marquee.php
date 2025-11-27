@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WI Clients Marquee
  * Description: Naizmenične crno/belo pilule sa logotipovima (3 reda). Admin: lista logotipa. Shortcode: [wi_clients_marquee].
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Werbeinsel
  */
 
@@ -22,7 +22,12 @@ class WI_Clients_Marquee {
 
     // Front
     add_shortcode('wi_clients_marquee',   [$this,'shortcode']);
-    add_action('wp_head',                 [$this,'print_front_css']);
+
+    // 1) PRELOAD slika što ranije u <head>
+    add_action('wp_head',                 [$this,'print_preload_links'], 5);
+    // 2) CSS
+    add_action('wp_head',                 [$this,'print_front_css'], 10);
+    // 3) JS animacija (tvoja ista)
     add_action('wp_footer',               [$this,'print_front_js']);
   }
 
@@ -163,6 +168,30 @@ class WI_Clients_Marquee {
     <?php
   }
 
+  /* ================= FRONT (PRELOAD) ================= */
+
+  /**
+   * Preloaduje sve logo-slike u <head>, da ih browser učita i dekodira ranije.
+   * Tako kad user dođe do OUR CLIENTS, slike su već spremne i manje „štuca“.
+   */
+  public function print_preload_links(){
+    $items = get_option(self::OPT_KEY, []);
+    if (!is_array($items) || empty($items)) return;
+
+    $printed = [];
+    foreach ($items as $it){
+      $id = isset($it['image_id']) ? intval($it['image_id']) : 0;
+      if (!$id || in_array($id, $printed, true)) continue;
+
+      $src = wp_get_attachment_image_url($id, 'medium');
+      if ($src){
+        // jednostavan preload; možda će WP već imati isti u HTML-u, ali to nije problem
+        echo '<link rel="preload" as="image" href="'.esc_url($src).'">'."\n";
+        $printed[] = $id;
+      }
+    }
+  }
+
   /* ================= FRONT (SHORTCODE) ================= */
 
   public function shortcode($atts){
@@ -195,19 +224,19 @@ class WI_Clients_Marquee {
 
     // helper za pilulu
     $render_pill = function($is_black, $image_id, $alt){
-      $bg_class = $is_black ? 'is-black' : 'is-white';
+      $bg_class    = $is_black ? 'is-black' : 'is-white';
       $style_color = $is_black ? 'color:#fff;' : 'color:#000;';
-      $html_logo = '';
+      $html_logo   = '';
 
       if ($image_id) {
-        // PROMENA: koristimo 'medium' umesto 'large' i bez loading="lazy"
+        // koristimo 'medium' umesto 'large' i bez loading="lazy"
         $src = wp_get_attachment_image_url($image_id, 'medium');
         if ($src) {
           $html_logo = '<img src="'.esc_url($src).'" alt="'.esc_attr($alt).'" class="pill-logo pill-logo--img" decoding="async">';
         }
       }
       if (!$html_logo) {
-        // centriran default SVG (x/y u sredini, dominant-baseline middle, text-anchor middle)
+        // centriran default SVG
         $html_logo = '<svg class="pill-logo pill-logo--svg" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'.esc_attr($alt).'">
           <g fill="currentColor">
             <circle cx="50" cy="50" r="20"/>
@@ -219,14 +248,14 @@ class WI_Clients_Marquee {
       return '<div class="pill '.$bg_class.'" style="'.$style_color.'">'.$html_logo.'</div>';
     };
 
-    // helper za jednu traku
+    // helper za jednu traku (IDENTIČNO tvom kodu – koristi JS animaciju)
     $track = function($logos, $dir_class) use ($render_pill){
       $html = '<div class="clients-track '.$dir_class.'" data-direction="'.($dir_class==='clients-track--right'?'right':'left').'" data-speed="40">';
       $html .= '<div class="clients-seq">';
       $idx = 0;
       foreach ($logos as $logo){
         $is_black = ($idx % 2 === 0);
-        $html .= $render_pill($is_black, intval($logo['image_id']), $logo['alt']);
+        $html    .= $render_pill($is_black, intval($logo['image_id']), $logo['alt']);
         $idx++;
       }
       $html .= '</div></div>';
@@ -252,149 +281,184 @@ class WI_Clients_Marquee {
     ?>
     <style id="wi-clients-marquee-css">
       :root{
-        --container-max:1780px;--container-pad:32px;--row-gap:64px;--pill-gap:64px;
-        --pill-w:384px;--pill-h:192px;--pill-radius:9999px;
+        --container-max:1780px;
+        --container-pad:32px;
+        --row-gap:64px;
+        --pill-gap:64px;
+        --pill-w:384px;
+        --pill-h:192px;
+        --pill-radius:9999px;
       }
-      .container{max-width:var(--container-max);margin-inline:auto;padding-inline:var(--container-pad)}
+      .container{
+        max-width:var(--container-max);
+        margin-inline:auto;
+        padding-inline:var(--container-pad)
+      }
       .clients{margin:4rem 0}
-      .clients-title{font:800 clamp(1.5rem,2rem + 1vw,3.5rem)/1.1 system-ui,sans-serif;text-align:center;margin:0 0 4rem;white-space:nowrap}
-      .clients-rows{overflow:hidden;display:grid;gap:var(--row-gap)}
-      .clients-row{overflow:hidden}
+      .clients-title{
+        font:800 clamp(1.5rem,2rem + 1vw,3.5rem)/1.1 system-ui,sans-serif;
+        text-align:center;
+        margin:0 0 4rem;
+        white-space:nowrap
+      }
+      .clients-rows{
+        overflow:hidden;
+        display:grid;
+        gap:var(--row-gap)
+      }
+      .clients-row{
+        overflow:hidden;
+        position:relative;
+      }
+
       /* TRACK kao flex da gap važi i između kloniranih .clients-seq */
       .clients-track{
-        display:flex; align-items:center; gap:var(--pill-gap);
-        animation:none!important; transform:translate3d(0,0,0);
+        display:flex;
+        align-items:center;
+        gap:var(--pill-gap);
+        animation:none!important;
+        transform:translate3d(0,0,0);
+        position:relative;
+        overflow:hidden;
+        height:var(--pill-h);
       }
       .clients-track > .clients-seq{
-        display:flex; gap:var(--pill-gap);
+        position:absolute;
+        top:0;
+        left:0;
+        display:flex;
+        gap:var(--pill-gap);
+        padding-right:var(--pill-gap);
+        will-change:transform;
       }
+
       .pill{
-        flex:0 0 auto; width:var(--pill-w); height:var(--pill-h);
+        flex:0 0 auto;
+        width:var(--pill-w);
+        height:var(--pill-h);
         border-radius:var(--pill-radius);
-        display:flex; align-items:center; justify-content:center;
+        display:flex;
+        align-items:center;
+        justify-content:center;
       }
       .pill.is-black{background:#000}
       .pill.is-white{background:#fff;border:2px solid #000}
-      .pill-logo{max-width:70%;max-height:70%;object-fit:contain;display:block}
-      /* Kontrast: samo za uploadovane slike na crnoj piluli */
-      .pill.is-black img.pill-logo--img{filter: invert(1) brightness(1.2) contrast(1.05)}
-      .pill.is-white img.pill-logo--img{filter:none}
-      /* TRACK sada je relativan kontejner sa overflow: hidden */
-.clients-row{ overflow:hidden; position:relative; }
-.clients-track{
-  position:relative;
-  overflow:hidden;
-  height: var(--pill-h);
-  display:block;
+      .pill-logo{
+        max-width:70%;
+        max-height:70%;
+        object-fit:contain;
+        display:block
+      }
+
+      /* JEDNOSTAVNIJI filteri, bez dupliranja – i dalje crno/belo, dobar kontrast */
+  /* Bazni grayscale za sve logo slike */
+.pill img.pill-logo--img{
+  filter: grayscale(1) contrast(1.6) !important;
 }
 
-.clients-track .clients-seq{
-  position:absolute; top:0; left:0;
-  display:flex;
-  gap:var(--pill-gap);
-  padding-right: var(--pill-gap); /* << DODATO: gap između A i B sekvence */
-  will-change: transform;
+/* Na CRNOJ piluli: invertuj da bude svetao logo */
+.pill.is-black img.pill-logo--img{
+  filter: grayscale(1) invert(1) contrast(2) !important;
 }
 
-/* bazno: pretvori u grayscale */
-.pill img.pill-logo--img {
-  filter: grayscale(1) contrast(2) !important;
+/* Na BELOJ piluli: ostaje tamniji logo */
+.pill.is-white img.pill-logo--img{
+  filter: grayscale(1) contrast(1.8) !important;
 }
 
-/* na CRNOJ piluli: učini ga belim (pozitivan), jak kontrast */
-.pill.is-black img.pill-logo--img {
-  filter: grayscale(1) invert(1) contrast(2.5) brightness(1.05) !important;
-}
-
-/* na BELOJ piluli: zadrži tamno (negativ ne treba), pojačaj kontrast */
-.pill img.pill-logo--img {
-  filter: grayscale(1) contrast(2) !important;
-}
-/* (ostali tvoji stilovi za .pill i .pill-logo ostaju) */
-  .pill.is-white img.pill-logo--img{
-    filter: grayscale(1) contrast(2) !important;
-  }
-  .pill.is-black img.pill-logo--img{
-    filter: grayscale(1) contrast(2) invert(1) !important;
-  }
-      @media (max-width:1200px){:root{--pill-w:320px;--pill-h:160px;--pill-gap:48px}}
-      @media (max-width:900px){:root{--pill-w:260px;--pill-h:130px;--pill-gap:32px;--row-gap:40px}}
-      @media (max-width:600px){:root{--pill-w:220px;--pill-h:110px;--pill-gap:24px}.clients-title{margin-bottom:2.5rem}}
+      @media (max-width:1200px){
+        :root{
+          --pill-w:320px;
+          --pill-h:160px;
+          --pill-gap:48px
+        }
+      }
+      @media (max-width:900px){
+        :root{
+          --pill-w:260px;
+          --pill-h:130px;
+          --pill-gap:32px;
+          --row-gap:40px
+        }
+      }
+      @media (max-width:600px){
+        :root{
+          --pill-w:220px;
+          --pill-h:110px;
+          --pill-gap:24px
+        }
+        .clients-title{margin-bottom:2.5rem}
+      }
     </style>
     <?php
   }
 
- public function print_front_js(){
-  ?>
-  <script>
-  (function(){
-    const onReady = (fn) => {
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', fn);
-      } else {
-        fn();
-      }
-    };
+  public function print_front_js(){
+    ?>
+    <script>
+    (function(){
+      const onReady = (fn) => {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', fn);
+        } else {
+          fn();
+        }
+      };
 
-    onReady(function(){
-      const tracks = document.querySelectorAll('.clients-track');
+      onReady(function(){
+        const tracks = document.querySelectorAll('.clients-track');
 
-      tracks.forEach(track => {
-        const dir   = track.dataset.direction === 'right' ? 1 : -1; // 1=desno, -1=levo
-        const speed = parseFloat(track.dataset.speed) || 40;        // px/s
+        tracks.forEach(track => {
+          const dir   = track.dataset.direction === 'right' ? 1 : -1; // 1=desno, -1=levo
+          const speed = parseFloat(track.dataset.speed) || 40;        // px/s
 
-        let seqA = track.querySelector('.clients-seq');
-        if (!seqA) return;
+          let seqA = track.querySelector('.clients-seq');
+          if (!seqA) return;
 
-        // Napravi drugi “vagon”
-        let seqB = seqA.cloneNode(true);
-        track.appendChild(seqB);
+          // Napravi drugi “vagon”
+          let seqB = seqA.cloneNode(true);
+          track.appendChild(seqB);
 
-        // Meri realnu širinu jedne sekvence (uključuje gap unutar nje)
-        const widthOf = el => el.getBoundingClientRect().width;
+          // Meri realnu širinu jedne sekvence
+          const widthOf = el => el.getBoundingClientRect().width;
 
-        // Stanja (x pozicije dve sekvence)
-        let w = Math.max(widthOf(seqA), 1);
-        let a = (dir > 0 ? -w : 0); // start: desno -> A je van leve ivice
-        let b = a + w;              // B ide odmah posle A
-
-        // Pozicioniraj početno
-        seqA.style.transform = `translate3d(${a}px,0,0)`;
-        seqB.style.transform = `translate3d(${b}px,0,0)`;
-
-        let last = performance.now();
-
-        function step(now){
-          const dt = (now - last)/1000;
-          last = now;
-          const v  = dir * speed;
-
-          a += v*dt;
-          b += v*dt;
-
-          // “prebaci” vagon kad potpuno izađe
-          if (dir < 0){ // levo
-            if (a <= -w) a += 2*w;
-            if (b <= -w) b += 2*w;
-          } else {      // desno
-            if (a >=  w) a -= 2*w;
-            if (b >=  w) b -= 2*w;
-          }
+          let w = Math.max(widthOf(seqA), 1);
+          let a = (dir > 0 ? -w : 0); // start pozicije
+          let b = a + w;
 
           seqA.style.transform = `translate3d(${a}px,0,0)`;
           seqB.style.transform = `translate3d(${b}px,0,0)`;
+
+          let last = performance.now();
+
+          function step(now){
+            const dt = (now - last)/1000;
+            last = now;
+            const v  = dir * speed;
+
+            a += v*dt;
+            b += v*dt;
+
+            if (dir < 0){ // levo
+              if (a <= -w) a += 2*w;
+              if (b <= -w) b += 2*w;
+            } else {      // desno
+              if (a >=  w) a -= 2*w;
+              if (b >=  w) b -= 2*w;
+            }
+
+            seqA.style.transform = `translate3d(${a}px,0,0)`;
+            seqB.style.transform = `translate3d(${b}px,0,0)`;
+            requestAnimationFrame(step);
+          }
+
           requestAnimationFrame(step);
-        }
-
-        // POJEDNOSTAVLJENO: bez resync() i setTimeout-a
-        requestAnimationFrame(step);
+        });
       });
-    });
-  })();
-  </script>
-  <?php
- }
-
+    })();
+    </script>
+    <?php
+  }
 
 }
 new WI_Clients_Marquee();
