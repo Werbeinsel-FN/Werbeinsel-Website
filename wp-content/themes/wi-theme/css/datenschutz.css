@@ -85,7 +85,7 @@ ul li {
 }
 
 /* Crtamo tačku tačno na sredini */
-ul li::before {
+.datenschutz-main ul li::before {
   content: "•";
   position: absolute;
   left: 0;
