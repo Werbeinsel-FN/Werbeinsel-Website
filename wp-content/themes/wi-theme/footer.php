@@ -4,26 +4,101 @@
  */
 ?>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const rocketBtn = document.querySelector(".rocket-btn");
-  const rocketIcon = rocketBtn ? rocketBtn.querySelector(".rocket") : null;
-
-  if (rocketBtn && rocketIcon) {
+(function() {
+  let initialized = false;
+  
+  function initScrollToTop() {
+    if (initialized) return;
+    
+    const rocketBtn = document.querySelector(".rocket-btn");
+    if (!rocketBtn) return;
+    
+    const rocketIcon = rocketBtn.querySelector(".rocket");
+    
     rocketBtn.addEventListener("click", function (e) {
       e.preventDefault();
+      e.stopPropagation();
 
       // animacija rotacije
-      rocketIcon.classList.add("launched");
-      setTimeout(() => rocketIcon.classList.remove("launched"), 400); // vrati nazad posle 0.4s
+      if (rocketIcon) {
+        rocketIcon.classList.add("launched");
+        setTimeout(function() {
+          rocketIcon.classList.remove("launched");
+        }, 400);
+      }
 
-      // glatko skrolovanje na vrh
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
+      // glatko skrolovanje na vrh - postepeno
+      // Pronađi prvi element na stranici (hero ili body)
+      const firstElement = document.querySelector('#home-hero') || 
+                          document.querySelector('header') || 
+                          document.querySelector('body') ||
+                          document.documentElement;
+      
+      // Prvo pokušaj sa native smooth scroll
+      if (window.scrollTo && 'scrollBehavior' in document.documentElement.style) {
+        // Koristi scrollIntoView na prvom elementu
+        if (firstElement && firstElement.scrollIntoView) {
+          firstElement.scrollIntoView({ 
+            behavior: "smooth", 
+            block: "start",
+            inline: "nearest"
+          });
+        }
+        
+        // Takođe koristi window.scrollTo kao backup
+        window.scrollTo({
+          top: 0,
+          left: 0,
+          behavior: "smooth"
+        });
+        
+        // Dodatno osiguranje - postavi i nakon kratke pauze
+        setTimeout(function() {
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+          window.scrollTo(0, 0);
+          // Još jednom scrollIntoView za sigurnost
+          if (firstElement && firstElement.scrollIntoView) {
+            firstElement.scrollIntoView({ behavior: "auto", block: "start" });
+          }
+        }, 300);
+      } else {
+        // Fallback za starije browsere - postepeno skrolovanje
+        const getScrollTop = function() {
+          return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        };
+        
+        const currentScroll = getScrollTop();
+        const scrollStep = Math.max(currentScroll / 30, 10);
+        const scrollInterval = setInterval(function() {
+          const currentPos = getScrollTop();
+          if (currentPos > 0) {
+            const newPos = Math.max(0, currentPos - scrollStep);
+            window.scrollTo(0, newPos);
+            document.documentElement.scrollTop = newPos;
+            document.body.scrollTop = newPos;
+          } else {
+            clearInterval(scrollInterval);
+            // Finalno osiguranje
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            window.scrollTo(0, 0);
+          }
+        }, 15);
+      }
     });
+    
+    initialized = true;
   }
-});
+
+  // Pokreni kada je DOM spreman
+  if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initScrollToTop);
+  } else {
+    // DOM je već spreman
+    initScrollToTop();
+  }
+})();
 </script>
 <footer class="site-footer">
   <div class="content-container">
