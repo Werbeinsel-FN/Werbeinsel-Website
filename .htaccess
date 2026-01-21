@@ -10,5 +10,46 @@ RewriteRule . /index.php [L]
 </IfModule>
 # END WordPress
 
+# Security: Protect wp-config.php from direct access
+<Files wp-config.php>
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order allow,deny
+		Deny from all
+	</IfModule>
+</Files>
+
+# Security: Protect sensitive files
+<FilesMatch "^(wp-config\.php|\.htaccess|\.htpasswd|readme\.html|license\.txt)">
+	<IfModule mod_authz_core.c>
+		Require all denied
+	</IfModule>
+	<IfModule !mod_authz_core.c>
+		Order allow,deny
+		Deny from all
+	</IfModule>
+</FilesMatch>
+
+# Security Headers
+<IfModule mod_headers.c>
+	# Prevent clickjacking
+	Header always set X-Frame-Options "SAMEORIGIN"
+	
+	# Prevent MIME type sniffing
+	Header always set X-Content-Type-Options "nosniff"
+	
+	# Enable XSS protection
+	Header always set X-XSS-Protection "1; mode=block"
+	
+	# Referrer Policy
+	Header always set Referrer-Policy "strict-origin-when-cross-origin"
+	
+	# Remove server information
+	Header unset Server
+	Header unset X-Powered-By
+</IfModule>
+
 # (opciono, sigurnost)
 RedirectMatch 404 /\.git

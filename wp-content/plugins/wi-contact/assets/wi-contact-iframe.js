@@ -10,8 +10,10 @@
   // ======= Podesivo =======
   var IFRAME_ID = "wi-next-contact";
 
-  // 1) SITE KEY – možeš hardkodirati ovde:
-  var DEFAULT_SITE_KEY = "6Lf1580rAAAAAB_MSp7fq6UVnrUzHyiMW1BL9pSq";
+  // 1) SITE KEY – NAPOMENA: Ne hardkodirati ovde!
+  //    Koristiti data-sitekey atribut na iframe elementu ili ostaviti prazno
+  //    Hardkodovani ključevi su bezbednosni rizik!
+  var DEFAULT_SITE_KEY = "";
 
   // 2) Opcioni CSS fajl za formu (pusti prazno ako ne treba):
   var CSS_URL = "/wp-content/plugins/wi-contact/assets/front.css?v=8";
