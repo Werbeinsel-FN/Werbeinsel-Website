@@ -1,361 +1,215 @@
-/* =========================
-   FOOTER — final & symmetric
-   ========================= */
-
-/* Tokeni (lako menjaš sve iz jednog mesta) */
-:root {
-  --footer-bg: #000; /* crna traka */
-  --footer-fg: #fff; /* bela tipografija */
-  --footer-accent: #ffed00; /* hover akcenat */
-  --footer-pad-y: 32px; /* py-8 -> 32px gore/dole */
-  --footer-pad-x: 32px; /* px-8 -> 32px levo/desno */
-  --footer-max: 1780px; /* maksimalna širina sadržaja */
-
-  --gap-main: 24px; /* gap-6 između glavnih sekcija */
-  --gap-menu-mobile: 16px; /* gap-4 u meniju na mobilu */
-  --gap-menu-desktop: 32px; /* gap-8 u meniju na desktopu */
-  --gap-right-mobile: 16px; /* razmak u desnoj sekciji na mobilu */
-  --gap-right-desktop: 24px; /* razmak u desnoj sekciji na desktopu */
-  --gap-icons: 12px; /* razmak između samih ikonica */
-  --gap-actions: 16px; /* razmak između grupe ikonica i rakete */
-
-  --icon-btn: 40px; /* prečnik belih krugova (socijalne) */
-  --icon-glyph: 20px; /* veličina SVG-a u krugu */
-
-  --rocket-btn-m: 48px; /* raketa dugme — mobil */
-  --rocket-btn-d: 56px; /* raketa dugme — desktop */
-  --rocket-glyph-m: 24px; /* veličina rakete — mobil */
-  --rocket-glyph-d: 28px; /* veličina rakete — desktop */
-
-  --border-top: 2px; /* debljina žute linije gore */
-}
-
-/* (opciono) sticky footer struktura */
-html {
-  scroll-behavior: smooth;
-}
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-body {
-  min-height: 100svh; /* ili 100dvh */
-  display: flex;
-  flex-direction: column;
-}
-main {
-  flex: 1 0 auto;
-} /* gura footer na dno */
-.site-footer {
-  margin-top: 0;
-} /* više nam ne treba auto na margini */
-.site-content {
-  flex: 1;
-}
-.site-footer {
-  margin-top: auto;
-  border-bottom: 1px solid transparent;
-}
-.site-footer > *:last-child {
-  margin-bottom: 0;
-}
-/* ---------- Footer kontejner ---------- */
-.site-footer {
-  position: relative;
-  color: var(--footer-fg);
-  background: transparent; /* pozadinu crta ::before da bi bila full-bleed */
-  padding: var(--footer-pad-y) 0; /* simetričan padding gore/dole */
-}
-
-/* Full-bleed crna traka + žuta linija gore */
-.site-footer::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw; /* razlivanje do ivica ekrana */
-  top: 0;
+/* === FOOTER – 4 kolone, sticky na dnu (prati scroll) === */
+.wi-footer {
+  background: #000;
+  padding-top: 4rem;
+  color: #fff;
+  position: sticky;
   bottom: 0;
-  background: var(--footer-bg);
-  border-top: var(--border-top) solid var(--footer-accent);
+  z-index: 10;
 }
 
-/* Unutrašnji container — centriran, limit 1780px */
-.site-footer .content-container {
-  max-width: var(--footer-max);
+.wi-footer__container {
+  max-width: 1780px;
   margin: 0 auto;
-  padding-left: var(--footer-pad-x);
-  padding-right: var(--footer-pad-x);
+  padding: 0 1rem;
 }
 
-/* ---------- Raspored i simetrija ---------- */
-/* Mobilno: vertikalno (centar), Desktop: dve jednake kolone oko CENTRA  */
-.footer-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-main);
-}
-
-/* ≥640px: GRID sa 2 jednake kolone -> simetrično oko centra */
-@media (min-width: 640px) {
-  .footer-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* leva i desna kolona jednake širine */
-    align-items: center;
-    gap: var(--gap-main);
+@media (min-width: 768px) {
+  .wi-footer__container {
+    padding: 0 1.5rem;
   }
 }
 
-/* ---------- Leva sekcija (meni) ---------- */
-.footer-left {
-  width: 100%;
+@media (min-width: 1024px) {
+  .wi-footer__container {
+    padding: 0 2rem;
+  }
 }
 
-/* Mobilno: kolona, centrirano */
-.footer-menu {
-  list-style: none;
+.wi-footer__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .wi-footer__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wi-footer__grid {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+.wi-footer__brand {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .wi-footer__brand {
+    grid-column: auto;
+  }
+}
+
+.wi-footer__logo {
+  height: 48px;
+  width: auto;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.wi-footer__logo-text {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.wi-footer__tagline {
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
   margin: 0;
-  padding: 0;
+}
+
+.wi-footer__heading {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem;
+  color: #fff;
+}
+
+.wi-footer__nav {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--gap-menu-mobile);
+  gap: 0.75rem;
 }
 
-/* Desktop: red, levo poravnato — prilepljeno levoj ivici svoje kolone */
-@media (min-width: 640px) {
-  .footer-menu {
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    gap: var(--gap-menu-desktop);
-  }
-}
-
-.footer-menu a {
-  font-family: Poppins, system-ui, sans-serif;
-  font-weight: 800;
-  color: var(--footer-fg);
+.wi-footer__nav a {
+  font-family: "Poppins", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
   transition: color 0.2s ease;
 }
-.footer-menu a:hover {
-  color: var(--footer-accent);
+
+.wi-footer__nav a:hover {
+  color: #FFED00;
 }
 
-/* ---------- Desna sekcija (#agency + ikonice + raketa) ---------- */
-/* Mobilno: kolona, centrirano */
-.footer-right {
+.wi-footer__social-col {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--gap-right-mobile);
+  gap: 1rem;
 }
 
-/* Desktop: red, desno poravnato — prilepljeno desnoj ivici svoje kolone */
-@media (min-width: 640px) {
-  .footer-right {
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    gap: var(--gap-right-desktop);
-  }
-}
-
-/* hashtag */
-.footer-hashtag {
-  font-family: Poppins, system-ui, sans-serif;
-  font-weight: 800;
-  color: var(--footer-fg);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-.footer-hashtag:hover {
-  color: var(--footer-accent);
-}
-
-/* grupa: [ikonice] + [raketa] */
-.footer-actions {
+.wi-footer__social {
   display: flex;
-  align-items: center;
-  gap: var(--gap-actions); /* razmak između grupe ikonica i rakete */
+  gap: 1rem;
 }
 
-/* ikonice u belim krugovima */
-.footer-social {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-icons);
-}
-.social-btn {
-  width: var(--icon-btn);
-  height: var(--icon-btn);
-  border-radius: 9999px;
-  background: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.15s ease;
-}
-.social-btn:hover {
-  background: var(--footer-accent);
-  transform: translateY(-1px);
-}
-
-/* sama ikona u krugu */
-.social-btn svg {
-  width: var(--icon-glyph);
-  height: var(--icon-glyph);
-}
-.icon {
+.wi-footer__social-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #FFED00;
   color: #000;
-}
-
-/* ---------- Back-to-Top (raketa) ---------- */
-.rocket-btn {
-  width: var(--rocket-btn-m);
-  height: var(--rocket-btn-m);
-  border-radius: 9999px;
-  background: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, transform 0.15s ease;
-}
-@media (min-width: 640px) {
-  .rocket-btn {
-    width: var(--rocket-btn-d);
-    height: var(--rocket-btn-d);
-  }
-}
-.rocket-btn:hover {
-  background: var(--footer-accent);
-  transform: translateY(-1px);
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
-/* raketa ikonica + animacija */
-.rocket {
-  width: var(--rocket-glyph-m);
-  height: var(--rocket-glyph-m);
+.wi-footer__social-btn:hover {
+  background: #000;
+  color: #FFED00;
+  transform: scale(1.1);
+}
+
+.wi-footer__social-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+.wi-footer__rocket {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #FFED00;
+  color: #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  align-self: flex-start;
+}
+
+.wi-footer__rocket:hover {
+  background: #000;
+  color: #FFED00;
+  transform: scale(1.1);
+}
+
+.wi-footer__rocket-icon {
+  width: 28px;
+  height: 28px;
   transform: rotate(-45deg);
-  color: #000;
   transition: transform 0.28s ease;
 }
-.site-footer,
-.site-footer a,
-.footer-menu a,
-.footer-hashtag {
-  font-size: 16px;
-}
-@media (min-width: 640px) {
-  .rocket {
-    width: var(--rocket-glyph-d);
-    height: var(--rocket-glyph-d);
-  }
-}
-.rocket.launched {
+
+.wi-footer__rocket:hover .wi-footer__rocket-icon {
   transform: rotate(-90deg);
 }
 
-/* (ako postoji) sakrij copyright */
-.footer-copy {
-  display: none;
-  border: 0;
+.wi-footer__bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+  text-align: center;
 }
 
-/* ---------- Tablet layout (1000 → 641 px) — 2 reda uredno ---------- */
-@media (max-width: 1000px) and (min-width: 641px) {
-  .footer-bar {
-    grid-template-columns: 1fr; /* prelom u 2 reda */
-    row-gap: 16px;
-  }
-  .footer-left,
-  .footer-right {
-    width: 100%;
-  }
-
-  .footer-menu {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 12px 20px; /* (vert, horiz) kompaktnije da sve stane */
-  }
-
-  .footer-right {
-    justify-content: space-between; /* #agency levo, akcije desno */
-    gap: 16px;
-  }
-
-  .footer-actions {
-    gap: 12px;
-  }
-  .footer-social {
-    gap: 10px;
+@media (min-width: 768px) {
+  .wi-footer__bottom {
+    padding-bottom: 2.5rem;
   }
 }
 
-/* ---------- Mobilni ≤ 620 px ---------- */
-@media (max-width: 620px) {
-  .site-footer .content-container {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  .footer-bar {
-    gap: 16px;
-  }
-
-  .footer-menu {
-    gap: 10px 16px;
-    flex-wrap: wrap;
-  }
-
-  .footer-right {
-    width: 100%;
-    justify-content: space-between; /* #agency levo, ikonice+raketa desno */
-    gap: 12px;
+@media (min-width: 1024px) {
+  .wi-footer__bottom {
+    padding-bottom: 3rem;
   }
 }
-/* ===== Ultra-wide (≥2000px): simetrija oko centra + veći centralni razmak ===== */
-/* ===== Ultra-wide (≥2000px): leve/desne sekcije više odmaknute ===== */
-/* ===== Ultra-wide (≥2000px): umeren odmak levo/desno + simetrija ===== */
-@media (min-width: 2000px) {
-  .site-footer .content-container {
-    max-width: 2400px; /* širina kontejnera */
-    margin: 0 auto;
-    padding-left: 80px;
-    padding-right: 80px;
-  }
 
-  .footer-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-  }
+.wi-footer__copy {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
 
-  /* Leva sekcija */
-  .footer-left {
-    justify-self: start;
-    margin-right: 200px; /* gura ulevo od centra */
-  }
-  .footer-menu {
-    gap: 40px;
-  }
-
-  /* Desna sekcija */
-  .footer-right {
-    justify-self: end;
-    margin-left: 200px; /* gura udesno od centra */
-    gap: 40px;
-  }
-
-  .footer-actions {
-    gap: 24px;
-  }
-  .footer-social {
-    gap: 16px;
+@media (prefers-reduced-motion: reduce) {
+  .wi-footer__social-btn,
+  .wi-footer__rocket,
+  .wi-footer__rocket-icon {
+    transition: none;
   }
 }

@@ -1,29 +1,110 @@
-/* center logo */
-.logo-wrapper {
-  padding: 2rem 0;
-  display: flex;
-  justify-content: center;
-}
-/* logo size */
-.logo-light {
-  height: 300px;
-  width: 300px;
+/* === HEADER – žuta sticky traka (fixed da uvek prati scroll) === */
+.wi-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: #FFED00;
 }
 
-/* center menu */
-body header nav {
+.wi-header__inner {
+  max-width: 1780px;
+  margin: 0 auto;
+  padding: 0 1rem;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
 }
-.main-menu {
-  list-style-type: none;
-  display: inline-flex; /* items next to each other */
+
+@media (min-width: 768px) {
+  .wi-header__inner {
+    padding: 0 1.5rem;
+    height: 88px;
+  }
 }
-.main-menu li {
-  margin: 0px 20px;
+
+@media (min-width: 1024px) {
+  .wi-header__inner {
+    padding: 0 2rem;
+  }
 }
-.main-menu li a {
-  color: #000;
-  font-family: Poppins, sans-serif;
+
+.wi-header__logo {
+  display: flex;
+  align-items: center;
   text-decoration: none;
+  color: #000;
+  font-family: "Unbounded", sans-serif;
+  font-weight: 800;
+  font-size: clamp(20px, 3vw, 28px);
+  transition: opacity 0.2s ease;
+}
+
+.wi-header__logo:hover {
+  opacity: 0.7;
+}
+
+.wi-header__logo-img {
+  height: 40px;
+  width: auto;
+}
+
+.wi-header__menu-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.wi-header__menu-btn:hover {
+  opacity: 0.7;
+}
+
+.wi-header__menu-btn:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 4px;
+}
+
+.wi-header__menu-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wi-header__menu-icon span {
+  display: block;
+  width: 32px;
+  height: 4px;
+  background: #000;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Hamburger → X kada je meni otvoren */
+.wi-header__menu-btn.open .wi-header__menu-icon span:nth-child(1) {
+  transform: translateY(10px) rotate(45deg);
+}
+
+.wi-header__menu-btn.open .wi-header__menu-icon span:nth-child(2) {
+  opacity: 0;
+}
+
+.wi-header__menu-btn.open .wi-header__menu-icon span:nth-child(3) {
+  transform: translateY(-10px) rotate(-45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wi-header__menu-icon span,
+  .wi-header__menu-btn.open .wi-header__menu-icon span {
+    transition: none;
+  }
 }

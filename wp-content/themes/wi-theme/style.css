@@ -4,3 +4,32 @@ Author: Samuel Mettenmeyer
 Description: WordPress-Theme for the Werbeinsel Agency
 Version: 1.0
 */
+
+/* === Full-width, no yellow strips on sides === */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  overflow-x: hidden;
+}
+
+body {
+  background: #000 !important;
+}
+
+main,
+.home-main,
+.wi-footer,
+.wi-footer.site-footer,
+.home-hero,
+.home-about,
+.home-services,
+.home-portfolio,
+.home-clients,
+.home-testimonials,
+.home-cta {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}

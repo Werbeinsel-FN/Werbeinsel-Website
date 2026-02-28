@@ -95,7 +95,7 @@ if (!function_exists('wi_service_detail_url')) {
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['ooh']); ?></h2>
       <div class="svc-grid svc-grid--3">
         <?php foreach ($OOH as $s): ?>
-          <a id="plakatwerbung" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+          <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
             <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
             <div class="svc-card__overlay svc-card__overlay--dark">
               <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>
@@ -114,7 +114,7 @@ if (!function_exists('wi_service_detail_url')) {
       <div class="svc-grid svc-grid--2cols">
         <div class="svc-grid svc-grid--2">
           <?php foreach (array_slice($PIX, 0, 2) as $s): ?>
-            <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+            <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
               <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
               <div class="svc-card__overlay svc-card__overlay--yellow">
                 <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
@@ -125,7 +125,7 @@ if (!function_exists('wi_service_detail_url')) {
         </div>
         <div class="svc-grid svc-grid--2">
           <?php foreach (array_slice($PIX, 2) as $s): ?>
-            <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+            <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
               <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
               <div class="svc-card__overlay svc-card__overlay--yellow">
                 <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
@@ -144,7 +144,7 @@ if (!function_exists('wi_service_detail_url')) {
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['kle']); ?></h2>
       <div class="svc-grid svc-grid--3-md">
         <?php foreach ($KLE as $s): ?>
-          <a class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+          <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
             <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
             <div class="svc-card__overlay svc-card__overlay--dark">
               <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>

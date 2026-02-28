@@ -2,8 +2,8 @@
   $(function () {
     var $btn = $("#toggle-main-menu");
     var $overlay = $("#menu-overlay");
-    var $close = $(".menu-overlay-close");
-    var $links = $(".overlay-menu a");
+    var $close = $(".wi-menu-overlay__close");
+    var $links = $(".wi-menu-overlay__nav a");
 
     function openMenu() {
       $("body").addClass("menu-open");

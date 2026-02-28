@@ -3,6 +3,12 @@
 function wi_theme_setup() {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
+    add_theme_support('custom-logo', array(
+        'height'      => 48,
+        'width'       => 200,
+        'flex-height' => true,
+        'flex-width'  => true,
+    ));
     register_nav_menus(array(
         'primary' => __('Hauptmenü', 'wi-theme'),
         'footer'        => __('Footer Menu', 'wi-theme'),          // za Impressum/AGBs/...
@@ -432,85 +438,12 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 //     }
 // }
 // add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
-// === HEADER VIDEO META BOX (samo za Template: Home) ===
-
-
-function wi_home_header_video_cb($post) {
-    // Prikaži samo ako je izabran Home template
-    $tpl = get_page_template_slug($post->ID);
-    if ($tpl !== 'home.php' && $tpl !== 'template-home.php' && $tpl !== 'page-home.php') {
-        echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
-        return;
-    }
-
-    wp_nonce_field('wi_save_home_header_video', 'wi_home_header_video_nonce');
-
-    $video_id = get_post_meta($post->ID, '_wi_header_video_id', true);
-    $video_url = $video_id ? wp_get_attachment_url($video_id) : '';
-
-    ?>
-    <div>
-        <p>
-            <input type="hidden" id="wi_header_video_id" name="wi_header_video_id" value="<?php echo esc_attr($video_id); ?>">
-            <input type="text" id="wi_header_video_url" class="widefat" placeholder="<?php esc_attr_e('URL do MP4 fajla', 'wi'); ?>" value="<?php echo esc_attr($video_url); ?>" readonly>
-        </p>
-        <p>
-            <button type="button" class="button" id="wi_header_video_select"><?php esc_html_e('Izaberi MP4 iz medije', 'wi'); ?></button>
-            <button type="button" class="button" id="wi_header_video_clear" style="margin-left:6px;"><?php esc_html_e('Ukloni', 'wi'); ?></button>
-        </p>
-        <p style="color:#666;margin-top:8px;">
-            <?php esc_html_e('Ako je popunjen video, koristi se on. Ako nije, koristi se Istaknuta slika (Featured image).', 'wi'); ?>
-        </p>
-    </div>
-    <script>
-    (function($){
-        $(function(){
-            var frame;
-            $('#wi_header_video_select').on('click', function(e){
-                e.preventDefault();
-                if (frame) { frame.open(); return; }
-                frame = wp.media({
-                    title: 'Izaberi MP4',
-                    button: { text: 'Koristi ovaj video' },
-                    library: { type: 'video' },
-                    multiple: false
-                });
-                frame.on('select', function(){
-                    var attachment = frame.state().get('selection').first().toJSON();
-                    // prihvatamo samo mp4 radi kompatibilnosti
-                    if (attachment && attachment.url && /\.mp4($|\?)/i.test(attachment.url)) {
-                        $('#wi_header_video_id').val(attachment.id);
-                        $('#wi_header_video_url').val(attachment.url);
-                    } else {
-                        alert('Molim izaberite MP4 fajl.');
-                    }
-                });
-                frame.open();
-            });
-
-            $('#wi_header_video_clear').on('click', function(){
-                $('#wi_header_video_id').val('');
-                $('#wi_header_video_url').val('');
-            });
-        });
-    })(jQuery);
-    </script>
-    <?php
-}
-
-add_action('save_post_page', function ($post_id) {
-    if (!isset($_POST['wi_home_header_video_nonce']) || !wp_verify_nonce($_POST['wi_home_header_video_nonce'], 'wi_save_home_header_video')) return;
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!current_user_can('edit_page', $post_id)) return;
-
-    $video_id = isset($_POST['wi_header_video_id']) ? intval($_POST['wi_header_video_id']) : 0;
-    if ($video_id) {
-        update_post_meta($post_id, '_wi_header_video_id', $video_id);
-    } else {
-        delete_post_meta($post_id, '_wi_header_video_id');
-    }
-});
-
+// === HERO SECTION (inc/hero-metabox.php) ===
+require_once get_template_directory() . '/inc/hero-metabox.php';
+// === HOME SECTIONS (About, Services, Portfolio, Clients, Testimonials, CTA) ===
+require_once get_template_directory() . '/inc/home-sections-metabox.php';
+// === NAV LINKS HELPER ===
+require_once get_template_directory() . '/inc/wi-nav-links.php';
 // Uveri se da je thumbnail podržan (za sliku)
 add_action('after_setup_theme', function(){
     add_theme_support('post-thumbnails');
@@ -660,33 +593,26 @@ function wi_register_home_metaboxes($post){
 
     // Header video (MP4)
     add_meta_box(
-        'wi_home_header_video',
-        __('Header video (MP4)', 'wi'),
-        'wi_home_header_video_cb',
-        'page',
-        'side',
-        'default'
-    );
-
-    // Intro (ispod hero)
-    add_meta_box(
-        'wi_home_intro_box',
-        __('Intro sekcija (ispod hero)', 'wi'),
-        'wi_home_intro_box_cb',
+        'wi_home_hero_section',
+        __('Hero sekcija (vrhu stranice)', 'wi'),
+        'wi_home_hero_section_cb',
         'page',
         'normal',
         'high'
     );
 
-    // Services (pre OUR CLIENTS)
-    add_meta_box(
-        'wi_home_services',
-        __('Services sekcija (pre OUR CLIENTS)', 'wi'),
-        'wi_home_services_cb',
-        'page',
-        'normal',
-        'high'
-    );
+    // About (dizajn iz sajt)
+    add_meta_box('wi_home_about', __('About Sekcija', 'wi'), 'wi_home_about_cb', 'page', 'normal', 'high');
+    // Services (4 kartice)
+    add_meta_box('wi_home_services_design', __('Services Sekcija (4 Karten)', 'wi'), 'wi_home_services_design_cb', 'page', 'normal', 'high');
+    // Portfolio (6 projekata)
+    add_meta_box('wi_home_portfolio', __('Portfolio Sekcija', 'wi'), 'wi_home_portfolio_cb', 'page', 'normal', 'high');
+    // Clients (marquee)
+    add_meta_box('wi_home_clients', __('Clients Sekcija', 'wi'), 'wi_home_clients_cb', 'page', 'normal', 'high');
+    // Testimonials (slider)
+    add_meta_box('wi_home_testimonials', __('Testimonials Sekcija', 'wi'), 'wi_home_testimonials_cb', 'page', 'normal', 'high');
+    // CTA (finalni poziv)
+    add_meta_box('wi_home_cta_design', __('CTA Sekcija (vor Footer)', 'wi'), 'wi_home_cta_design_cb', 'page', 'normal', 'high');
 }
 add_action('add_meta_boxes_page', 'wi_register_home_metaboxes');
 
@@ -726,6 +652,7 @@ function wi_is_cta_allowed($post_id){
 function wi_register_cta_metabox($post){
     if (!$post instanceof WP_Post) return;
     if (!wi_is_cta_allowed($post->ID)) return;
+    if (wi_is_home_template($post->ID)) return; // Home hat eigenes CTA-Metabox
 
     add_meta_box(
         'wi_cta_box',

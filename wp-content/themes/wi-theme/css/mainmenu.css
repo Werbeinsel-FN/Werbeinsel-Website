@@ -1,209 +1,114 @@
-/*
-Theme Name: Werbeinsel WP Theme
-Author: Samuel Mettenmeyer
-Description: WordPress-Theme for the Werbeinsel Agency
-Version: 1.0
-*/
-
-/* === Figma-style floating MENU button (žuto dugme) === */
-#toggle-main-menu {
-  position: fixed;
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ffed00;
-  border: 2px solid #000;
-  border-radius: 9999px;
-  padding: 1.25rem 2.25rem; /* py-5 px-9 */
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-  transition: padding 0.3s ease;
-  z-index: 40;
-  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  text-transform: uppercase;
-  font-weight: 800;
-  color: #000;
-}
-#toggle-main-menu .bars {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-#toggle-main-menu .bar {
-  width: 32px;
-  height: 4px;
-  background: #000;
-  transition: all 0.3s ease;
-}
-#toggle-main-menu .label {
-  font-size: 1.125rem;
-  line-height: 1;
-}
-#toggle-main-menu:hover {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-#toggle-main-menu:focus-visible {
-  outline: 3px solid #000;
-  outline-offset: 3px;
-}
-
-/* === FULLSCREEN OVERLAY MENU === */
-.menu-overlay {
+/* === FULLSCREEN OVERLAY MENU – crna pozadina (kao u novom dizajnu) === */
+.wi-menu-overlay {
   position: fixed;
   inset: 0;
-  background: #ffed00;
-  display: none;
-  /* layout */
-  display: none;
-  align-items: center; /* items-center */
-  justify-content: center; /* justify-center */
-
-  z-index: 50; /* z-50 (umesto 2000 po specifikaciji) */
-  opacity: 0;
-  transform: translateY(20px); /* start nisko */
-  transition: opacity 0.25s ease, transform 0.3s ease-out; /* slide-up 0.3s ease-out */
-  padding: 48px 24px;
-}
-.menu-overlay.open {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.menu-overlay-close {
-  position: absolute;
-  top: 32px; /* top-8 */
-  right: 32px; /* right-8 */
-
-  /* p-4 (16px) oko ikone w-8/h-8 => 32 + 16*2 = 64 */
-  width: 64px;
-  height: 64px;
+  background: #000;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  border-radius: 50%; /* savršen krug */
-  border: 2px solid transparent;
-  background: transparent;
-  color: #000;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease,
-    border-color 0.2s ease;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
 }
-.menu-overlay-close:hover,
-.menu-overlay-close:focus-visible {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-.menu-overlay-close svg {
-  width: 32px;
-  height: 32px;
-} /* w-8 h-8 */
 
-/* Kontejner za listu linkova */
-.menu-overlay-nav {
+.wi-menu-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wi-menu-overlay__inner {
+  position: relative;
   width: 100%;
   max-width: 1100px;
+  padding: 48px 24px;
 }
 
-/* Lista linkova – manji razmak između stavki */
-/* Razmak između stavki = space-y-8 (32px) */
-.overlay-menu {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.wi-menu-overlay__close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 24px; /* 32px */
-}
-
-/* Link kao u specifikaciji: text-6xl (60px), px-8 py-4, rounded-lg (8px) */
-.overlay-menu li a {
-  display: inline-block;
-  text-decoration: none;
-  color: #000;
-  padding: 12px 28px; /* py-4 px-8 */
-  border-radius: 8px; /* rounded-lg */
-  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 48px; /* text-6xl */
-  line-height: 1.1;
-  border-radius: 9999px;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-.overlay-menu li a:hover,
-.overlay-menu li.current-menu-item > a,
-.overlay-menu li.current_page_item > a {
-  background: #000;
+  justify-content: center;
+  border: none;
+  background: transparent;
   color: #fff;
-  transform: translateY(-2px);
+  cursor: pointer;
+  transition: color 0.2s ease;
 }
 
-.overlay-menu li a:focus-visible {
-  outline: 3px solid #000;
+.wi-menu-overlay__close:hover,
+.wi-menu-overlay__close:focus-visible {
+  color: #FFED00;
+}
+
+.wi-menu-overlay__close svg {
+  width: 32px;
+  height: 32px;
+}
+
+.wi-menu-overlay__close:focus-visible {
+  outline: 2px solid #FFED00;
   outline-offset: 4px;
 }
 
-/* Zaključa scroll u pozadini kada je otvoreno */
+.wi-menu-overlay__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.wi-menu-overlay__link {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 700;
+  font-size: clamp(32px, 8vw, 48px);
+  line-height: 1.1;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.wi-menu-overlay__link:hover {
+  color: #FFED00;
+}
+
+.wi-menu-overlay__link:focus-visible {
+  outline: 2px solid #FFED00;
+  outline-offset: 4px;
+}
+
 body.menu-open {
   overflow: hidden;
 }
 
-/* Sakrij žuto dugme dok je overlay otvoren (čistiji UI) */
-body.menu-open #toggle-main-menu {
-  display: none;
-}
-
-/* --- (opciono) util klase ako ih koristiš i drugde; bezbedno ih možeš obrisati ---
-.fixed{position:fixed;} .z-40{z-index:40;} .rounded-full{border-radius:9999px;}
-.flex{display:inline-flex;} .items-center{align-items:center;} .gap-4{gap:1rem;}
-.px-9{padding-left:2.25rem;padding-right:2.25rem;} .py-5{padding-top:1.25rem;padding-bottom:1.25rem;}
-.bottom-5p{bottom:5%;} .left-1_2{left:50%;} .translate-x--1_2{transform:translateX(-50%);}
-.bg-ffed00{background:#ffed00;} .border-2-black{border:2px solid #000;}
-.hover-grow:hover{padding-left:3rem;padding-right:3rem;}
-/* --- kraj util klasa --- */
-
-/* Poštuj preferencije korisnika za animacije */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+  .wi-menu-overlay {
+    transition: none;
   }
 }
 
-/* Ultra wide */
-@media (min-width: 2000px) {
-  .overlay-menu {
-    gap: 40px;
-  }
-  .overlay-menu li a {
-    font-size: 72px;
-    padding: 20px 40px;
-  }
-}
-/* === Responsive fix za male ekrane (<= 480px) === */
 @media (max-width: 480px) {
-  .overlay-menu {
-    gap: 20px;
-  } /* manji razmak između stavki */
-
-  .overlay-menu li a {
-    font-size: 28px; /* manji font */
-    padding: 10px 20px; /* smanjen padding */
+  .wi-menu-overlay__inner {
+    padding: 24px 16px;
   }
 
-  .menu-overlay-close {
-    top: 20px;
-    right: 20px;
+  .wi-menu-overlay__close {
+    top: 16px;
+    right: 16px;
     width: 40px;
     height: 40px;
   }
-  .menu-overlay-close svg {
+
+  .wi-menu-overlay__close svg {
     width: 24px;
     height: 24px;
+  }
+
+  .wi-menu-overlay__nav {
+    gap: 24px;
   }
 }
