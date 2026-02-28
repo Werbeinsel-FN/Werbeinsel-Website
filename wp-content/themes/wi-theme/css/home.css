@@ -851,8 +851,14 @@ body {
 .logo-wrapper {
   display: none !important;
 }
+/* Razmak za fixed header – cela hero sekcija je vidljiva */
 .home-main {
-  padding-top: 0;
+  padding-top: 72px;
+}
+@media (min-width: 768px) {
+  .home-main {
+    padding-top: 88px;
+  }
 }
 /* Skini fiksnu visinu hero-a i pusti da teče po visini slike */
 .home-hero__inner {
