@@ -29,17 +29,23 @@ function wi_home_services_design_cb($post) {
     $tpl = (string) get_page_template_slug($post->ID);
     if (!$tpl || strpos($tpl, 'home') === false) { echo '<p class="description">Nur für Home-Template.</p>'; return; }
     wp_nonce_field('wi_home_services_design_save', 'wi_home_services_design_nonce');
-    $title = get_post_meta($post->ID, '_wi_services_title', true);
+    $title_raw = get_post_meta($post->ID, '_wi_services_title', true);
+    $t_trim = trim((string) $title_raw);
+    $title = ($t_trim === '' || in_array(strtolower($t_trim), ['services', 'servicesa'], true)) ? 'Was wir machen' : $title_raw;
     $svc = get_page_by_path('services') ?: get_page_by_path('leistungen');
     $svc_base = $svc ? get_permalink($svc) : home_url('/services/');
     $default_links = [$svc_base . '#plakatwerbung', $svc_base . '#lass-kleben', $svc_base . '#pixel-code', $svc_base . '#print-design'];
     ?>
     <p><label><strong>Sektions-Titel</strong></label><br>
     <input type="text" name="wi_services_title" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Was wir machen"></p>
-    <?php for ($i = 1; $i <= 4; $i++):
+    <?php
+        $def_card_titles = ['Plakatwerbung', 'Folierung & Beschriftung', 'Digitale Werbemittel', 'Drucksachen'];
+        $bad_values = ['servicea', 'servicesa', 'services', 'service'];
+        for ($i = 1; $i <= 4; $i++):
         $img_id = get_post_meta($post->ID, "_wi_services_{$i}_img_id", true);
         $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'medium') : '';
-        $card_title = get_post_meta($post->ID, "_wi_services_{$i}_title", true);
+        $card_title_raw = get_post_meta($post->ID, "_wi_services_{$i}_title", true);
+        $card_title = ($i <= 3 && in_array(strtolower(trim((string) $card_title_raw)), $bad_values, true)) ? $def_card_titles[$i-1] : ($card_title_raw ?: ($def_card_titles[$i-1] ?? ''));
         $card_desc = get_post_meta($post->ID, "_wi_services_{$i}_desc", true);
         $card_link = get_post_meta($post->ID, "_wi_services_{$i}_link", true) ?: ($default_links[$i-1] ?? '');
     ?>
@@ -49,7 +55,7 @@ function wi_home_services_design_cb($post) {
         <button type="button" class="button wi-pick-svc" data-slot="<?php echo $i; ?>">Bild wählen</button>
         <button type="button" class="button wi-clear-svc" data-slot="<?php echo $i; ?>">Entfernen</button>
         <input type="hidden" id="wi_services_<?php echo $i; ?>_img_id" name="wi_services_<?php echo $i; ?>_img_id" value="<?php echo esc_attr($img_id); ?>"></p>
-        <p><label>Titel</label><br><input type="text" name="wi_services_<?php echo $i; ?>_title" class="widefat" value="<?php echo esc_attr($card_title); ?>" placeholder="Plakatwerbung"></p>
+        <p><label>Titel</label><br><input type="text" name="wi_services_<?php echo $i; ?>_title" class="widefat" value="<?php echo esc_attr($card_title); ?>" placeholder="<?php echo esc_attr($def_card_titles[$i-1] ?? 'Plakatwerbung'); ?>"></p>
         <p><label>Beschreibung</label><br><input type="text" name="wi_services_<?php echo $i; ?>_desc" class="widefat" value="<?php echo esc_attr($card_desc); ?>" placeholder="Auffällig. Präsent. Wirkungsvoll."></p>
         <p><label>Link</label><br><input type="url" name="wi_services_<?php echo $i; ?>_link" class="widefat" value="<?php echo esc_attr($card_link); ?>"></p>
     </div>
@@ -79,11 +85,14 @@ function wi_home_portfolio_cb($post) {
     <p><label><strong>Button-Text</strong></label><br><input type="text" name="wi_portfolio_btn_text" class="widefat" value="<?php echo esc_attr($btn_text); ?>" placeholder="Ihr Projekt starten"></p>
     <p><label><strong>Button-Link</strong></label><br><input type="url" name="wi_portfolio_btn_link" class="widefat" value="<?php echo esc_attr($btn_link ?: $contact_url); ?>"></p>
     <hr><h4>Projekte (6)</h4>
-    <?php for ($i = 1; $i <= 6; $i++):
+    <?php
+        $port_cat_uc_to_title = ['BESCHRIFTUNG' => 'Beschriftung', 'PLAKATIERUNG' => 'Plakatierung', 'AUSSENWERBUNG' => 'Außenwerbung'];
+        for ($i = 1; $i <= 6; $i++):
         $img_id = get_post_meta($post->ID, "_wi_portfolio_{$i}_img_id", true);
         $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'medium') : '';
         $proj_title = get_post_meta($post->ID, "_wi_portfolio_{$i}_title", true);
-        $proj_cat = get_post_meta($post->ID, "_wi_portfolio_{$i}_category", true);
+        $proj_cat_raw = get_post_meta($post->ID, "_wi_portfolio_{$i}_category", true);
+        $proj_cat = ($proj_cat_raw && isset($port_cat_uc_to_title[strtoupper(trim($proj_cat_raw))])) ? $port_cat_uc_to_title[strtoupper(trim($proj_cat_raw))] : $proj_cat_raw;
         $proj_link = get_post_meta($post->ID, "_wi_portfolio_{$i}_link", true);
     ?>
     <div style="border:1px solid #ddd;padding:12px;margin:8px 0;background:#f9f9f9;border-radius:6px;">
@@ -93,7 +102,7 @@ function wi_home_portfolio_cb($post) {
         <button type="button" class="button wi-clear-port" data-slot="<?php echo $i; ?>">x</button>
         <input type="hidden" id="wi_portfolio_<?php echo $i; ?>_img_id" name="wi_portfolio_<?php echo $i; ?>_img_id" value="<?php echo esc_attr($img_id); ?>"></p>
         <p><input type="text" name="wi_portfolio_<?php echo $i; ?>_title" class="widefat" value="<?php echo esc_attr($proj_title); ?>" placeholder="Titel"></p>
-        <p><input type="text" name="wi_portfolio_<?php echo $i; ?>_category" class="widefat" value="<?php echo esc_attr($proj_cat); ?>" placeholder="Kategorie (z.B. BESCHRIFTUNG)"></p>
+        <p><input type="text" name="wi_portfolio_<?php echo $i; ?>_category" class="widefat" value="<?php echo esc_attr($proj_cat); ?>" placeholder="Kategorie (z.B. Beschriftung)"></p>
         <p><input type="url" name="wi_portfolio_<?php echo $i; ?>_link" class="widefat" value="<?php echo esc_attr($proj_link); ?>" placeholder="Link (optional)"></p>
     </div>
     <?php endfor; ?>
@@ -201,10 +210,17 @@ add_action('save_post_page', function($post_id) {
 
     // Services
     if (isset($_POST['wi_home_services_design_nonce']) && wp_verify_nonce($_POST['wi_home_services_design_nonce'], 'wi_home_services_design_save')) {
-        if (isset($_POST['wi_services_title'])) update_post_meta($post_id, '_wi_services_title', sanitize_text_field($_POST['wi_services_title']));
+        if (isset($_POST['wi_services_title'])) {
+            $t = trim(sanitize_text_field($_POST['wi_services_title']));
+            $t = ($t === '' || in_array(strtolower($t), ['services', 'servicesa'], true)) ? 'Was wir machen' : $t;
+            update_post_meta($post_id, '_wi_services_title', $t);
+        }
+        $def_card_titles = ['Plakatwerbung', 'Folierung & Beschriftung', 'Digitale Werbemittel', 'Drucksachen'];
+        $bad_values = ['servicea', 'servicesa', 'services', 'service'];
         for ($i = 1; $i <= 4; $i++) {
             $img_id = isset($_POST["wi_services_{$i}_img_id"]) ? intval($_POST["wi_services_{$i}_img_id"]) : 0;
             $title = isset($_POST["wi_services_{$i}_title"]) ? sanitize_text_field($_POST["wi_services_{$i}_title"]) : '';
+            if ($i <= 3 && in_array(strtolower(trim($title)), $bad_values, true)) $title = $def_card_titles[$i-1];
             $desc = isset($_POST["wi_services_{$i}_desc"]) ? sanitize_text_field($_POST["wi_services_{$i}_desc"]) : '';
             $link = isset($_POST["wi_services_{$i}_link"]) ? esc_url_raw($_POST["wi_services_{$i}_link"]) : '';
             if ($img_id) update_post_meta($post_id, "_wi_services_{$i}_img_id", $img_id); else delete_post_meta($post_id, "_wi_services_{$i}_img_id");
@@ -220,10 +236,12 @@ add_action('save_post_page', function($post_id) {
             $v = isset($_POST[$key]) ? wp_kses($_POST[$key], $allowed_br) : '';
             if ($v) update_post_meta($post_id, $meta, $v); else delete_post_meta($post_id, $meta);
         }
+        $port_cat_uc_to_title = ['BESCHRIFTUNG' => 'Beschriftung', 'PLAKATIERUNG' => 'Plakatierung', 'AUSSENWERBUNG' => 'Außenwerbung'];
         for ($i = 1; $i <= 6; $i++) {
             $img_id = isset($_POST["wi_portfolio_{$i}_img_id"]) ? intval($_POST["wi_portfolio_{$i}_img_id"]) : 0;
             $title = isset($_POST["wi_portfolio_{$i}_title"]) ? sanitize_text_field($_POST["wi_portfolio_{$i}_title"]) : '';
             $cat = isset($_POST["wi_portfolio_{$i}_category"]) ? sanitize_text_field($_POST["wi_portfolio_{$i}_category"]) : '';
+            if ($cat && isset($port_cat_uc_to_title[strtoupper(trim($cat))])) $cat = $port_cat_uc_to_title[strtoupper(trim($cat))];
             $link = isset($_POST["wi_portfolio_{$i}_link"]) ? esc_url_raw($_POST["wi_portfolio_{$i}_link"]) : '';
             if ($img_id) update_post_meta($post_id, "_wi_portfolio_{$i}_img_id", $img_id); else delete_post_meta($post_id, "_wi_portfolio_{$i}_img_id");
             if ($title) update_post_meta($post_id, "_wi_portfolio_{$i}_title", $title); else delete_post_meta($post_id, "_wi_portfolio_{$i}_title");

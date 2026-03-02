@@ -66,7 +66,9 @@ if ($about_title || $about_para1 || $about_para2):
 
 <?php
 // === SERVICES (4 kartice) ===
-$services_title = get_post_meta(get_the_ID(), '_wi_services_title', true) ?: 'Was wir machen';
+$services_title_raw = trim((string) get_post_meta(get_the_ID(), '_wi_services_title', true));
+$replace_with_default = in_array(strtolower($services_title_raw), ['services', 'servicesa'], true);
+$services_title = ($services_title_raw && !$replace_with_default) ? $services_title_raw : 'Was wir machen';
 $svc_page = get_page_by_path('services') ?: get_page_by_path('leistungen');
 $svc_base = $svc_page ? get_permalink($svc_page) : home_url('/services/');
 $def_links = [$svc_base . '#plakatwerbung', $svc_base . '#lass-kleben', $svc_base . '#pixel-code', $svc_base . '#print-design'];
@@ -78,11 +80,13 @@ $def_imgs = [
 ];
 $def_titles = ['Plakatwerbung', 'Folierung & Beschriftung', 'Digitale Werbemittel', 'Drucksachen'];
 $def_descs = ['Auffällig. Präsent. Wirkungsvoll.', 'Fahrzeuge. Schaufenster. Fassaden.', 'Screens. Social Media. Online-Kampagnen.', 'Flyer. Broschüren. Geschäftsausstattung.'];
+$bad_values = ['servicea', 'servicesa', 'services', 'service'];
 $services_cards = [];
 for ($i = 1; $i <= 4; $i++) {
   $img_id = get_post_meta(get_the_ID(), "_wi_services_{$i}_img_id", true);
   $img = $img_id ? wp_get_attachment_image_url($img_id, 'large') : $def_imgs[$i-1];
-  $title = get_post_meta(get_the_ID(), "_wi_services_{$i}_title", true) ?: $def_titles[$i-1];
+  $title_raw = get_post_meta(get_the_ID(), "_wi_services_{$i}_title", true) ?: $def_titles[$i-1];
+  $title = ($i <= 3 && in_array(strtolower(trim((string) $title_raw)), $bad_values, true)) ? $def_titles[$i-1] : $title_raw;
   $desc = get_post_meta(get_the_ID(), "_wi_services_{$i}_desc", true) ?: $def_descs[$i-1];
   $link = get_post_meta(get_the_ID(), "_wi_services_{$i}_link", true) ?: $def_links[$i-1];
   $services_cards[] = ['img' => $img, 'title' => $title, 'desc' => $desc, 'link' => $link];
@@ -124,14 +128,17 @@ $port_def_imgs = [
   'https://images.unsplash.com/photo-1758862495985-ab1cd2f7d613?w=1080&q=80'
 ];
 $port_def_titles = ['Fahrzeugbeschriftung', 'Schaufenster-Werbung', 'Großflächenplakat', 'Leuchtreklame', 'City-Light-Poster', 'Fassaden-Beschriftung'];
-$port_def_cats = ['BESCHRIFTUNG', 'BESCHRIFTUNG', 'PLAKATIERUNG', 'AUSSENWERBUNG', 'PLAKATIERUNG', 'BESCHRIFTUNG'];
+$port_def_cats = ['Beschriftung', 'Beschriftung', 'Plakatierung', 'Außenwerbung', 'Plakatierung', 'Beschriftung'];
+$cat_uc_to_title = ['BESCHRIFTUNG' => 'Beschriftung', 'PLAKATIERUNG' => 'Plakatierung', 'AUSSENWERBUNG' => 'Außenwerbung'];
 $port_items = [];
 for ($i = 1; $i <= 6; $i++) {
   $img_id = get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_img_id", true);
+  $cat_raw = get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_category", true) ?: $port_def_cats[$i-1];
+  $category = $cat_uc_to_title[strtoupper(trim((string) $cat_raw))] ?? $cat_raw;
   $port_items[] = [
     'img' => $img_id ? wp_get_attachment_image_url($img_id, 'large') : $port_def_imgs[$i-1],
     'title' => get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_title", true) ?: $port_def_titles[$i-1],
-    'category' => get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_category", true) ?: $port_def_cats[$i-1],
+    'category' => $category,
     'link' => get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_link", true)
   ];
 }
@@ -185,15 +192,13 @@ if (!is_array($clients_rows) || empty($clients_rows)) {
   </div>
   <div class="home-clients__marquee">
     <?php
-    $row_offsets = ['0%', '-35%', '-15%'];
     foreach ($clients_rows as $ri => $row):
       $dir = $ri === 1 ? 'right' : 'left';
-      $offset = $row_offsets[$ri] ?? '0%';
     ?>
     <div class="home-clients__row">
-      <div class="home-clients__track home-clients__track--<?php echo $dir; ?>" style="--marquee-offset:<?php echo esc_attr($offset); ?>">
+      <div class="home-clients__track home-clients__track--<?php echo $dir; ?>">
         <?php
-        $dup = array_merge($row, $row);
+        $dup = array_merge($row, $row, $row, $row, $row, $row);
         foreach ($dup as $client):
           $name = is_array($client) ? ($client['name'] ?? '') : $client;
           $var = is_array($client) ? ($client['variant'] ?? 'black') : 'black';
@@ -211,10 +216,10 @@ if (!is_array($clients_rows) || empty($clients_rows)) {
 $testimonials = get_post_meta(get_the_ID(), '_wi_testimonials', true);
 if (!is_array($testimonials) || empty($testimonials)) {
   $testimonials = [
-    ['quote' => 'Exzellente Standortwahl und perfekte Ausführung. Unsere Markenbekanntheit ist durch die strategisch platzierten Plakate enorm gestiegen.', 'company' => 'Bodensee Events AG', 'person' => 'Sandra Müller'],
-    ['quote' => 'Professionell, zuverlässig und kreativ. Die Zusammenarbeit war von Anfang an unkompliziert.', 'company' => 'Stadtwerke Regional', 'person' => 'Thomas Weber'],
-    ['quote' => 'Die Plakatierung hat unsere Erwartungen übertroffen. Hervorragende Beratung bei der Standortwahl.', 'company' => 'Müller Bäckerei', 'person' => 'Michael Müller'],
-    ['quote' => 'Seit Jahren unser verlässlicher Partner für Außenwerbung. Die Qualität stimmt.', 'company' => 'Autohaus Schmidt', 'person' => 'Julia Schmidt']
+    ['quote' => 'Exzellente Standortwahl und perfekte Ausführung. Unsere Markenbekanntheit ist durch die strategisch platzierten Plakate enorm gestiegen. Absolut empfehlenswert!', 'company' => 'Bodensee Events AG', 'person' => 'Sandra Müller'],
+    ['quote' => 'Professionell, zuverlässig und kreativ. Die Zusammenarbeit war von Anfang an unkompliziert. Unsere Kampagne hat genau die richtige Zielgruppe erreicht.', 'company' => 'Stadtwerke Regional', 'person' => 'Thomas Weber'],
+    ['quote' => 'Die Plakatierung hat unsere Erwartungen übertroffen. Hervorragende Beratung bei der Standortwahl und perfekte Umsetzung innerhalb kürzester Zeit.', 'company' => 'Müller Bäckerei', 'person' => 'Michael Müller'],
+    ['quote' => 'Seit Jahren unser verlässlicher Partner für Außenwerbung. Die Qualität stimmt, die Termine werden eingehalten und das Preis-Leistungs-Verhältnis ist top.', 'company' => 'Autohaus Schmidt', 'person' => 'Julia Schmidt']
   ];
 }
 ?>

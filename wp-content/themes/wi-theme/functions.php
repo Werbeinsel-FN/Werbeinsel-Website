@@ -499,7 +499,7 @@ function wi_home_services_cb($post){
 
     <div class="wi-field">
         <label><strong><?php esc_html_e('Naslov sekcije', 'wi'); ?></strong></label>
-        <input type="text" class="widefat" name="wi_services_title" value="<?php echo esc_attr($section_title ?: 'Services'); ?>">
+        <input type="text" class="widefat" name="wi_services_title" value="<?php echo esc_attr($section_title ?: 'Was wir machen'); ?>">
         <p class="wi-small"><?php esc_html_e('Veliki naslov iznad kartica (npr. "Services").', 'wi'); ?></p>
     </div>
 
