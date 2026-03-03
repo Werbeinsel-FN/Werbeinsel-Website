@@ -54,6 +54,12 @@ function wi_theme_enqueue_styles() {
         filemtime(get_template_directory() . '/css/mainmenu.css')
     );
     wp_enqueue_style(
+        'wi-floating-whatsapp-style',
+        get_template_directory_uri() . '/css/floating-whatsapp.css',
+        array(),
+        filemtime(get_template_directory() . '/css/floating-whatsapp.css')
+    );
+    wp_enqueue_style(
     'wi-contact-style',
     get_template_directory_uri() . '/css/contact.css',
     array('wi-style'), // zavisi od glavnog stila

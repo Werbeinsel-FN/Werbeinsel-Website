@@ -464,6 +464,54 @@ function startHeightPinger(doc){
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
 
+    // 1) Prvo obavezna polja + format emaila (poruke ostaju dok polje nije ispravno)
+    function updateFieldError(inp) {
+      var errEl = frm.querySelector('.wi-field-error[data-for="' + inp.name + '"]');
+      if (!errEl) return false;
+      var val = (inp.value || '').trim();
+      var msg = '';
+      if (inp.hasAttribute('required') || inp.getAttribute('aria-required') === 'true') {
+        if (val === '') {
+          msg = inp.getAttribute('data-required-msg') || (inp.name + ' ist erforderlich');
+        } else if (inp.type === 'email' && !inp.checkValidity()) {
+          msg = 'Ungültige E-Mail-Adresse';
+        }
+      } else if (inp.type === 'email' && val !== '' && !inp.checkValidity()) {
+        msg = 'Ungültige E-Mail-Adresse';
+      }
+      if (msg) {
+        inp.classList.add('wi-invalid');
+        errEl.textContent = msg;
+        errEl.classList.remove('wi-field-error-hidden');
+        return true;
+      } else {
+        inp.classList.remove('wi-invalid');
+        errEl.textContent = '';
+        errEl.classList.add('wi-field-error-hidden');
+        return false;
+      }
+    }
+    const requiredInputs = frm.querySelectorAll('input[required], input[aria-required="true"]');
+    var hasInvalid = false;
+    requiredInputs.forEach(function(inp) {
+      if (updateFieldError(inp)) hasInvalid = true;
+    });
+    if (hasInvalid) {
+      const firstInvalid = frm.querySelector('input.wi-invalid');
+      try {
+        bringIntoView();
+        if (firstInvalid) {
+          setTimeout(function() {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus({ preventScroll: true });
+          }, 250);
+        }
+      } catch (_) {}
+      fitFromDOM();
+      return;
+    }
+
+    // 2) Zatim checkbox za Datenschutz
     var privacyEl = doc.getElementById('wi-privacy-checkbox');
     var privacyErrWrap = doc.getElementById('wi-privacy-error-wrap');
     if (privacyEl && !privacyEl.checked) {
@@ -478,7 +526,7 @@ function startHeightPinger(doc){
       return;
     }
 
-    // nativna validacija prvo
+    // 3) Nativna validacija (format email itd.)
     if (!frm.reportValidity()) {
       const firstInvalid = doc.querySelector(':invalid');
       try {
@@ -638,6 +686,36 @@ function startHeightPinger(doc){
     slot.innerHTML=FORM_HTML;
 
     const fb=doc.querySelector('.wi-contact-form .wi-submit'); if(fb) fb.style.display='none';
+
+    /* Ažuriranje poruke ispod polja: ostaje dok nije ispravno; za email „Ungültige E-Mail-Adresse“ */
+    const frm = doc.querySelector('.wi-contact-form');
+    if (frm) {
+      function onFieldChange(ev) {
+        var inp = ev.target;
+        if (!inp || inp.nodeName !== 'INPUT') return;
+        var errEl = frm.querySelector('.wi-field-error[data-for="' + inp.name + '"]');
+        if (!errEl) return;
+        var val = (inp.value || '').trim();
+        var msg = '';
+        if (inp.hasAttribute('required') || inp.getAttribute('aria-required') === 'true') {
+          if (val === '') msg = inp.getAttribute('data-required-msg') || (inp.name + ' ist erforderlich');
+          else if (inp.type === 'email' && !inp.checkValidity()) msg = 'Ungültige E-Mail-Adresse';
+        } else if (inp.type === 'email' && val !== '' && !inp.checkValidity()) {
+          msg = 'Ungültige E-Mail-Adresse';
+        }
+        if (msg) {
+          inp.classList.add('wi-invalid');
+          errEl.textContent = msg;
+          errEl.classList.remove('wi-field-error-hidden');
+        } else {
+          inp.classList.remove('wi-invalid');
+          errEl.textContent = '';
+          errEl.classList.add('wi-field-error-hidden');
+        }
+      }
+      frm.addEventListener('input', onFieldChange, true);
+      frm.addEventListener('change', onFieldChange, true);
+    }
 
     /* NOVO: učitaj reCAPTCHA skriptu u IFRAME dokument */
     loadRecaptchaIntoIframe(doc);

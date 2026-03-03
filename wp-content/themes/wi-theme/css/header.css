@@ -1,4 +1,4 @@
-/* === HEADER – žuta sticky traka (fixed da uvek prati scroll) === */
+/* === HEADER – žuta sticky traka (fixed), hamburger uvek desno === */
 .wi-header {
   position: fixed;
   top: 0;
@@ -6,27 +6,33 @@
   right: 0;
   z-index: 40;
   background: #FFED00;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
 }
 
 .wi-header__inner {
   max-width: 1780px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  flex: 1;
   height: 72px;
 }
 
 @media (min-width: 768px) {
-  .wi-header__inner {
+  .wi-header {
     padding: 0 1.5rem;
+  }
+  .wi-header__inner {
     height: 88px;
   }
 }
 
 @media (min-width: 1024px) {
-  .wi-header__inner {
+  .wi-header {
     padding: 0 2rem;
   }
 }
@@ -51,8 +57,9 @@
   width: auto;
 }
 
+/* Hamburger (3 crte) uvek u desnom uglu – na svim rezolucijama */
 .wi-header__menu-btn {
-  position: relative;
+  flex-shrink: 0;
   width: 48px;
   height: 48px;
   padding: 0;
@@ -64,6 +71,7 @@
   align-items: center;
   justify-content: center;
   transition: opacity 0.2s ease;
+  margin-left: auto;
 }
 
 .wi-header__menu-btn:hover {

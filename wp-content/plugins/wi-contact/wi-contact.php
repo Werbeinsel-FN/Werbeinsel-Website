@@ -433,23 +433,28 @@ class WI_Contact {
           $type  = in_array(($f['type'] ?? 'text'), ['text','email','tel'], true) ? $f['type'] : 'text';
           $label = (string)($f['label'] ?? '');
           $label_plain = trim(preg_replace('/\s*\*+$/', '', $label)); // očisti eventualnu * iz labela
-$req   = !empty($f['required']);
-$id    = 'wi_' . $name;
-
-/* placeholder = label + " *" ako je required */
-$ph    = rtrim($label_plain, '* ');
-if ($req) { $ph .= ' *'; }
+          $req   = !empty($f['required']);
+          $id    = 'wi_' . $name;
+          $ph    = rtrim($label_plain, '* ');
+          if ($req) { $ph .= ' *'; }
+          $req_msg = $req ? esc_attr($label_plain . ' ist erforderlich') : '';
         ?>
-          <label for="<?php echo esc_attr($id); ?>">
-            <span class="wi-label"><?php echo esc_html($label_plain); ?></span>
-            <input
-              id="<?php echo esc_attr($id); ?>"
-              name="<?php echo esc_attr($name); ?>"
-              type="<?php echo esc_attr($type); ?>"
-              placeholder="<?php echo esc_attr($ph); ?>"
-              <?php echo $req ? 'required aria-required="true"' : ''; ?>
-            >
-          </label>
+          <div class="wi-field-cell">
+            <label for="<?php echo esc_attr($id); ?>">
+              <span class="wi-label"><?php echo esc_html($label_plain); ?></span>
+              <input
+                id="<?php echo esc_attr($id); ?>"
+                name="<?php echo esc_attr($name); ?>"
+                type="<?php echo esc_attr($type); ?>"
+                placeholder="<?php echo esc_attr($ph); ?>"
+                <?php echo $req ? 'required aria-required="true"' : ''; ?>
+                <?php echo $req ? ' data-required-msg="' . $req_msg . '"' : ''; ?>
+              >
+            </label>
+            <?php if ($req): ?>
+            <span class="wi-field-error wi-field-error-hidden" data-for="<?php echo esc_attr($name); ?>" role="alert" aria-live="polite"></span>
+            <?php endif; ?>
+          </div>
         <?php endforeach; ?>
       </div>
 

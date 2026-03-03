@@ -25,11 +25,11 @@
         <span class="wi-header__logo-text"><?php bloginfo('name'); ?></span>
       <?php endif; ?>
     </a>
-    <button id="toggle-main-menu" type="button" class="wi-header__menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu-overlay">
-      <span class="wi-header__menu-icon" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </span>
-    </button>
   </div>
+  <button id="toggle-main-menu" type="button" class="wi-header__menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menu-overlay">
+    <span class="wi-header__menu-icon" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </span>
+  </button>
 </header>
 <?php get_template_part('mainmenu'); ?>
