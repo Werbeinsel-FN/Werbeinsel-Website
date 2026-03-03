@@ -34,48 +34,15 @@
         transform: translateX(-50%);
       }
 
-      textarea {
-        font-size: 30px !important;
-      }
-      textarea::placeholder {
-        font-size: 30px !important;
-      }
 
       /* “pills” dugmad */
-      #wi-contact-root
-        .grid.md\:grid-cols-3
-        .space-y-2
-        > button[type="button"] {
-        font-size: 30px !important;
-        line-height: 1.2;
-        padding: 1.75rem 2rem;
-        width: 380px !important;
-        border-radius: 100px;
-      }
 
-      @media (max-width: 640px) {
-        #wi-contact-root
-          .grid.md\:grid-cols-3
-          .space-y-2
-          > button[type="button"] {
-          font-size: 12px !important;
-          padding: 1rem 1.5rem;
-        }
-      }
-
-      #wi-contact-root label.unbounded-extrabold,
-      #wi-contact-root label.unbounded-bold {
-        font-size: 40px !important;
-        line-height: 1.1;
-      }
-
-      /* univerzalno pravilo za sva dugmad u kontakt formi */
-      #wi-contact-root button[type="button"] {
-        width: 280px !important;
-        max-width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
+      /* pill dugmad u jednom redu – ne primenjuj block/width na .wi-pill */
+      #wi-contact-root .wi-pills-row .wi-pill {
+        display: inline-block !important;
+        width: auto !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
       }
 
       /* CTA: ANFRAGE SENDEN – fiksne dimenzije i stil */
@@ -111,6 +78,150 @@
       body {
         margin: 0;
       }
+
+      /* ===== NOVI DIZAJN – Hero + Form sekcija (gornji padding = visina hedera) ===== */
+      .contact-hero {
+        background: #FFED00;
+        padding: calc(4rem + 72px) 0 5rem;
+      }
+      @media (min-width: 768px) {
+        .contact-hero { padding: calc(6rem + 88px) 0 7rem; }
+      }
+      @media (min-width: 1024px) {
+        .contact-hero { padding: calc(8rem + 88px) 0 9rem; }
+      }
+      .contact-hero h1 {
+        font-family: 'Unbounded', sans-serif;
+        font-size: clamp(48px, 8vw, 88px);
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        color: #000;
+        margin: 0 0 1.5rem;
+      }
+      .contact-hero .subline {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(18px, 2vw, 22px);
+        font-weight: 500;
+        line-height: 1.6;
+        color: #000;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+      .contact-form-section {
+        background: #fff;
+        padding: 96px 0 64px;
+      }
+      @media (min-width: 768px) {
+        .contact-form-section { padding: 96px 0 64px; }
+      }
+      @media (min-width: 1024px) {
+        .contact-form-section { padding: 96px 0 64px; }
+      }
+      .contact-form-inner { max-width: 960px; margin: 0 auto; }
+      #wi-contact-root .wi-pills-title {
+        font-family: 'Unbounded', sans-serif;
+        font-size: clamp(24px, 2.5vw, 32px);
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        color: #000;
+        text-align: center;
+        margin: 0 0 2rem;
+      }
+      #wp-form-shell .wi-form-extra textarea {
+        width: 100%;
+        min-height: 200px;
+        padding: 1rem 1.5rem;
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+        border-radius: 24px;
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(14px, 1.35vw, 16px) !important;
+        font-weight: 500;
+        line-height: 1.5;
+        resize: none;
+      }
+      #wp-form-shell .wi-form-extra textarea::placeholder {
+        color: rgba(0,0,0,0.4);
+        font-size: clamp(14px, 1.35vw, 16px) !important;
+      }
+      #wp-form-shell .wi-form-extra textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px #000;
+      }
+      .wi-privacy-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-top: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .wi-privacy-checkbox {
+        width: 24px;
+        height: 24px;
+        margin-top: 0.25rem;
+        flex-shrink: 0;
+        border: 2px solid #000;
+        cursor: pointer;
+        accent-color: #000;
+      }
+      .wi-privacy-checkbox:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px #000;
+      }
+      .wi-privacy-label {
+        flex: 1;
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(14px, 1.5vw, 16px);
+        font-weight: 400;
+        line-height: 1.6;
+        color: #000;
+        cursor: pointer;
+      }
+      .wi-privacy-error-wrap {
+        display: block;
+        min-height: 32px;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        padding: 0.5rem 1rem;
+      }
+      .wi-privacy-error-wrap.hidden {
+        display: none !important;
+      }
+      .wi-privacy-error {
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        color: #000;
+      }
+      #wp-form-shell .wi-privacy {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(14px, 1.5vw, 16px);
+        font-weight: 400;
+        line-height: 1.6;
+        color: #000;
+      }
+      #wp-form-shell .wi-cta-btn {
+        display: inline-block;
+        background: #000;
+        color: #FFED00;
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(16px, 1.5vw, 20px);
+        font-weight: 700;
+        padding: 1.5rem 3rem;
+        border: none;
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      #wp-form-shell .wi-cta-btn:hover { transform: scale(1.02); }
+      #wp-form-shell { padding-bottom: 2rem !important; }
+
       /* ================= CONTACT FOOTER (3 kolone) – FIX ================= */
 
       /* sekcija */
@@ -205,197 +316,67 @@
       }
     </style>
   </head>
-  <body
-    class="__variable_9ee274 __variable_be8a02 antialiased bg-[#ffed00] text-black"
-  >
+  <body class="__variable_9ee274 __variable_be8a02 antialiased text-black">
     <div hidden=""><!--$--><!--/$--></div>
     <main class="pb-10">
-      <div id="wi-contact-root" class="bg-[var(--brand)] relative">
-        <header class="pb-8">
-          <div class="content-container text-center"></div>
-        </header>
-
-        <div class="relative">
-          <section class="content-container text-center">
-            <h1
-              class="unbounded-bold text-black mb-8 leading-none text-[clamp(46px,12vw,240px)]"
-            >
-              KONTAKT
-            </h1>
-          </section>
-
-          <section class="content-container mt-16">
-            <div class="space-y-12" id="wp-form-shell">
-              <div id="wp-form-slot"></div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                  <label
-                    class="block text-3xl unbounded-bold text-black mb-6 text-center"
-                    >SERVICES</label
-                  >
-                  <div class="space-y-2">
-                    <button
-                      type="button"
-                      class="w-96 px-8 py-6 rounded-full text-center transition-all poppins-bold text-[38px] bg-black text-white border-2 border-black hover:bg-gray-800"
-                    >
-                      Außenwerbung
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      Beschriftung
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      Grafikdesign
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      Webdesign
-                    </button>
-                  </div>
+      <div id="wi-contact-root">
+        <section class="contact-hero">
+          <div class="content-container" style="text-align: center;">
+            <div style="max-width: 840px; margin: 0 auto;">
+              <h1>PROJEKT<br>ANFRAGEN</h1>
+              <p class="subline">Lassen Sie uns gemeinsam Ihre Marke sichtbar machen.<br>Wir melden uns innerhalb von 24 Stunden bei Ihnen.</p>
+            </div>
+          </div>
+        </section>
+        <section class="contact-form-section">
+          <div class="content-container">
+            <div class="contact-form-inner">
+              <div id="wp-form-shell">
+                <div id="wp-form-slot"></div>
+                <div id="wp-pills-root"></div>
+                <div class="wi-form-extra" style="margin-top: 64px; margin-bottom: 32px;">
+                  <textarea name="message" placeholder="Ihre Nachricht an uns (optional)" rows="8"></textarea>
                 </div>
-
-                <div>
-                  <label
-                    class="block text-3xl unbounded-bold text-black mb-6 text-center"
-                    >BUDGET</label
-                  >
-                  <div class="space-y-2">
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      &lt; 5.000€
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      5.000€ - 15.000€
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      15.000€ - 50.000€
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      &gt; 50.000€
-                    </button>
-                  </div>
+                <div class="wi-privacy-wrap">
+                  <input type="checkbox" id="wi-privacy-checkbox" name="wi_privacy" required aria-required="true" class="wi-privacy-checkbox">
+                  <label for="wi-privacy-checkbox" class="wi-privacy-label">Ich habe die Datenschutzerklärung gelesen und akzeptiere sie. Ich bin damit einverstanden, dass meine Daten zur Bearbeitung meiner Anfrage verwendet werden.</label>
                 </div>
-
-                <div>
-                  <label
-                    class="block text-3xl unbounded-bold text-black mb-6 text-center"
-                    >ZEITRAHMEN</label
-                  >
-                  <div class="space-y-2">
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      Sofort
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      Innerhalb 1 Monat
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      1-3 Monate
-                    </button>
-                    <button
-                      type="button"
-                      class="w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800"
-                    >
-                      &gt; 3 Monate
-                    </button>
-                  </div>
+                <div class="wi-privacy-error-wrap" id="wi-privacy-error-wrap">
+                  <span class="wi-privacy-error" id="wi-privacy-error" role="alert">Bitte akzeptieren Sie die Datenschutzerklärung.</span>
                 </div>
-              </div>
-
-              <textarea
-                name="message"
-                placeholder="Nachricht"
-                rows="6"
-                class="w-full p-6 rounded-[40px] border-2 border-black bg-white text-black placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-black resize-none poppins"
-              ></textarea>
-
-              <div class="grid gap-3 sm:grid-cols-[1fr_auto] items-center">
-                <div
-                  class="poppins text-neutral-700 text-[11px] sm:text-[13px] md:text-sm leading-snug"
-                >
-                  <p class="m-0">
-                    Mit dem Absenden stimmen Sie unseren Datenschutzbestimmungen
-                    zu.
-                  </p>
-                  <p class="m-0">Ihre Daten werden vertraulich behandelt.</p>
+                <div style="text-align: center; margin-top: 3rem;">
+                  <button type="submit" class="wi-cta-btn" aria-label="ANFRAGE SENDEN">ANFRAGE SENDEN</button>
                 </div>
-
-                <button
-                  type="submit"
-                  class="w-full sm:w-auto justify-self-stretch sm:justify-self-end bg-[var(--brand)] text-black border-2 border-black rounded-[40px] px-8 sm:px-12 py-4 unbounded-bold hover:bg-black hover:text-white transition-all disabled:opacity-60"
-                >
-                  ANFRAGE SENDEN
-                </button>
-
                 <script>
-                  // sakrij Submit dugme iz plugina (da ne bude duplo)
                   document.addEventListener("DOMContentLoaded", function () {
-                    const hidePluginBtn = () => {
-                      const btn = document.querySelector(
-                        ".wi-contact-form .wi-submit"
-                      );
+                    var hidePluginBtn = function () {
+                      var btn = document.querySelector(".wi-contact-form .wi-submit");
                       if (btn) btn.style.display = "none";
                     };
                     hidePluginBtn();
-                    const ro = new MutationObserver(hidePluginBtn);
-                    ro.observe(document.body, {
-                      subtree: true,
-                      childList: true,
-                    });
+                    var ro = new MutationObserver(hidePluginBtn);
+                    ro.observe(document.body, { subtree: true, childList: true });
+                    var cb = document.getElementById("wi-privacy-checkbox");
+                    var errWrap = document.getElementById("wi-privacy-error-wrap");
+                    var msgText = "Bitte akzeptieren Sie die Datenschutzerklärung.";
+                    if (cb && errWrap) {
+                      function updateMessage() {
+                        if (cb.checked) errWrap.classList.add("hidden");
+                        else {
+                          errWrap.classList.remove("hidden");
+                          var err = document.getElementById("wi-privacy-error");
+                          if (err) err.textContent = msgText;
+                        }
+                      }
+                      cb.addEventListener("change", updateMessage);
+                      updateMessage();
+                    }
                   });
-
-                  // Veži tvoj gumb da šalje WI Contact formu
-                  (function () {
-                    const sendBtn =
-                      document.querySelector(
-                        'button[type="submit"].unbounded-bold, button[aria-label="ANFRAGE SENDEN"]'
-                      ) ||
-                      document.querySelector(
-                        'button:contains("ANFRAGE SENDEN")'
-                      );
-                    if (!sendBtn) return;
-                    sendBtn.type = "button";
-                    sendBtn.addEventListener("click", function () {
-                      const frm = document.querySelector(".wi-contact-form");
-                      if (frm && frm.requestSubmit) frm.requestSubmit();
-                      else if (frm) frm.submit();
-                    });
-                  })();
                 </script>
               </div>
             </div>
-          </section>
-
-          <!-- Kontakt-info (crna) sekcija je uklonjena iz ovog HTML-a.
-               Prikaži je iz WordPress-a pomoću [wi_contact_info] izvan iFrame-a. -->
-        </div>
+          </div>
+        </section>
       </div>
     </main>
 

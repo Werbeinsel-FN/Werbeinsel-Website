@@ -43,18 +43,30 @@ class WI_Contact {
 
   public static function defaults_pills() {
     return [
-      'services'   => ['title'=>'Services','items'=>["Plakatwerbung","Grafik","Fotografie"]],
-      'budget'     => ['title'=>'Budget','items'=>["<50€","50-200€","200-1000€",">1000€"]],
-      'zeitrahmen' => ['title'=>'Zeitrahmen','items'=>["Schnell","2-4 Wochen","1-2 Monate","Später"]],
+      'services'   => [
+        'title'   => "Welche Services\ninteressieren Sie?",
+        'multiple'=> true,
+        'items'   => ['Außenwerbung', 'Beschriftung', 'Grafikdesign', 'Webdesign'],
+      ],
+      'budget'     => [
+        'title'   => 'Geplantes Budget',
+        'multiple'=> false,
+        'items'   => ['< 1.000€', '1.000€ - 5.000€', '5.000€ - 10.000€', '> 10.000€'],
+      ],
+      'zeitrahmen' => [
+        'title'   => 'Gewünschter Zeitrahmen',
+        'multiple'=> false,
+        'items'   => ['sofort', 'innerhalb 1 Monat', '1-3 Monate', '> 3 Monate'],
+      ],
     ];
   }
 
   public static function defaults_info() {
-    // Legacy map polja ostaju u opciji (radi kompatibilnosti), ali se ne koriste.
     return [
       'address_lines' => [],
       'email' => '',
       'phone' => '',
+      'whatsapp_url' => '',
       'map_mode' => 'address',
       'map_address' => '',
       'lat'  => '',
@@ -82,10 +94,15 @@ class WI_Contact {
 
   private static function normalize_pills($p) {
     if (!is_array($p)) return self::defaults_pills();
+    $defaults = self::defaults_pills();
     foreach ($p as $k => &$g) {
       $g = is_array($g) ? $g : [];
-      $g['title']    = sanitize_text_field($g['title'] ?? strtoupper($k));
-      $g['multiple'] = !empty($g['multiple']);
+      $g['title'] = sanitize_text_field($g['title'] ?? strtoupper($k));
+      if ($k === 'services') {
+        $g['multiple'] = true;
+      } else {
+        $g['multiple'] = !empty($g['multiple']);
+      }
       if (isset($g['items']) && !is_array($g['items'])) {
         $g['items'] = preg_split('/\r?\n/', (string)$g['items']);
       }
@@ -94,12 +111,24 @@ class WI_Contact {
     return $p;
   }
 
-  /** FRONTEND helper: pills sa dekodiranim HTML entitetima */
+  /** FRONTEND helper: pills sa dekodiranim HTML entitetima i naslovima kao na slici */
   public static function get_pills_decoded() {
     $p = self::normalize_pills( get_option(self::OPT_PILLS, self::defaults_pills()) );
-    foreach ($p as &$g) {
+    $titles = [
+      'services'   => "Welche Services\ninteressieren Sie?",
+      'budget'     => 'Geplantes Budget',
+      'zeitrahmen' => 'Gewünschter Zeitrahmen',
+    ];
+    foreach ($p as $k => &$g) {
       $g['title'] = wp_specialchars_decode( $g['title'], ENT_QUOTES );
-      $g['items'] = array_map(function($s){ return wp_specialchars_decode($s, ENT_QUOTES); }, $g['items'] ?? []);
+      if ( isset( $titles[ $k ] ) ) {
+        $t = trim( $g['title'] );
+        $short = strtoupper( $k );
+        if ( $t === '' || $t === $short || $t === ucfirst( strtolower( $k ) ) || $t === 'Services' || $t === 'Budget' || $t === 'Zeitrahmen' ) {
+          $g['title'] = $titles[ $k ];
+        }
+      }
+      $g['items'] = array_map( function( $s ) { return wp_specialchars_decode( $s, ENT_QUOTES ); }, $g['items'] ?? [] );
     }
     return $p;
   }
@@ -132,8 +161,15 @@ class WI_Contact {
       $safe_fields = self::normalize_fields($_POST['fields'] ?? []);
       update_option(self::OPT_FIELDS, $safe_fields);
 
-      $new_pills = self::normalize_pills($_POST['pills'] ?? []);
-      update_option(self::OPT_PILLS, $new_pills);
+      $from_post = self::normalize_pills($_POST['pills'] ?? []);
+      $prev_pills = get_option(self::OPT_PILLS, self::defaults_pills());
+      if (!is_array($prev_pills)) $prev_pills = self::defaults_pills();
+      foreach ($from_post as $k => $g) {
+        $post_title = isset($_POST['pills'][$k]['title']) ? trim((string) $_POST['pills'][$k]['title']) : '';
+        $from_post[$k]['title'] = $post_title !== '' ? sanitize_text_field($post_title) : ($prev_pills[$k]['title'] ?? strtoupper($k));
+        if (isset($prev_pills[$k]['multiple'])) $from_post[$k]['multiple'] = (bool) $prev_pills[$k]['multiple'];
+      }
+      update_option(self::OPT_PILLS, $from_post);
 
       // Ažuriramo samo adresu/email/telefon (mapa je uklonjena iz UI-ja)
       $prev = get_option(self::OPT_INFO, self::defaults_info());
@@ -141,6 +177,7 @@ class WI_Contact {
       $ni['address_lines'] = array_values(array_filter(array_map('sanitize_text_field', preg_split('/\r?\n/', $_POST['info']['address_lines'] ?? ""))));
       $ni['email']         = sanitize_text_field($_POST['info']['email'] ?? '');
       $ni['phone']         = sanitize_text_field($_POST['info']['phone'] ?? '');
+      $ni['whatsapp_url']  = esc_url_raw($_POST['info']['whatsapp_url'] ?? '');
       update_option(self::OPT_INFO, $ni);
 
       // reCAPTCHA (opciono)
@@ -190,13 +227,14 @@ class WI_Contact {
         <p><a href="#" id="wi-add-field">+ Add field</a></p>
 
         <h2 style="margin-top:20px;">B) Pills (usluge / budžet / vremenski okvir)</h2>
-        <p>Uredi listu predefinisanih stavki (jedan po liniji).</p>
+        <p>Naslov sekcije (prelom reda = <code>\n</code>). Stavke: jedan po liniji.</p>
         <table class="widefat striped">
-          <thead><tr><th style="width:220px">Grupa</th><th>Stavke</th></tr></thead>
+          <thead><tr><th style="width:220px">Grupa</th><th>Naslov (na stranici)</th><th>Stavke</th></tr></thead>
           <tbody>
             <?php foreach ($pills as $k=>$g): ?>
               <tr>
-                <th style="vertical-align: top;"><?php echo esc_html($g['title']); ?></th>
+                <th style="vertical-align: top;"><?php echo esc_html($k); ?></th>
+                <td style="vertical-align: top;"><input type="text" name="pills[<?php echo esc_attr($k); ?>][title]" value="<?php echo esc_attr($g['title'] ?? ''); ?>" class="large-text" placeholder="npr. Geplantes Budget"></td>
                 <td><textarea name="pills[<?php echo esc_attr($k); ?>][items]" rows="6" style="width:100%"><?php echo esc_textarea(implode("\n",$g['items'] ?? [])); ?></textarea></td>
               </tr>
             <?php endforeach; ?>
@@ -212,6 +250,10 @@ class WI_Contact {
           <tr>
             <th>Telefon</th>
             <td><input name="info[phone]" class="regular-text" value="<?php echo esc_attr($info['phone'] ?? ''); ?>"></td>
+          </tr>
+          <tr>
+            <th>WhatsApp URL</th>
+            <td><input name="info[whatsapp_url]" class="large-text" placeholder="https://wa.me/49..." value="<?php echo esc_attr($info['whatsapp_url'] ?? ''); ?>"><br><small>npr. https://wa.me/49123456789?text=Hallo%20Werbeinsel</small></td>
           </tr>
           <tr>
             <th>Adresa (linije)</th>
@@ -273,24 +315,11 @@ class WI_Contact {
   public function print_info_css(){
     ?>
     <style id="wi-contact-info-css">
-      /* container širina */
       .wi-ci__container{max-width:1780px;margin-inline:auto;padding-inline:5vw;}
-      /* crna sekcija sa žutim gornjim borderom */
-      .wi-ci{background:#000;color:#fff;border-top:8px solid #ffed00;padding:4rem 0;margin:0;}
-      /* grid 1->3 kolone */
-      .wi-ci__row{display:grid;grid-template-columns:1fr;gap:3rem;text-align:center}
-      @media (min-width:900px){ .wi-ci__row{grid-template-columns:repeat(3,1fr);gap:4rem} }
-      /* item */
-      .wi-ci__item{display:flex;flex-direction:column;align-items:center;gap:1.25rem}
-      /* ikone – žute linije, bez popune */
-      .wi-ci__icon{width:96px;height:96px;display:block;color:#ffed00}
-      .wi-ci__icon, .wi-ci__icon *{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-      /* tipografija */
-      .wi-ci__title{font-family:var(--font-poppins,"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif) ;font-weight:800;text-transform:uppercase;letter-spacing:.5px;font-size:clamp(20px,2.4vw,34px);line-height:1.05;margin:12px 0 0}
-      .wi-ci__text{font-family:var(--font-poppins,"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif);font-size:clamp(20px,2.4vw,34px);line-height:1.35;margin:6px 0 0}
+      .wi-ci{background:#000;color:#fff;padding:4rem 0;margin:0;}
+      .wi-ci__item{display:flex;flex-direction:column;align-items:center;gap:1rem}
       .wi-ci__link{color:#fff;text-decoration:none}
       .wi-ci__link:hover{color:#ffed00}
-      /* sigurnosno: ukloni donji luft od tema main-a */
       main.pb-10{padding-bottom:0!important}
     </style>
     <?php
@@ -298,47 +327,66 @@ class WI_Contact {
 
   /* ---------- Shortcodes ---------- */
 
-  // Kontakt info (adresa / e-mail / telefon) – izolovan markup bez Tailwind-a
+  // Kontakt info – redosled kao u dizajnu: Telefon, E-Mail, WhatsApp, Adresse
   public function shortcode_info($atts = []) {
-    $info  = get_option(self::OPT_INFO, self::defaults_info());
-    $email = sanitize_email($info['email'] ?? '');
-    $phone = trim((string)($info['phone'] ?? ''));
-    $addr  = array_filter(array_map('trim', $info['address_lines'] ?? []));
+    $info   = get_option(self::OPT_INFO, self::defaults_info());
+    $email  = sanitize_email($info['email'] ?? '');
+    $phone  = trim((string)($info['phone'] ?? ''));
+    $addr   = array_filter(array_map('trim', $info['address_lines'] ?? []));
+    $wa_url = esc_url_raw($info['whatsapp_url'] ?? '');
     $tel_href = preg_replace('/[^\d\+]/', '', $phone);
 
     ob_start(); ?>
     <section class="wi-ci">
       <div class="wi-ci__container">
         <div class="wi-ci__row">
-          <?php if (!empty($addr)): ?>
+          <?php if ($phone): ?>
           <div class="wi-ci__item">
-            <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            <h3 class="wi-ci__title">ADRESSE</h3>
-            <p class="wi-ci__text"><?php echo implode('<br>', array_map('esc_html', $addr)); ?></p>
+            <div class="wi-ci__icon-wrap">
+              <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>
+              </svg>
+            </div>
+            <h3 class="wi-ci__title">TELEFON</h3>
+            <a class="wi-ci__text wi-ci__link" href="tel:<?php echo esc_attr($tel_href); ?>"><?php echo esc_html($phone); ?></a>
           </div>
           <?php endif; ?>
 
           <?php if ($email): ?>
           <div class="wi-ci__item">
-            <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>
-              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            </svg>
+            <div class="wi-ci__icon-wrap">
+              <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              </svg>
+            </div>
             <h3 class="wi-ci__title">E-MAIL</h3>
             <a class="wi-ci__text wi-ci__link" href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a>
           </div>
           <?php endif; ?>
 
-          <?php if ($phone): ?>
+          <?php if ($wa_url): ?>
           <div class="wi-ci__item">
-            <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>
-            </svg>
-            <h3 class="wi-ci__title">TELEFON</h3>
-            <a class="wi-ci__text wi-ci__link" href="tel:<?php echo esc_attr($tel_href); ?>"><?php echo esc_html($phone); ?></a>
+            <div class="wi-ci__icon-wrap wi-ci__icon-wrap--whatsapp">
+              <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" stroke="none" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+            </div>
+            <h3 class="wi-ci__title">WHATSAPP</h3>
+            <a class="wi-ci__whatsapp-btn" href="<?php echo esc_attr($wa_url); ?>" target="_blank" rel="noopener noreferrer">Chat starten</a>
+          </div>
+          <?php endif; ?>
+
+          <?php if (!empty($addr)): ?>
+          <div class="wi-ci__item">
+            <div class="wi-ci__icon-wrap">
+              <svg class="wi-ci__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <h3 class="wi-ci__title">ADRESSE</h3>
+            <p class="wi-ci__text"><?php echo implode('<br>', array_map('esc_html', $addr)); ?></p>
           </div>
           <?php endif; ?>
         </div>

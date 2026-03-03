@@ -77,19 +77,32 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
   </div>
 </main>
 <div id="wi-contact-info-wrap">
-  <?php echo do_shortcode('[wi_contact_info]'); ?>
+  <section class="wi-contact-info">
+    <div class="info-container">
+      <h2 class="wi-contact-info-headline">Direkt Kontakt<br>aufnehmen</h2>
+      <?php echo do_shortcode('[wi_contact_info]'); ?>
+    </div>
+  </section>
 </div>
 
 <style id="wi-contact-info-inline">
-  /* Sekcija (crna pozadina, žuti gornji border, py-16) */
+  /* Sekcija (crna pozadina); donji padding 32px */
   #wi-contact-info-wrap section,
   #wi-contact-info-wrap .wi-contact-info{
     background:#000 !important;
     color:#fff !important;
-    border-top:8px solid #ffed00 !important;
-    padding-top:4rem !important;   /* py-16 */
-    padding-bottom:4rem !important;
-    margin-top:0 !important;       /* da nema praznog razmaka iznad */
+    border-top:none !important;
+    padding-top:4rem !important;
+    padding-bottom:32px !important;
+    margin-top:0 !important;
+  }
+  @media (min-width:768px){
+    #wi-contact-info-wrap section,
+    #wi-contact-info-wrap .wi-contact-info{ padding-top:6rem !important; padding-bottom:32px !important; }
+  }
+  @media (min-width:1024px){
+    #wi-contact-info-wrap section,
+    #wi-contact-info-wrap .wi-contact-info{ padding-top:8rem !important; padding-bottom:32px !important; }
   }
 
   /* Container širina + bočni padovi */
@@ -100,7 +113,8 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     padding-inline:5vw !important;
   }
 
-  /* Grid: 1 → 3 kolone */
+  /* Grid: mobil 1×4 → tablet 2×2 → desktop 4×1 */
+  #wi-contact-info-wrap .wi-ci__row,
   #wi-contact-info-wrap .info-grid,
   #wi-contact-info-wrap .cf-row,
   #wi-contact-info-wrap .grid{
@@ -108,56 +122,123 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     grid-template-columns:1fr !important;
     gap:3rem !important;
     text-align:center !important;
+    max-width: 1400px !important;
+    margin-inline: auto !important;
   }
-  @media (min-width:768px){
+  /* Tablet: 2×2 */
+  @media (min-width:600px){
+    #wi-contact-info-wrap .wi-ci__row,
     #wi-contact-info-wrap .info-grid,
     #wi-contact-info-wrap .cf-row,
     #wi-contact-info-wrap .grid{
-      grid-template-columns:repeat(3,1fr) !important;
-      gap:5rem !important;
+      grid-template-columns:repeat(2,1fr) !important;
+      gap:3rem !important;
+    }
+  }
+  /* Desktop: 4×1 (sva 4 u jednom redu) */
+  @media (min-width:1200px){
+    #wi-contact-info-wrap .wi-ci__row,
+    #wi-contact-info-wrap .info-grid,
+    #wi-contact-info-wrap .cf-row,
+    #wi-contact-info-wrap .grid{
+      grid-template-columns:repeat(4,1fr) !important;
+      gap:2.5rem 2rem !important;
     }
   }
 
-  /* Stavke */
+  /* Stavka – kolona centrirana, ikona gore */
+  #wi-contact-info-wrap .wi-ci__item,
   #wi-contact-info-wrap .info-item,
   #wi-contact-info-wrap .cf-item{
     display:flex !important;
     flex-direction:column !important;
     align-items:center !important;
-    gap:1.5rem !important;
+    gap:1rem !important;
   }
+  #wi-contact-info-wrap .wi-ci__item .wi-ci__icon-wrap{ margin-bottom: 0.25rem !important; }
 
-  /* Ikonice – žute, ~112px */
-  #wi-contact-info-wrap .info-icon,
-  #wi-contact-info-wrap .cf-icon{
-    width:112px !important;
-    height:112px !important;
-    color:#ffed00 !important;
+  /* Headline „Direkt Kontakt aufnehmen“ – bez velikih slova, kao u sajt */
+  #wi-contact-info-wrap .wi-contact-info .wi-ci{ padding-top: 0 !important; }
+  #wi-contact-info-wrap .wi-contact-info-headline{
+    font-family: var(--font-unbounded,"Unbounded",system-ui,sans-serif) !important;
+    font-size: clamp(36px,5vw,56px) !important;
+    font-weight: 800 !important;
+    line-height: 1.0 !important;
+    letter-spacing: -0.01em !important;
+    color: #ffed00 !important;
+    text-align: center !important;
+    margin: 0 0 3rem !important;
+    text-transform: none !important;
   }
+  @media (min-width:1024px){ #wi-contact-info-wrap .wi-contact-info-headline{ margin-bottom: 4rem !important; } }
 
-  /* Naslov (Unbounded, bold, uppercase) */
+  /* Ikona u žutom krugu 80px (kao u dizajnu) */
+  #wi-contact-info-wrap .wi-ci__icon-wrap{
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 9999px !important;
+    background: #FFED00 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+  #wi-contact-info-wrap .wi-ci__icon-wrap .wi-ci__icon{
+    width: 32px !important;
+    height: 32px !important;
+    color: #000 !important;
+  }
+  /* Deblje ikone (kao WhatsApp) – stroke 2.5px */
+  #wi-contact-info-wrap .wi-ci__icon-wrap .wi-ci__icon *{ fill: none !important; stroke: #000 !important; stroke-width: 2.5 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
+  /* WhatsApp – zeleni krug, bela ikona */
+  #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp{
+    background: #25D366 !important;
+  }
+  #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp .wi-ci__icon,
+  #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp .wi-ci__icon *{ fill: #fff !important; stroke: #fff !important; color: #fff !important; }
+  /* Dugme "Chat starten" */
+  #wi-contact-info-wrap .wi-ci__whatsapp-btn{
+    display: inline-block !important;
+    background: #25D366 !important;
+    color: #fff !important;
+    font-family: var(--font-poppins,"Poppins",system-ui,sans-serif) !important;
+    font-size: clamp(16px,1.5vw,18px) !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 9999px !important;
+    text-decoration: none !important;
+    margin-top: 0.25rem !important;
+    transition: opacity 0.2s !important;
+  }
+  #wi-contact-info-wrap .wi-ci__whatsapp-btn:hover{ opacity: 0.9 !important; }
+
+  /* Naslov stavke (TELEFON, E-MAIL, ADRESSE) – žuti, Unbounded */
+  #wi-contact-info-wrap .wi-ci__title,
   #wi-contact-info-wrap .info-title,
   #wi-contact-info-wrap .cf-title,
-  #wi-contact-info-wrap h3{
-    font-family:var(--font-poppins,"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif) !important;
-    font-weight:800 !important;
-    text-transform:uppercase !important;
-    letter-spacing:.5px !important;
-    font-size:clamp(20px,2.6vw,34px) !important;
-    line-height:1.05 !important;
-    margin:0 !important;
-    color:#fff !important;
+  #wi-contact-info-wrap .wi-ci__item h3{
+    font-family: var(--font-unbounded,"Unbounded",system-ui,sans-serif) !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-size: clamp(16px,1.6vw,18px) !important;
+    line-height: 1.05 !important;
+    margin: 0 !important;
+    color: #FFED00 !important;
   }
 
-  /* Text (Poppins, veliki) */
+  /* Tekst ispod (beli, Poppins) */
+  #wi-contact-info-wrap .wi-ci__text,
   #wi-contact-info-wrap .info-text,
   #wi-contact-info-wrap .cf-text,
-  #wi-contact-info-wrap p{
-    font-family:var(--font-poppins,"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif) !important;
-    font-size:clamp(20px,2.6vw,34px) !important;
-    line-height:1.35 !important;
-    margin:0 !important;
-    color:#fff !important;
+  #wi-contact-info-wrap .wi-ci__item p,
+  #wi-contact-info-wrap .wi-ci__item a.wi-ci__text{
+    font-family: var(--font-poppins,"Poppins",system-ui,sans-serif) !important;
+    font-size: clamp(18px,1.8vw,22px) !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+    margin: 0 !important;
+    color: #fff !important;
   }
 
   /* Linkovi */
@@ -265,24 +346,40 @@ function injectAssets(doc){
 }
 
 
-  function isThreeColGrid(el){if(!el)return false;const cs=getComputedStyle(el);const cols=(cs.gridTemplateColumns||'').split(' ').filter(Boolean).length;return cols>=3||el.className.includes('md:grid-cols-3');}
   function renderPills(doc){
     let root=doc.getElementById('wp-pills-root');
-    if(!root){const slot=doc.getElementById('wp-form-slot');let x=slot?slot.nextElementSibling:null;while(x && !isThreeColGrid(x)) x=x.nextElementSibling;root=x||null;}
+    if(!root){const slot=doc.getElementById('wp-form-slot');if(slot&&slot.nextElementSibling) root=slot.nextElementSibling;}
     if(!root)return;
     root.innerHTML='';
+    root.className='wi-pills-wrapper';
     Object.keys(PILLS).forEach(key=>{
-      const group=PILLS[key]; const col=doc.createElement('div');
-      const h=doc.createElement('label'); h.className='block text-3xl unbounded-bold text-black mb-6 text-center'; h.textContent=group.title||key.toUpperCase(); col.appendChild(h);
-      const box=doc.createElement('div'); box.className='space-y-2';
+      const group=PILLS[key];
+      const section=doc.createElement('div');
+      section.className='wi-pills-section';
+      const h=doc.createElement('h3');
+      h.className='wi-pills-title';
+      var raw=(group.title||key.toUpperCase())+'';
+      h.innerHTML=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      section.appendChild(h);
+      const row=doc.createElement('div');
+      row.className='wi-pills-row';
       (group.items||[]).forEach(item=>{
-        const btn=doc.createElement('button'); btn.type='button';
-        btn.className='wi-pill w-full p-4 rounded-[40px] text-center transition-all poppins font-bold text-lg bg-black text-white border-2 border-black hover:bg-neutral-800';
-        btn.textContent=item; btn.dataset.group=key; btn.dataset.value=item;
-        btn.addEventListener('click',()=>{ if(group.multiple){btn.classList.toggle('wi-pill-active');}else{box.querySelectorAll('button').forEach(b=>b.classList.remove('wi-pill-active')); btn.classList.add('wi-pill-active');} syncHidden(doc); fitFromDOM(); });
-        box.appendChild(btn);
+        const btn=doc.createElement('button');
+        btn.type='button';
+        btn.className='wi-pill';
+        btn.textContent=item;
+        btn.dataset.group=key;
+        btn.dataset.value=item;
+        btn.addEventListener('click',function(){
+          if(group.multiple){ btn.classList.toggle('wi-pill-active'); }
+          else{ row.querySelectorAll('.wi-pill').forEach(function(b){ b.classList.remove('wi-pill-active'); }); btn.classList.add('wi-pill-active'); }
+          syncHidden(doc);
+          fitFromDOM();
+        });
+        row.appendChild(btn);
       });
-      col.appendChild(box); root.appendChild(col);
+      section.appendChild(row);
+      root.appendChild(section);
     });
   }
   function syncHidden(doc){
@@ -362,8 +459,24 @@ function startHeightPinger(doc){
   }
 
   async function submitWithRecaptcha(doc){
+    if (!doc) doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+    if (!doc) return;
     const frm = doc.querySelector('.wi-contact-form');
     if (!frm) return;
+
+    var privacyEl = doc.getElementById('wi-privacy-checkbox');
+    var privacyErrWrap = doc.getElementById('wi-privacy-error-wrap');
+    if (privacyEl && !privacyEl.checked) {
+      if (privacyErrWrap) {
+        privacyErrWrap.classList.remove('hidden');
+        try {
+          privacyErrWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (_) {}
+      }
+      try { privacyEl.focus(); } catch (_) {}
+      fitFromDOM();
+      return;
+    }
 
     // nativna validacija prvo
     if (!frm.reportValidity()) {
@@ -453,6 +566,8 @@ function startHeightPinger(doc){
 
       const fd = new FormData(frm);
       if (!fd.get('action')) fd.set('action', 'wi_contact_submit');
+      var privacyCb = doc.getElementById('wi-privacy-checkbox');
+      if (privacyCb) fd.set('wi_privacy', privacyCb.checked ? '1' : '0');
 
       const response = await fetch(POST_URL, {
         method: 'POST',

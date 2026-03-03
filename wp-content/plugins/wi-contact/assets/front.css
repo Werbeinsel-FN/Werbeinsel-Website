@@ -1,4 +1,5 @@
-/* ====== izgled kao u Next-u ====== */
+/* ====== WI Contact – novi dizajn (uskladen sa sajt/ContactPage.tsx) ====== */
+
 #wp-form-slot .wi-contact-form {
   margin: 0;
 }
@@ -6,156 +7,123 @@
 #wp-form-slot .wi-contact-form .wi-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px 32px; /* razmak između polja */
+  gap: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 64px;
 }
 
-/* sakrij label ispis iznad polja – koristimo samo placeholder u inputu */
-#wp-form-slot .wi-contact-form label span {
-  display: none !important;
-}
-
-/* inputi/textarea kao u Next-u */
-#wp-form-slot .wi-contact-form input,
-#wp-form-slot .wi-contact-form textarea {
-  width: 100%;
-  background: #fff;
-  border: 2px solid #111; /* ista debljina okvira */
-  border-radius: 40px; /* jako zaobljeno */
-  padding: 24px 24px; /* „p-6“ osećaj */
-  outline: none;
-  box-shadow: none;
-  font: inherit; /* koristi font iz stranice (poppins) */
-  color: #000;
-}
-
-/* placeholder ton kao neutral-500 */
-#wp-form-slot .wi-contact-form input::placeholder,
-#wp-form-slot .wi-contact-form textarea::placeholder {
-  color: #6b7280;
-  opacity: 1;
-}
-
-/* fokus bez obojenog halo-a, ostaje crni okvir */
-#wp-form-slot .wi-contact-form input:focus,
-#wp-form-slot .wi-contact-form textarea:focus {
-  border-color: #111;
-  outline: none;
-  box-shadow: none;
-}
-
-/* textarea ako koristiš iz plugina (ako ne, ignoriši) */
-#wp-form-slot .wi-contact-form textarea {
-  min-height: 160px;
-  resize: vertical;
-  border-radius: 40px;
-}
-
-/* sakrij plugin dugme – koristiš svoj ANFRAGE SENDEN */
-#wp-form-slot .wi-contact-form .wi-submit {
-  display: none !important;
-}
-/* === ACTIVE pill izgled (žuto, crni okvir) === */
-#wp-pills-root button.wi-pill-active {
-  background: #ffed00 !important; /* brand žuta */
-  color: #000 !important;
-  border-color: #000 !important;
-  border-width: 3px !important;
-} /* ====== izgled kao u Next-u (form) ====== */
-#wp-form-slot .wi-contact-form {
-  margin: 0;
-}
-
-#wp-form-slot .wi-contact-form .wi-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px 32px;
-}
-
-#wp-form-slot .wi-contact-form label span {
-  display: none !important;
-}
-
-#wp-form-slot .wi-contact-form input,
-#wp-form-slot .wi-contact-form textarea {
-  width: 100%;
-  background: #fff;
-  border: 2px solid #111;
-  border-radius: 40px;
-  padding: 24px 24px;
-  outline: none;
-  box-shadow: none;
-  font: inherit;
-  color: #000;
-}
-
-#wp-form-slot .wi-contact-form input::placeholder,
-#wp-form-slot .wi-contact-form textarea::placeholder {
-  color: #6b7280;
-  opacity: 1;
-}
-
-#wp-form-slot .wi-contact-form input:focus,
-#wp-form-slot .wi-contact-form textarea:focus {
-  border-color: #111;
-  outline: none;
-  box-shadow: none;
-}
-
-#wp-form-slot .wi-contact-form textarea {
-  min-height: 160px;
-  resize: vertical;
-  border-radius: 40px;
-}
-
-/* sakrij plugin submit – koristimo tvoj CTA */
-#wp-form-slot .wi-contact-form .wi-submit {
-  display: none !important;
-}
-
-/* ====== PILLS: aktivni stil (žuto sa crnim okvirom) ====== */
-.wi-pill.wi-pill-active {
-  background: #ffed00 !important;
-  color: #000 !important;
-  border-color: #000 !important;
-  border-width: 3px !important;
-}
-.wi-pill.wi-pill-active:hover {
-  background: #ffed00 !important;
-}
-
-/* mobilno: jedna kolona */
 @media (max-width: 900px) {
   #wp-form-slot .wi-contact-form .wi-grid {
     grid-template-columns: 1fr;
   }
 }
 
-#wp-pills-root button.wi-pill-active:hover {
-  background: #ffed00 !important;
+#wp-form-slot .wi-contact-form label span {
+  display: none !important;
 }
-/* mobilno: jedna kolona */
-@media (max-width: 900px) {
-  #wp-form-slot .wi-contact-form .wi-grid {
-    grid-template-columns: 1fr;
-  }
-}
-/* inputi/textarea kao u Next-u – + fiksna veličina teksta 30px */
+
+/* Inputi – border 2px, radius 24px, Poppins */
 #wp-form-slot .wi-contact-form input,
 #wp-form-slot .wi-contact-form textarea {
-  font-size: 35px !important;
-  padding: 15px 24px;
-  height: 100px;
-  border-radius: 100px;
+  width: 100%;
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 24px;
+  padding: 1.25rem 2rem;
+  outline: none;
+  box-shadow: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(16px, 1.5vw, 18px);
+  font-weight: 500;
+  color: #000;
 }
+
 #wp-form-slot .wi-contact-form input::placeholder,
 #wp-form-slot .wi-contact-form textarea::placeholder {
-  font-size: 35px !important; /* ⇦ ključno */
-  font-family: var(--font-poppins), "Poppins", system-ui, -apple-system,
-    Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  color: rgba(0, 0, 0, 0.4);
+  opacity: 1;
 }
-#wp-form-slot button {
-  font-size: 38px !important;
-  font-family: var(--font-poppins), "Poppins", system-ui, -apple-system,
-    Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif !important;
-  line-height: 1.2;
+
+#wp-form-slot .wi-contact-form input:focus,
+#wp-form-slot .wi-contact-form textarea:focus {
+  border-color: #000;
+  outline: none;
+  box-shadow: 0 0 0 4px #000;
+}
+
+#wp-form-slot .wi-contact-form textarea {
+  min-height: 160px;
+  resize: none;
+  border-radius: 24px;
+}
+
+#wp-form-slot .wi-contact-form .wi-submit {
+  display: none !important;
+}
+
+/* ===== Pills – kao u sajt/ContactPage.tsx (jedna sekcija = naslov + jedan red pillova) ===== */
+.wi-pills-wrapper,
+#wp-pills-root {
+  display: block !important;
+}
+
+#wp-pills-root .wi-pills-section {
+  margin-bottom: 4rem !important;
+}
+
+#wp-pills-root .wi-pills-section:last-child {
+  margin-bottom: 2rem !important;
+}
+
+#wp-pills-root .wi-pills-title {
+  font-family: 'Unbounded', sans-serif !important;
+  font-size: clamp(24px, 2.5vw, 32px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  color: #000 !important;
+  text-align: center !important;
+  margin: 0 0 2rem !important;
+  display: block !important;
+  line-height: 1.2 !important;
+}
+
+#wp-pills-root .wi-pills-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+#wp-pills-root .wi-pills-row .wi-pill,
+#wp-pills-root .wi-pill {
+  flex: 0 0 auto !important;
+  display: inline-block !important;
+  width: auto !important;
+  background: #fff !important;
+  color: #000 !important;
+  border: 2px solid #000 !important;
+  border-radius: 9999px !important;
+  padding: 1rem 1.5rem !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: clamp(15px, 1.5vw, 16px) !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
+  cursor: pointer !important;
+}
+
+#wp-pills-root .wi-pill:hover {
+  background: #000 !important;
+  color: #FFED00 !important;
+}
+
+#wp-pills-root .wi-pill.wi-pill-active {
+  background: #000 !important;
+  color: #FFED00 !important;
+  border-color: #000 !important;
+}
+
+#wp-pills-root .wi-pill.wi-pill-active:hover {
+  background: #000 !important;
+  color: #FFED00 !important;
 }
