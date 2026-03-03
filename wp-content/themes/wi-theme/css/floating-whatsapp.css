@@ -1,4 +1,10 @@
 /* === Floating WhatsApp – sve za 20% manje (scale 0.8) === */
+/* Kad je meni otvoren, sakrij floating WA (WhatsApp je u meniju) */
+body.menu-open .wi-floating-wa {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .wi-floating-wa {
   position: fixed;
   bottom: 1.5rem;
