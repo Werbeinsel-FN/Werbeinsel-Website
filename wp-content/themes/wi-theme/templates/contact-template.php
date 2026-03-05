@@ -4,9 +4,10 @@
  */
 get_header();
 
-$next_url       = content_url('uploads/next-contact/index.html?v=20');
+$next_url       = content_url('uploads/next-contact/index.html?v=' . filemtime(__DIR__ . '/contact-template.php'));
 $form_html      = do_shortcode('[wi_contact_form]');
 $plugin_css_url = plugins_url('assets/front.css', WP_PLUGIN_DIR . '/wi-contact/wi-contact.php');
+$theme_contact_css_url = get_template_directory_uri() . '/css/contact.css?v=' . filemtime(get_template_directory() . '/css/contact.css');
 
 /* NOVO: uzmi reCAPTCHA v3 SITE KEY iz opcija plugina (SECRET NE IDE U JS) */
 $site_key       = get_option('wi_contact_recaptcha_site', '');
@@ -92,25 +93,25 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     background:#000 !important;
     color:#fff !important;
     border-top:none !important;
-    padding-top:4rem !important;
-    padding-bottom:32px !important;
+    padding-top:4.8rem !important;
+    padding-bottom:6rem !important;
     margin-top:0 !important;
   }
   @media (min-width:768px){
     #wi-contact-info-wrap section,
-    #wi-contact-info-wrap .wi-contact-info{ padding-top:6rem !important; padding-bottom:32px !important; }
+    #wi-contact-info-wrap .wi-contact-info{ padding-top:7.2rem !important; padding-bottom:7rem !important; }
   }
   @media (min-width:1024px){
     #wi-contact-info-wrap section,
-    #wi-contact-info-wrap .wi-contact-info{ padding-top:8rem !important; padding-bottom:32px !important; }
+    #wi-contact-info-wrap .wi-contact-info{ padding-top:9.6rem !important; padding-bottom:8rem !important; }
   }
 
-  /* Container širina + bočni padovi */
+  /* Container širina + bočni padovi +20% */
   #wi-contact-info-wrap .info-container,
   #wi-contact-info-wrap .content-container{
-    max-width:1780px !important;
+    max-width:2136px !important;
     margin-inline:auto !important;
-    padding-inline:5vw !important;
+    padding-inline:6vw !important;
   }
 
   /* Grid: mobil 1×4 → tablet 2×2 → desktop 4×1 */
@@ -120,9 +121,9 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
   #wi-contact-info-wrap .grid{
     display:grid !important;
     grid-template-columns:1fr !important;
-    gap:3rem !important;
+    gap:6rem !important;
     text-align:center !important;
-    max-width: 1400px !important;
+    max-width: 1680px !important;
     margin-inline: auto !important;
   }
   /* Tablet: 2×2 */
@@ -132,17 +133,17 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     #wi-contact-info-wrap .cf-row,
     #wi-contact-info-wrap .grid{
       grid-template-columns:repeat(2,1fr) !important;
-      gap:3rem !important;
+      gap:6rem !important;
     }
   }
-  /* Desktop: 4×1 (sva 4 u jednom redu) */
+  /* Desktop: 4×1 – još veći razmak između TELEFON, E-MAIL, WHATSAPP, ADRESSE */
   @media (min-width:1200px){
     #wi-contact-info-wrap .wi-ci__row,
     #wi-contact-info-wrap .info-grid,
     #wi-contact-info-wrap .cf-row,
     #wi-contact-info-wrap .grid{
       grid-template-columns:repeat(4,1fr) !important;
-      gap:2.5rem 2rem !important;
+      gap:5.5rem 4.5rem !important;
     }
   }
 
@@ -153,29 +154,29 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     display:flex !important;
     flex-direction:column !important;
     align-items:center !important;
-    gap:1rem !important;
+    gap:1.2rem !important;
   }
-  #wi-contact-info-wrap .wi-ci__item .wi-ci__icon-wrap{ margin-bottom: 0.25rem !important; }
+  #wi-contact-info-wrap .wi-ci__item .wi-ci__icon-wrap{ margin-bottom: 0.3rem !important; }
 
   /* Headline „Direkt Kontakt aufnehmen“ – bez velikih slova, kao u sajt */
   #wi-contact-info-wrap .wi-contact-info .wi-ci{ padding-top: 0 !important; }
   #wi-contact-info-wrap .wi-contact-info-headline{
     font-family: var(--font-unbounded,"Unbounded",system-ui,sans-serif) !important;
-    font-size: clamp(36px,5vw,56px) !important;
+    font-size: clamp(43px,6vw,67px) !important;
     font-weight: 800 !important;
     line-height: 1.0 !important;
     letter-spacing: -0.01em !important;
     color: #ffed00 !important;
     text-align: center !important;
-    margin: 0 0 3rem !important;
+    margin: 0 0 3.6rem !important;
     text-transform: none !important;
   }
-  @media (min-width:1024px){ #wi-contact-info-wrap .wi-contact-info-headline{ margin-bottom: 4rem !important; } }
+  @media (min-width:1024px){ #wi-contact-info-wrap .wi-contact-info-headline{ margin-bottom: 4.8rem !important; } }
 
-  /* Ikona u žutom krugu 80px (kao u dizajnu) */
+  /* Ikona u žutom krugu +20% */
   #wi-contact-info-wrap .wi-ci__icon-wrap{
-    width: 80px !important;
-    height: 80px !important;
+    width: 96px !important;
+    height: 96px !important;
     border-radius: 9999px !important;
     background: #FFED00 !important;
     display: flex !important;
@@ -184,8 +185,8 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     flex-shrink: 0 !important;
   }
   #wi-contact-info-wrap .wi-ci__icon-wrap .wi-ci__icon{
-    width: 32px !important;
-    height: 32px !important;
+    width: 38px !important;
+    height: 38px !important;
     color: #000 !important;
   }
   /* Deblje ikone (kao WhatsApp) – stroke 2.5px */
@@ -196,23 +197,23 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
   }
   #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp .wi-ci__icon,
   #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp .wi-ci__icon *{ fill: #fff !important; stroke: #fff !important; color: #fff !important; }
-  /* Dugme "Chat starten" */
+  /* Dugme "Chat starten" +20% */
   #wi-contact-info-wrap .wi-ci__whatsapp-btn{
     display: inline-block !important;
     background: #25D366 !important;
     color: #fff !important;
     font-family: var(--font-poppins,"Poppins",system-ui,sans-serif) !important;
-    font-size: clamp(16px,1.5vw,18px) !important;
+    font-size: clamp(19px,1.8vw,22px) !important;
     font-weight: 600 !important;
-    padding: 0.75rem 1.5rem !important;
+    padding: 0.9rem 1.8rem !important;
     border-radius: 9999px !important;
     text-decoration: none !important;
-    margin-top: 0.25rem !important;
+    margin-top: 0.3rem !important;
     transition: opacity 0.2s !important;
   }
   #wi-contact-info-wrap .wi-ci__whatsapp-btn:hover{ opacity: 0.9 !important; }
 
-  /* Naslov stavke (TELEFON, E-MAIL, ADRESSE) – žuti, Unbounded */
+  /* Naslov stavke (TELEFON, E-MAIL, ADRESSE) +20% */
   #wi-contact-info-wrap .wi-ci__title,
   #wi-contact-info-wrap .info-title,
   #wi-contact-info-wrap .cf-title,
@@ -221,20 +222,20 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     font-weight: 800 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;
-    font-size: clamp(16px,1.6vw,18px) !important;
+    font-size: clamp(19px,1.92vw,22px) !important;
     line-height: 1.05 !important;
     margin: 0 !important;
     color: #FFED00 !important;
   }
 
-  /* Tekst ispod (beli, Poppins) */
+  /* Tekst ispod (beli, Poppins) +20% */
   #wi-contact-info-wrap .wi-ci__text,
   #wi-contact-info-wrap .info-text,
   #wi-contact-info-wrap .cf-text,
   #wi-contact-info-wrap .wi-ci__item p,
   #wi-contact-info-wrap .wi-ci__item a.wi-ci__text{
     font-family: var(--font-poppins,"Poppins",system-ui,sans-serif) !important;
-    font-size: clamp(18px,1.8vw,22px) !important;
+    font-size: clamp(22px,2.16vw,26px) !important;
     font-weight: 500 !important;
     line-height: 1.35 !important;
     margin: 0 !important;
@@ -264,6 +265,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
 (function(){
   const iframe    = document.getElementById('wi-next-contact');
   const CSS_URL   = <?php echo wp_json_encode($plugin_css_url.'?v=8'); ?>;
+  const THEME_CSS_URL = <?php echo wp_json_encode($theme_contact_css_url); ?>;
   const FORM_HTML = <?php echo wp_json_encode($form_html); ?>;
   const PILLS     = <?php echo wp_json_encode($pills); ?>;
   const POST_URL  = <?php echo wp_json_encode(admin_url('admin-post.php')); ?>;
@@ -301,6 +303,33 @@ function injectAssets(doc){
     l.rel='stylesheet';
     l.href=CSS_URL;
     doc.head.appendChild(l);
+  }
+  // Svi elementi forme +20% – ubacuje theme u iframe (ne zavisi od cache index.html)
+  if(!doc.getElementById('wi-contact-scale-120')){
+    const scale=doc.createElement('style');
+    scale.id='wi-contact-scale-120';
+    scale.textContent=`
+      .contact-hero h1{ font-size: clamp(58px, 9.6vw, 106px) !important; margin-bottom: 1.8rem !important; }
+      .contact-hero .subline{ font-size: clamp(22px, 2.4vw, 26px) !important; max-width: 840px !important; }
+      #wi-contact-root .wi-pills-title{ font-size: clamp(35px, 3.6vw, 46px) !important; margin-bottom: 2.9rem !important; }
+      #wp-pills-root .wi-pills-section{ margin-bottom: 4.8rem !important; }
+      .contact-form-inner{ max-width: 1400px !important; }
+      #wp-pills-root .wi-pills-row{ gap: 0.6rem !important; flex-wrap: nowrap !important; justify-content: center !important; }
+      #wp-pills-root .wi-pills-row .wi-pill, #wp-pills-root .wi-pill{ padding: 0.85rem 1.35rem !important; font-size: clamp(15px, 1.4vw, 17px) !important; border-width: 2px !important; white-space: nowrap !important; }
+      @media (max-width: 900px){ #wp-pills-root .wi-pills-row{ flex-wrap: wrap !important; } #wp-pills-root .wi-pill{ white-space: normal !important; } }
+      #wp-form-slot .wi-contact-form .wi-grid{ gap: 1.8rem !important; margin-bottom: 77px !important; }
+      #wp-form-slot .wi-contact-form input, #wp-form-slot .wi-contact-form textarea{ padding: 1.5rem 2.4rem !important; font-size: clamp(19px, 1.8vw, 22px) !important; border-width: 2.5px !important; border-radius: 29px !important; }
+      #wp-form-shell .wi-form-extra{ margin-top: 77px !important; margin-bottom: 38px !important; }
+      #wp-form-shell .wi-form-extra textarea{ min-height: 240px !important; padding: 1.2rem 1.8rem !important; font-size: clamp(17px, 1.62vw, 19px) !important; border-radius: 29px !important; }
+      #wp-form-shell .wi-form-extra textarea::placeholder{ font-size: clamp(17px, 1.62vw, 19px) !important; }
+      .wi-privacy-wrap{ gap: 1.2rem !important; margin-top: 2.4rem !important; max-width: 720px !important; }
+      .wi-privacy-checkbox{ width: 29px !important; height: 29px !important; }
+      .wi-privacy-label, #wp-form-shell .wi-privacy{ font-size: clamp(17px, 1.8vw, 19px) !important; }
+      #wp-form-shell .wi-cta-btn{ font-size: clamp(19px, 1.8vw, 24px) !important; padding: 1.8rem 3.6rem !important; }
+      #wi-contact-root [class*="grid-cols-[1fr_auto]"] button{ width: 547px !important; height: 96px !important; padding: 0 58px !important; font-size: 36px !important; border-radius: 48px !important; }
+      @media (max-width: 640px){ #wi-contact-root [class*="grid-cols-[1fr_auto]"] button{ height: 86px !important; padding: 0 38px !important; font-size: 24px !important; } }
+    `;
+    doc.head.appendChild(scale);
   }
 
   // Danke stil (kao pre)

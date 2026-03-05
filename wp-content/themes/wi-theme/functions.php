@@ -17,6 +17,42 @@ function wi_theme_setup() {
 }
 add_action('after_setup_theme', 'wi_theme_setup');
 
+/** Erstellt die 6 Portfolio-Detail-Seiten (Unsere Arbeiten), falls sie noch nicht existieren. */
+function wi_create_portfolio_detail_pages() {
+  $pages = [
+    'fahrzeugbeschriftung' => 'Fahrzeugbeschriftung',
+    'schaufenster-werbung' => 'Schaufenster-Werbung',
+    'grossflachenplakat' => 'Großflächenplakat',
+    'leuchtreklame' => 'Leuchtreklame',
+    'city-light-poster' => 'City-Light-Poster',
+    'fassaden-beschriftung' => 'Fassaden-Beschriftung',
+  ];
+  $template = 'templates/portfolio-detail-template.php';
+  foreach ($pages as $slug => $title) {
+    if (get_page_by_path($slug)) {
+      continue;
+    }
+    $page_id = wp_insert_post([
+      'post_title'   => $title,
+      'post_name'    => $slug,
+      'post_status'  => 'publish',
+      'post_type'    => 'page',
+      'post_author'  => 1,
+    ]);
+    if ($page_id && !is_wp_error($page_id)) {
+      update_post_meta($page_id, '_wp_page_template', $template);
+    }
+  }
+}
+add_action('after_switch_theme', 'wi_create_portfolio_detail_pages');
+add_action('init', function () {
+  if (get_option('wi_portfolio_detail_pages_version') === '1') {
+    return;
+  }
+  wi_create_portfolio_detail_pages();
+  update_option('wi_portfolio_detail_pages_version', '1');
+}, 20);
+
 ///////////////////////////////////////////////////////////////////////
 //	Register CSS
 ///////////////////////////////////////////////////////////////////////
@@ -72,6 +108,14 @@ function wi_theme_enqueue_styles() {
         filemtime(get_template_directory() . '/js/contact.js'),
         true
     );
+    if (is_page() && get_page_template_slug() === 'templates/portfolio-detail-template.php') {
+        wp_enqueue_style(
+            'wi-portfolio-detail-style',
+            get_template_directory_uri() . '/css/portfolio-detail.css',
+            array('wi-style', 'wi-floating-whatsapp-style'),
+            filemtime(get_template_directory() . '/css/portfolio-detail.css')
+        );
+    }
     // load foundation icons
     wp_enqueue_style(
         'foundation-icons',

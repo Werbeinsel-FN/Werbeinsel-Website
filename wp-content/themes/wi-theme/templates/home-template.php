@@ -129,17 +129,25 @@ $port_def_imgs = [
 ];
 $port_def_titles = ['Fahrzeugbeschriftung', 'Schaufenster-Werbung', 'Großflächenplakat', 'Leuchtreklame', 'City-Light-Poster', 'Fassaden-Beschriftung'];
 $port_def_cats = ['Beschriftung', 'Beschriftung', 'Plakatierung', 'Außenwerbung', 'Plakatierung', 'Beschriftung'];
+$port_detail_slugs = ['fahrzeugbeschriftung', 'schaufenster-werbung', 'grossflachenplakat', 'leuchtreklame', 'city-light-poster', 'fassaden-beschriftung'];
 $cat_uc_to_title = ['BESCHRIFTUNG' => 'Beschriftung', 'PLAKATIERUNG' => 'Plakatierung', 'AUSSENWERBUNG' => 'Außenwerbung'];
 $port_items = [];
 for ($i = 1; $i <= 6; $i++) {
   $img_id = get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_img_id", true);
   $cat_raw = get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_category", true) ?: $port_def_cats[$i-1];
   $category = $cat_uc_to_title[strtoupper(trim((string) $cat_raw))] ?? $cat_raw;
+  $link = get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_link", true);
+  if (empty($link) && !empty($port_detail_slugs[$i-1])) {
+    $detail_page = get_page_by_path($port_detail_slugs[$i-1]);
+    if ($detail_page) {
+      $link = get_permalink($detail_page);
+    }
+  }
   $port_items[] = [
     'img' => $img_id ? wp_get_attachment_image_url($img_id, 'large') : $port_def_imgs[$i-1],
     'title' => get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_title", true) ?: $port_def_titles[$i-1],
     'category' => $category,
-    'link' => get_post_meta(get_the_ID(), "_wi_portfolio_{$i}_link", true)
+    'link' => $link
   ];
 }
 ?>

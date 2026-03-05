@@ -1,0 +1,611 @@
+/* Portfolio Detail Page – identično dizajnu Desktop/sajt PortfolioDetailPage
+   Svi selektori pod main.wi-portfolio-detail da nijedan drugi CSS ne nadjača. */
+
+main.wi-portfolio-detail {
+  min-height: 100vh;
+  background: #fff;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__container {
+  max-width: 1780px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-sizing: border-box;
+}
+@media (max-width: 479px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+@media (min-width: 768px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* ========== Breadcrumb ========== */
+main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb {
+  background: #fff;
+  padding: 1rem 0 1.5rem;
+  border-bottom: 4px solid #000;
+}
+@media (min-width: 768px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb {
+    padding: 1.5rem 0 2rem;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb-list a {
+  color: #000;
+  text-decoration: none;
+}
+main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb-list a:hover {
+  color: #FFED00;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb-list li:not(:last-child)::after {
+  content: "›";
+  margin-left: 0.5rem;
+  color: #000;
+  font-weight: 600;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__breadcrumb-list li span[aria-current="page"] {
+  font-weight: 600;
+  color: #000;
+}
+
+/* ========== Hero – mobil: jedan stubac, naslov prelama, meta u koloni ========== */
+main.wi-portfolio-detail .wi-portfolio-detail__hero {
+  background: #000;
+  padding: 2rem 0;
+  overflow-x: hidden;
+}
+@media (min-width: 768px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__hero {
+    padding: 4rem 0;
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__hero {
+    padding: 6rem 0;
+    overflow-x: visible;
+  }
+}
+
+/* Leva kolona uža (0.85fr) da prazan prostor desno od slike bude manji, gap 10rem */
+main.wi-portfolio-detail .wi-portfolio-detail__hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__hero-grid {
+    grid-template-columns: 0.85fr 1fr;
+    gap: 10rem;
+  }
+}
+
+/* Slika šira (620px), malo odmaknuta desno (margin-left 3rem) */
+main.wi-portfolio-detail .wi-portfolio-detail__hero-img-wrap {
+  max-width: 100%;
+  width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 9 / 16;
+  background: #fff;
+}
+@media (min-width: 640px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__hero-img-wrap {
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__hero-img-wrap {
+    max-width: 620px;
+    margin-left: 3rem;
+    margin-right: 0;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Desna kolona – na mobilu full width, na desktopu 676px */
+main.wi-portfolio-detail .wi-portfolio-detail__hero-info {
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 100%;
+  min-width: 0; /* omogući skupljanje u gridu na mobilu */
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__hero-info {
+    max-width: 676px;
+  }
+}
+
+/* Badge – na mobilu manji da stane */
+main.wi-portfolio-detail .wi-portfolio-detail__badge {
+  display: inline-block;
+  background: #FFED00;
+  color: #000;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  width: fit-content;
+  max-width: 100%;
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(13px, 1.35vw, 19.2px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.5rem;
+  text-transform: none;
+}
+@media (min-width: 768px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__badge {
+    padding: 1rem 2rem;
+    font-size: clamp(14.4px, 1.44vw, 19.2px);
+  }
+}
+
+/* Naslov – na mobilu manji i prelama se, na desktopu veći */
+main.wi-portfolio-detail .wi-portfolio-detail__title {
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(28px, 6vw, 86px);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 2rem;
+  color: #fff;
+  text-transform: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+@media (min-width: 640px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__title {
+    font-size: clamp(36px, 6.5vw, 86px);
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__title {
+    font-size: clamp(43px, 7.2vw, 86px);
+  }
+}
+
+/* Meta grid – na mobilu jedna kolona da ništa ne bude odsečeno */
+main.wi-portfolio-detail .wi-portfolio-detail__meta-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+@media (min-width: 480px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__meta-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Bela kutija sa žutim borderom */
+main.wi-portfolio-detail .wi-portfolio-detail__meta-box {
+  background: #fff;
+  border: 5px solid #FFED00;
+  border-radius: 20px;
+  padding: 1.5rem;
+  min-width: 0; /* spreči overflow u gridu */
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__meta-box--full {
+  grid-column: 1 / -1;
+}
+
+/* Meta label +20% */
+main.wi-portfolio-detail .wi-portfolio-detail__meta-label {
+  display: block;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(14.4px, 1.44vw, 16.8px);
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 0.5rem;
+  text-transform: none;
+}
+
+/* Meta value +20% */
+main.wi-portfolio-detail .wi-portfolio-detail__meta-value {
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(19.2px, 2.16vw, 24px);
+  font-weight: 700;
+  color: #000;
+  text-transform: none;
+}
+
+/* Leistungen label +20% */
+main.wi-portfolio-detail .wi-portfolio-detail__services-label {
+  display: block;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(14.4px, 1.44vw, 16.8px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1rem;
+}
+
+/* Leistungen tagovi – prelama na novi red na mobilu */
+main.wi-portfolio-detail .wi-portfolio-detail__services-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* Service tag (Vollverklebung, Design-Konzept, itd.) – veći padding svuda */
+main.wi-portfolio-detail .wi-portfolio-detail__service-tag {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 1rem 1.75rem;
+  border-radius: 9999px;
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(16.8px, 1.68vw, 19.2px);
+  font-weight: 600;
+  text-transform: none;
+}
+
+/* ========== Sekcije – Challenge, Solution, Results, Gallery, CTA ========== */
+main.wi-portfolio-detail .wi-portfolio-detail__section {
+  padding: 4rem 0;
+}
+@media (min-width: 768px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__section {
+    padding: 6rem 0;
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__section {
+    padding: 8rem 0;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__section--yellow {
+  background: #FFED00;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__section--black {
+  background: #000;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__section--white {
+  background: #fff;
+}
+
+/* Uži blok za tekst – max 840px, centriran */
+main.wi-portfolio-detail .wi-portfolio-detail__narrow {
+  max-width: 840px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* Sekcija Die Herausforderung (žuta) – šira da naslov stane u jednom redu, poravnanje po sredini */
+main.wi-portfolio-detail .wi-portfolio-detail__section--yellow .wi-portfolio-detail__narrow {
+  max-width: 1020px;
+  text-align: center;
+}
+main.wi-portfolio-detail .wi-portfolio-detail__section--yellow .wi-portfolio-detail__section-title {
+  text-align: center;
+  font-size: clamp(34px, 6vw, 58px);
+}
+main.wi-portfolio-detail .wi-portfolio-detail__section--yellow .wi-portfolio-detail__section-text {
+  text-align: center;
+  font-size: clamp(22px, 2.4vw, 29px);
+}
+
+/* Sekcija Die Lösung (crna) – isto kao žuta: centrirano, +20% tekst, širina 1020px */
+main.wi-portfolio-detail .wi-portfolio-detail__section--black .wi-portfolio-detail__narrow {
+  max-width: 1020px;
+  text-align: center;
+}
+main.wi-portfolio-detail .wi-portfolio-detail__section--black .wi-portfolio-detail__section-title {
+  text-align: center;
+  font-size: clamp(34px, 6vw, 58px);
+}
+main.wi-portfolio-detail .wi-portfolio-detail__section--black .wi-portfolio-detail__section-text {
+  text-align: center;
+  font-size: clamp(22px, 2.4vw, 29px);
+}
+
+/* Naslovi sekcija – samo ovi uppercase (Die Herausforderung, Die Lösung, Die Ergebnisse, Weitere Impressionen) */
+main.wi-portfolio-detail .wi-portfolio-detail__section-title {
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #000;
+  margin: 0 0 2rem;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__section-title--yellow {
+  color: #FFED00;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__section-title--center {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* Weitere Impressionen – naslov +40% pa još +20% */
+main.wi-portfolio-detail .wi-portfolio-detail__section--black:has(.wi-portfolio-detail__gallery) .wi-portfolio-detail__section-title {
+  font-size: clamp(47px, 8.4vw, 80px);
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__section-title--center {
+    margin-bottom: 4rem;
+  }
+}
+
+/* Paragrafi – justify kao u zahtevu, ne lepljivo uz stranu */
+main.wi-portfolio-detail .wi-portfolio-detail__section-text {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 500;
+  line-height: 1.7;
+  color: #000;
+  margin: 0;
+  text-align: justify;
+  text-transform: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__section-text--white {
+  color: #fff;
+}
+
+/* Sekcija Die Ergebnisse (bela) – naslov +20% još (ukupno veći), brojevi -10% */
+main.wi-portfolio-detail .wi-portfolio-detail__section--white .wi-portfolio-detail__section-title {
+  font-size: clamp(41px, 7.2vw, 70px);
+}
+main.wi-portfolio-detail .wi-portfolio-detail__section--white .wi-portfolio-detail__result-value {
+  font-size: clamp(34px, 5.76vw, 69px);
+}
+
+/* ========== Results – kartice, gap-6 lg:gap-8, p-8 lg:p-12 ========== */
+main.wi-portfolio-detail .wi-portfolio-detail__results-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+@media (min-width: 768px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__results-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__result-card {
+  background: #000;
+  color: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: 24px;
+  border: 4px solid #000;
+  text-align: center;
+  transition: box-shadow 0.3s ease;
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__result-card {
+    padding: 3.5rem 3rem;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__result-card:hover {
+  box-shadow: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__result-value {
+  display: block;
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 900;
+  line-height: 1;
+  color: #FFED00;
+  margin-bottom: 1rem;
+  text-transform: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__result-label {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 600;
+  color: #fff;
+  text-transform: none;
+}
+
+/* ========== Galerija – na mobilu karusel levo-desno sa žutim tačkama ========== */
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-wrap {
+  position: relative;
+}
+
+/* Mobil: horizontalni karusel (scroll snap) + tačke ispod */
+main.wi-portfolio-detail .wi-portfolio-detail__gallery {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (max-width: 767px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__gallery {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 0;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    max-width: none;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    scrollbar-width: none;
+  }
+  main.wi-portfolio-detail .wi-portfolio-detail__gallery::-webkit-scrollbar {
+    display: none;
+  }
+}
+@media (min-width: 640px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__gallery {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-item {
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 9 / 16;
+  background: #fff;
+}
+@media (max-width: 767px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__gallery-item {
+    flex: 0 0 calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    min-width: calc(100% - 2rem);
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-item:hover img {
+  transform: scale(1.02);
+}
+
+/* Žute tačke – prikaz samo na mobilu, ispod karusela */
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-dots {
+  display: none;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-bottom: 0.5rem;
+}
+@media (max-width: 767px) {
+  main.wi-portfolio-detail .wi-portfolio-detail__gallery-dots {
+    display: flex;
+  }
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-dot:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+main.wi-portfolio-detail .wi-portfolio-detail__gallery-dot--active {
+  background: #FFED00;
+  transform: scale(1.2);
+}
+
+/* ========== CTA – centriran, naslov BEZ uppercase (Ihr Projekt. Unsere Expertise.) ========== */
+/* CTA sekcija – sve +20% (naslov, tekst, dugme, širina polja) */
+main.wi-portfolio-detail .wi-portfolio-detail__cta-inner {
+  max-width: 1008px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__cta-title {
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(43px, 7.2vw, 86px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0 0 2.4rem;
+  text-transform: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__cta-text {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(22px, 2.4vw, 29px);
+  font-weight: 500;
+  line-height: 1.6;
+  color: #000;
+  margin: 0 0 3.6rem;
+  text-align: center;
+  text-transform: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__cta-btn {
+  display: inline-block;
+  background: #000;
+  color: #FFED00;
+  padding: 1.8rem 3.6rem;
+  font-family: "Unbounded", sans-serif;
+  font-size: clamp(19px, 2.16vw, 29px);
+  font-weight: 700;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: transform 0.3s ease;
+  text-transform: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__cta-btn:hover {
+  transform: scale(1.05);
+  color: #FFED00;
+}

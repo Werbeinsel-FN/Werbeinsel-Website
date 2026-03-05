@@ -19,7 +19,7 @@ html {
 
 @media (max-width: 1023px) {
   body {
-    font-size: 17px;
+    font-size: 20px;
   }
 }
 
@@ -31,18 +31,18 @@ div {
 #contact-form {
   background: #f2f2f5;
   color: #000;
-  padding: 5rem 0;
+  padding: 6rem 0;
   margin-top: 0;
 }
 
 .content-form {
-  margin-top: 2em;
+  margin-top: 2.4em;
 }
 
 .row,
 .row.big,
 .row.mid {
-  padding: 0 5%;
+  padding: 0 6%;
   box-sizing: content-box;
 }
 
@@ -50,12 +50,12 @@ div {
   .row,
   .row.big,
   .row.mid {
-    padding: 0 20px;
+    padding: 0 24px;
   }
 }
 
 .row {
-  max-width: 1476px;
+  max-width: 1771px;
   margin-left: auto;
   margin-right: auto;
 
@@ -129,7 +129,7 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 0 0 0.5em;
+  margin: 0 0 0.6em;
   color: inherit;
   font-family: "Unbounded", sans-serif !important;
   text-transform: uppercase;
@@ -139,15 +139,15 @@ h6 {
 }
 
 h3 {
-  font-size: 50px !important;
+  font-size: 72px !important;
   font-weight: 700 !important;
 }
 
 h3 {
   display: block;
-  font-size: 1.17em;
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  font-size: 1.68em;
+  margin-block-start: 1.44em;
+  margin-block-end: 1.44em;
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   font-weight: bold;
@@ -156,22 +156,21 @@ h3 {
 
 @media only screen and (max-width: 960px) {
   h3 {
-    font-size: 27px !important;
+    font-size: 38px !important;
   }
 }
 
 #contact-form .headline {
-  /* font-size: clamp(60px, calc(60px + ((40) * ((100vw - 430px) / (2000 - 430)))), 100px)!important; */
   font-size: clamp(
-    50px,
-    calc(50px + ((40) * ((100vw - 430px) / (2000 - 430)))),
-    100px
+    72px,
+    calc(72px + ((58) * ((100vw - 430px) / (2000 - 430)))),
+    144px
   ) !important;
   font-weight: 900;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.36em;
   letter-spacing: -0.05em;
   word-break: break-word;
-  margin: 0 0 0.5em;
+  margin: 0 0 0.72em;
   color: inherit;
   font-family: "Unbounded", sans-serif;
   text-transform: uppercase;
@@ -180,11 +179,11 @@ h3 {
 
 #contact-form .subline {
   font-size: clamp(
-    25px,
-    calc(25px + ((30) * ((100vw - 430px) / (2000 - 430)))),
-    55px
+    36px,
+    calc(36px + ((43) * ((100vw - 430px) / (2000 - 430)))),
+    79px
   );
-  margin-bottom: 1.05em;
+  margin-bottom: 1.51em;
   letter-spacing: -0.035em;
   font-family: "Poppins", sans-serif;
   text-align: center;
@@ -207,14 +206,14 @@ form {
   padding-left: 0;
   padding-right: 0;
   max-width: none;
-  margin-left: -1.565rem;
-  margin-right: -1.565rem;
+  margin-left: -1.88rem;
+  margin-right: -1.88rem;
 }
 
 @media only screen and (max-width: 1024px) {
   .row .row {
-    margin-left: -0.7825rem;
-    margin-right: -0.7825rem;
+    margin-left: -0.94rem;
+    margin-right: -0.94rem;
   }
 }
 
@@ -248,20 +247,20 @@ form {
   box-sizing: border-box;
   width: 100%;
   float: left;
-  padding-left: 1.565rem;
-  padding-right: 1.565rem;
+  padding-left: 1.88rem;
+  padding-right: 1.88rem;
 }
 
 @media only screen and (max-width: 1024px) {
   .column,
   .columns {
-    padding-left: 0.7825rem;
-    padding-right: 0.7825rem;
+    padding-left: 0.94rem;
+    padding-right: 0.94rem;
   }
 }
 
 .content-form .control-group {
-  margin-bottom: 1.4em;
+  margin-bottom: 1.68em;
 }
 
 .content-form .control-group .controls {
@@ -280,20 +279,19 @@ textarea {
   box-sizing: border-box;
   width: calc(100% - 2px);
   height: 100%;
-  padding: 0.5em 1.17em 0.2em;
-  line-height: 1em;
-  border: 8px solid #000;
+  padding: 0.6em 1.4em 0.24em;
+  line-height: 1.2em;
+  border: 10px solid #000;
   outline: none;
   margin: 0;
   font-family: inherit;
-  font-size: 1.739em;
+  font-size: 2.09em;
   font-weight: 700;
   color: #000;
   background-color: transparent;
   box-shadow: none;
-  border-radius: 63px;
+  border-radius: 76px;
   transition: outline-color 0.5s, border-color 0.25s ease-in-out;
-  /* max-width: 448px; */
   -webkit-appearance: none;
   -moz-appearance: none;
 }
@@ -302,11 +300,11 @@ textarea {
   input[type="text"],
   input[type="email"],
   input[type="tel"] {
-    font-size: 25px !important;
-    border-width: 4px !important;
+    font-size: 30px !important;
+    border-width: 5px !important;
     text-align: center;
 
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.6rem;
   }
 }
 
@@ -315,8 +313,8 @@ textarea {
   input[type="email"],
   input[type="tel"],
   textarea {
-    border-width: 6px;
-    font-size: 29px;
+    border-width: 7px;
+    font-size: 35px;
   }
 }
 
@@ -349,7 +347,7 @@ textarea:focus,
 input[type="text"]:not(:placeholder-shown), 
 input[type="email"]:not(:placeholder-shown)
 /* ,textarea:not(:placeholder-shown)  */ {
-  border: 8px solid #000;
+  border: 10px solid #000;
   color: #000;
   transition: outline-color 0.5s, border-color 0.25s ease-in-out;
 }
@@ -415,12 +413,12 @@ input {
 
 .content-form .control-group .control-label {
   position: absolute;
-  bottom: 1.3em;
-  left: 2.7em;
+  bottom: 1.56em;
+  left: 3.24em;
   opacity: 1;
   transition: opacity 0.4s;
   font-weight: 800;
-  font-size: 20px;
+  font-size: 24px;
   letter-spacing: -0.04em;
   z-index: 1;
   color: #000;
@@ -443,7 +441,7 @@ input {
 
 @media only screen and (max-width: 1150px) {
   .content-form .control-group .control-label {
-    font-size: 15px;
+    font-size: 18px;
   }
 }
 
@@ -461,14 +459,15 @@ label {
 /**************************************/
 
 #contact-form .budget-titel {
-  margin-top: 1.7em;
+  margin-top: 2.45em;
   letter-spacing: -0.03em;
   text-align: center;
+  font-size: 1.2em;
 }
 
 @media (max-width: 659px) {
   #contact-form .budget-titel {
-    margin: 1.5rem 0;
+    margin: 2.16rem 0;
   }
 }
 
@@ -500,14 +499,12 @@ label {
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
-  /* max-width: 1060px; */
-  margin: 0.5em auto;
-  /* gap: 0 25px;     */
+  margin: 0.6em auto;
 }
 
 @media (max-width: 659px) {
   .wpcf7-checkbox {
-    gap: 0 15px;
+    gap: 0 18px;
   }
 }
 
@@ -539,23 +536,23 @@ label {
 .wi-checkbox-group > label {
   box-sizing: border-box;
   font-size: clamp(
-    20px,
-    calc(20px + ((10) * ((100vw - 430px) / (2000 - 430)))),
-    30px
+    24px,
+    calc(24px + ((12) * ((100vw - 430px) / (2000 - 430)))),
+    36px
   ) !important;
   margin: 0;
   background: #000;
-  padding: 0.8em 0;
+  padding: 0.96em 0;
   text-align: center;
-  width: calc(33.33% - 25px);
+  width: calc(33.33% - 30px);
   font-family: "Unbounded", sans-serif;
   text-transform: uppercase;
   letter-spacing: -0.02em;
   font-weight: 800;
-  border-radius: 90px;
+  border-radius: 108px;
   color: #fff !important;
-  margin-bottom: 0.9em;
-  border: 6px solid #000;
+  margin-bottom: 1.08em;
+  border: 7px solid #000;
   transition: background 0.4s, color 0.4s;
   cursor: pointer;
   display: inline-block;
@@ -588,7 +585,7 @@ label {
 } */
 
 .no-label > div:nth-child(1) {
-  margin-bottom: 3rem;
+  margin-bottom: 3.6rem;
 }
 
 /**************************************/
@@ -596,8 +593,8 @@ label {
 /**************************************/
 
 #contact-form textarea {
-  margin-top: 1em;
-  padding-bottom: 50px;
+  margin-top: 1.44em;
+  padding-bottom: 72px;
 }
 
 @media (max-width: 659px) {
@@ -607,38 +604,38 @@ label {
 }
 
 .content-form .control-group textarea {
-  height: 270px;
+  height: 389px;
 }
 
 @media (max-width: 659px) {
   .content-form .control-group textarea {
-    height: 315px;
+    height: 454px;
   }
 }
 
 textarea[rows] {
-  height: 195px;
+  height: 281px;
 }
 
 @media only screen and (max-width: 730px) {
   textarea,
   textarea[rows] {
     max-width: inherit;
-    height: 297px;
+    height: 427px;
   }
 }
 
 textarea {
   max-width: 100%;
-  height: 195px;
+  height: 281px;
   width: 100%;
-  border-radius: 50px !important;
-  font-size: 1.266em !important;
+  border-radius: 72px !important;
+  font-size: 1.82em !important;
   font-weight: 500 !important;
-  padding: 1.5em 2.3em !important;
-  margin-bottom: 1em;
-  line-height: 1.25em;
-  border: 7px solid #000 !important;
+  padding: 2.16em 3.31em !important;
+  margin-bottom: 1.44em;
+  line-height: 1.4em;
+  border: 10px solid #000 !important;
   margin-left: 0;
   margin-right: 0;
 }
@@ -677,15 +674,15 @@ textarea {
 
 @media only screen and (max-width: 659px) {
   textarea {
-    font-size: 25px !important;
-    border-width: 4px !important;
-    border-radius: 20px !important;
-    padding: 1em !important;
+    font-size: 36px !important;
+    border-width: 6px !important;
+    border-radius: 29px !important;
+    padding: 1.44em !important;
   }
 }
 
 .content-form .control-group textarea + .control-label {
-  left: 2.3em;
+  left: 3.31em;
 }
 
 /**************************************/
@@ -713,13 +710,13 @@ textarea {
 
 .content-form .button-wrapper .privacy {
   font-size: clamp(
-    12px,
-    calc(12px + ((4) * ((100vw - 430px) / (2000 - 430)))),
-    16px
+    17px,
+    calc(17px + ((6) * ((100vw - 430px) / (2000 - 430)))),
+    23px
   );
-  width: calc(100% - 360px);
-  max-width: 945px;
-  padding-top: 10px;
+  width: calc(100% - 432px);
+  max-width: 1134px;
+  padding-top: 14px;
   line-height: 1.5em;
 }
 
@@ -754,9 +751,9 @@ textarea {
 .send-button-wrapper > button {
   position: relative;
   font-size: clamp(
-    18px,
-    calc(18px + ((11) * ((100vw - 430px) / (2000 - 430)))),
-    29px
+    26px,
+    calc(26px + ((16) * ((100vw - 430px) / (2000 - 430)))),
+    42px
   );
   font-weight: 700;
   background: #ffed00;
@@ -766,10 +763,10 @@ textarea {
   font-family: "Unbounded", sans-serif;
   text-transform: uppercase;
   letter-spacing: -0.02em;
-  padding: 1em 2.07em 1.05em;
+  padding: 1.44em 2.98em 1.51em;
   letter-spacing: -0.04em;
-  border-radius: 50px;
-  box-shadow: inset 0 -0.275em 0.1px 0 #000;
+  border-radius: 72px;
+  box-shadow: inset 0 -0.4em 0.14px 0 #000;
   transform: translateY(0);
   transition: box-shadow 0.2s ease-out, transform 0.2s ease-out;
 
@@ -779,7 +776,7 @@ textarea {
 .send-button-wrapper > button:hover {
   box-shadow: inset 0 0 0 0 #000;
   transition: box-shadow 0.15s ease-out, transform 0.15s ease-out;
-  transform: translateY(0.27em);
+  transform: translateY(0.39em);
   text-decoration: none;
   color: #000 !important;
 }
@@ -834,7 +831,7 @@ input[type="submit"]:before {
 /**************************************/
 
 .content-form .fr-captcha-wrapper {
-  margin-top: 1em;
+  margin-top: 1.2em;
   width: 100%;
 }
 
@@ -844,13 +841,13 @@ input[type="submit"]:before {
 
 .contact-bottom-wrapper {
   position: relative;
-  height: 500px;
+  height: 600px;
   background: #f2f2f5;
 }
 
 @media (max-width: 659px) {
   .contact-bottom-wrapper {
-    height: auto; /* statt 500px fix */
+    height: auto;
     display: flex;
     flex-direction: column;
   }
@@ -866,18 +863,18 @@ input[type="submit"]:before {
   left: 0;
   width: fit-content;
   margin: 0 auto;
-  z-index: 2; /* liegt über der Karte */
+  z-index: 2;
   background-color: #fff;
   display: flex;
   flex-direction: row;
   align-items: stretch;
 
-  padding: 50px;
-  border-radius: 100px;
+  padding: 60px;
+  border-radius: 120px;
 
-  gap: 2rem;
+  gap: 2.4rem;
 
-  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 0px 24px 0px rgba(0, 0, 0, 0.08);
   transition: background 0.3s, border 0.3s, border-radius 0.3s, box-shadow 0.3s;
 }
 
@@ -886,11 +883,11 @@ input[type="submit"]:before {
     width: 100%;
     flex-direction: column;
 
-    position: relative; /* bleibt so */
+    position: relative;
     z-index: 1;
     margin-top: 0;
-    border-radius: 40px;
-    padding: 2rem;
+    border-radius: 48px;
+    padding: 2.4rem;
   }
 }
 
@@ -898,7 +895,7 @@ input[type="submit"]:before {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2rem;
+  gap: 2.4rem;
 }
 
 .contact-address-wrapper .icon-outer-wrapper {
@@ -912,10 +909,10 @@ input[type="submit"]:before {
   display: flex;
   border-radius: 50%;
   transition: all ease 0.35s;
-  box-shadow: 7px 5px 30px 0 rgba(72, 73, 121, 0.15);
+  box-shadow: 8px 6px 36px 0 rgba(72, 73, 121, 0.15);
 
-  width: 70px;
-  height: 70px;
+  width: 84px;
+  height: 84px;
 }
 .contact-address-wrapper .email .icon-wrapper {
   background: #ffed00;
@@ -931,15 +928,15 @@ input[type="submit"]:before {
 .data-wrapper {
   display: flex;
   flex-direction: column;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   height: 100%;
 }
 
 .data-wrapper h4 {
-  font-size: 1.75rem;
+  font-size: 2.1rem;
   margin: 0;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
 @media (max-width: 659px) {
@@ -981,9 +978,9 @@ input[type="submit"]:before {
 
 @media (max-width: 659px) {
   .contact-map-outer-wrapper {
-    position: relative; /* statt absolute */
-    height: 300px; /* z. B. auf kleinerem Screen */
-    margin-top: 2rem;
+    position: relative;
+    height: 360px;
+    margin-top: 2.4rem;
   }
 }
 
@@ -992,17 +989,17 @@ input[type="submit"]:before {
   top: 0;
   left: 0;
   right: 0;
-  height: 500px;
-  z-index: 1; /* liegt unter dem Address-Wrapper */
+  height: 600px;
+  z-index: 1;
   overflow: hidden;
 
-  margin-top: 6.5rem;
+  margin-top: 7.8rem;
 }
 
 @media (max-width: 659px) {
   .contact-map-wrapper {
-    position: relative; /* statt absolute */
+    position: relative;
     margin-top: 0;
-    height: 300px; /* z. B. passend zur outer-wrapper */
+    height: 360px;
   }
 }
