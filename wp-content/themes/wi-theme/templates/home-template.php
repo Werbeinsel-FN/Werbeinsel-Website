@@ -179,16 +179,32 @@ for ($i = 1; $i <= 6; $i++) {
 </section>
 
 <?php
-// === CLIENTS (marquee) ===
+// === CLIENTS (marquee) – podaci iz plugina WI Clients Marquee ===
 $clients_title = get_post_meta(get_the_ID(), '_wi_clients_title', true) ?: 'OUR CLIENTS';
 $clients_sub = get_post_meta(get_the_ID(), '_wi_clients_subtitle', true) ?: "Von Kultur bis Industrie – Marken,<br>die in der Region sichtbar sein wollen.";
-$clients_rows = get_post_meta(get_the_ID(), '_wi_clients_rows', true);
-if (!is_array($clients_rows) || empty($clients_rows)) {
-  $clients_rows = [
-    [['name'=>'STADTWERKE REGIONAL','variant'=>'black'],['name'=>'MÜLLER BÄCKEREI','variant'=>'white'],['name'=>'AUTOHAUS SCHMIDT','variant'=>'black'],['name'=>'FITNESS FIRST','variant'=>'white']],
-    [['name'=>'ZAHNARZT DR. WEBER','variant'=>'white'],['name'=>'SANITÄR MEYER','variant'=>'black'],['name'=>'BLUMEN PARADIES','variant'=>'white'],['name'=>'CAFÉ CENTRAL','variant'=>'black']],
-    [['name'=>'APOTHEKE AM MARKT','variant'=>'black'],['name'=>'BAUMARKT SÜDDEUTSCHLAND','variant'=>'white'],['name'=>'FAHRSCHULE MOBIL','variant'=>'black'],['name'=>'EVENTLOCATION 360','variant'=>'white']]
-  ];
+
+$clients_items = get_option('wi_clients_marquee_items', []);
+$clients_row_cap = 8;
+$clients_rows_count = 3;
+$real = [];
+if (is_array($clients_items)) {
+  foreach ($clients_items as $it) {
+    $id = isset($it['image_id']) ? intval($it['image_id']) : 0;
+    if ($id > 0) {
+      $real[] = ['image_id' => $id, 'alt' => isset($it['alt']) ? $it['alt'] : 'Client'];
+    }
+  }
+}
+// Raspodela po redovima: prvi red 0..7, drugi 8..15, treći 16..23
+$rows = array_fill(0, $clients_rows_count, []);
+$chunks = array_chunk($real, $clients_row_cap);
+for ($r = 0; $r < $clients_rows_count; $r++) {
+  $rows[$r] = isset($chunks[$r]) ? $chunks[$r] : [];
+}
+for ($r = 0; $r < $clients_rows_count; $r++) {
+  while (count($rows[$r]) < $clients_row_cap) {
+    $rows[$r][] = ['image_id' => 0, 'alt' => 'Client'];
+  }
 }
 ?>
 <section id="clients" class="home-clients">
@@ -200,18 +216,27 @@ if (!is_array($clients_rows) || empty($clients_rows)) {
   </div>
   <div class="home-clients__marquee">
     <?php
-    foreach ($clients_rows as $ri => $row):
+    foreach ($rows as $ri => $row):
       $dir = $ri === 1 ? 'right' : 'left';
+      $dup = array_merge($row, $row, $row, $row, $row, $row);
     ?>
     <div class="home-clients__row">
       <div class="home-clients__track home-clients__track--<?php echo $dir; ?>">
         <?php
-        $dup = array_merge($row, $row, $row, $row, $row, $row);
-        foreach ($dup as $client):
-          $name = is_array($client) ? ($client['name'] ?? '') : $client;
-          $var = is_array($client) ? ($client['variant'] ?? 'black') : 'black';
+        foreach ($dup as $idx => $client):
+          $image_id = (int) ($client['image_id'] ?? 0);
+          $alt = isset($client['alt']) ? $client['alt'] : 'Client';
+          $is_black = ($idx % 2 === 0);
+          $var = $is_black ? 'black' : 'white';
+          $logo_src = $image_id ? wp_get_attachment_image_url($image_id, 'wi_clients_logo') : '';
         ?>
-        <div class="home-clients__pill home-clients__pill--<?php echo esc_attr($var); ?>"><span><?php echo esc_html($name); ?></span></div>
+        <div class="home-clients__pill home-clients__pill--<?php echo esc_attr($var); ?>">
+          <?php if ($logo_src): ?>
+            <img src="<?php echo esc_url($logo_src); ?>" alt="<?php echo esc_attr($alt); ?>" class="home-clients__pill-logo" decoding="async">
+          <?php else: ?>
+            <span><?php echo esc_html($alt); ?></span>
+          <?php endif; ?>
+        </div>
         <?php endforeach; ?>
       </div>
     </div>

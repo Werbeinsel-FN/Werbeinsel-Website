@@ -5,7 +5,8 @@
 if (!function_exists('wi_nav_url')) {
   require_once get_template_directory() . '/inc/wi-nav-links.php';
 }
-$footer_logo = get_option('wi_theme_logo_dark') ?: get_option('wi_theme_logo_light');
+// U futeru se prikazuje isključivo logo iz Theme Options → Dark Logo (ni Light kao rezerva)
+$footer_logo = get_option('wi_theme_logo_dark', '');
 ?>
 <footer class="wi-footer site-footer">
   <div class="wi-footer__container">

@@ -112,35 +112,17 @@ function wi_home_portfolio_cb($post) {
     <?php
 }
 
-// === CLIENTS (3 reda, lista imena sa variantom) ===
+// === CLIENTS (naslov i podnaslov; logotipi iz plugina Clients Marquee) ===
 function wi_home_clients_cb($post) {
     $tpl = (string) get_page_template_slug($post->ID);
     if (!$tpl || strpos($tpl, 'home') === false) { echo '<p class="description">Nur für Home-Template.</p>'; return; }
     wp_nonce_field('wi_home_clients_save', 'wi_home_clients_nonce');
     $title = get_post_meta($post->ID, '_wi_clients_title', true);
     $subtitle = get_post_meta($post->ID, '_wi_clients_subtitle', true);
-    $rows = get_post_meta($post->ID, '_wi_clients_rows', true);
-    if (!is_array($rows)) $rows = [
-        ['STADTWERKE REGIONAL|black','MÜLLER BÄCKEREI|white','AUTOHAUS SCHMIDT|black','FITNESS FIRST|white'],
-        ['ZAHNARZT DR. WEBER|white','SANITÄR MEYER|black','BLUMEN PARADIES|white','CAFÉ CENTRAL|black'],
-        ['APOTHEKE AM MARKT|black','BAUMARKT SÜDDEUTSCHLAND|white','FAHRSCHULE MOBIL|black','EVENTLOCATION 360|white']
-    ];
     ?>
     <p><label><strong>Titel</strong></label><br><input type="text" name="wi_clients_title" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="OUR CLIENTS"></p>
     <p><label><strong>Untertitel</strong></label><br><textarea name="wi_clients_subtitle" rows="2" class="widefat" placeholder="Von Kultur bis Industrie..."><?php echo esc_textarea($subtitle); ?></textarea></p>
-    <p class="description">Format pro Zeile: NAME|black oder NAME|white (mit Komma getrennt)</p>
-    <?php for ($r = 0; $r < 3; $r++):
-        $row_data = isset($rows[$r]) && is_array($rows[$r]) ? $rows[$r] : [];
-        $row_str = [];
-        foreach ($row_data as $item) {
-            if (is_array($item)) $row_str[] = ($item['name'] ?? '') . '|' . ($item['variant'] ?? 'black');
-            else $row_str[] = $item;
-        }
-        $val = implode(', ', $row_str);
-    ?>
-    <p><label><strong>Reihe <?php echo $r+1; ?></strong></label><br>
-    <textarea name="wi_clients_row_<?php echo $r; ?>" rows="2" class="widefat" placeholder="NAME1|black, NAME2|white, ..."><?php echo esc_textarea($val); ?></textarea></p>
-    <?php endfor; ?>
+    <p class="description">Die Logos in den drei Reihen werden im Menü <strong>Clients Marquee</strong> verwaltet (Bilder wählen, Reihenfolge festlegen). Slike werden automatisch in Schwarz-Weiß dargestellt; auf schwarzer Pille wird das Logo invertiert (weiß), auf weißer Pille dunkel.</p>
     <?php
 }
 
@@ -250,21 +232,10 @@ add_action('save_post_page', function($post_id) {
         }
     }
 
-    // Clients
+    // Clients (nur Titel und Untertitel; Logos aus Plugin Clients Marquee)
     if (isset($_POST['wi_home_clients_nonce']) && wp_verify_nonce($_POST['wi_home_clients_nonce'], 'wi_home_clients_save')) {
         if (isset($_POST['wi_clients_title'])) update_post_meta($post_id, '_wi_clients_title', sanitize_text_field($_POST['wi_clients_title']));
         if (isset($_POST['wi_clients_subtitle'])) update_post_meta($post_id, '_wi_clients_subtitle', wp_kses($_POST['wi_clients_subtitle'], $allowed_br));
-        $rows = [];
-        for ($r = 0; $r < 3; $r++) {
-            $raw = isset($_POST["wi_clients_row_{$r}"]) ? sanitize_textarea_field($_POST["wi_clients_row_{$r}"]) : '';
-            $items = [];
-            foreach (array_map('trim', explode(',', $raw)) as $part) {
-                if (preg_match('/^(.+)\|(black|white)$/i', trim($part), $m)) $items[] = ['name' => trim($m[1]), 'variant' => strtolower($m[2])];
-                elseif (trim($part)) $items[] = ['name' => trim($part), 'variant' => 'black'];
-            }
-            $rows[] = $items;
-        }
-        update_post_meta($post_id, '_wi_clients_rows', $rows);
     }
 
     // Testimonials

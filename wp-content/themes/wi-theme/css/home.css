@@ -1436,6 +1436,21 @@ body {
   border: 1px solid rgba(0,0,0,0.15);
 }
 
+/* Logo slike iz plugina: crno-belo; na crnoj piluli invert → beli logo, na beloj tamni */
+.home-clients__pill .home-clients__pill-logo {
+  max-width: 70%;
+  max-height: 70%;
+  object-fit: contain;
+  display: block;
+  filter: grayscale(1) contrast(2);
+}
+.home-clients__pill--black .home-clients__pill-logo {
+  filter: grayscale(1) invert(1) contrast(2.5) brightness(1.05);
+}
+.home-clients__pill--white .home-clients__pill-logo {
+  filter: grayscale(1) contrast(2);
+}
+
 .home-clients__pill span {
   font-family: "Poppins", sans-serif;
   font-size: clamp(13px, 1.5vw, 18px);
