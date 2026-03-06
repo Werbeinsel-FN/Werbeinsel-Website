@@ -467,7 +467,7 @@ main.wi-portfolio-detail .wi-portfolio-detail__gallery {
   margin-right: auto;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: 2.4rem;
 }
 @media (max-width: 767px) {
   main.wi-portfolio-detail .wi-portfolio-detail__gallery {
@@ -496,7 +496,7 @@ main.wi-portfolio-detail .wi-portfolio-detail__gallery {
 @media (min-width: 1024px) {
   main.wi-portfolio-detail .wi-portfolio-detail__gallery {
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 3.6rem;
   }
 }
 
@@ -505,12 +505,13 @@ main.wi-portfolio-detail .wi-portfolio-detail__gallery-item {
   overflow: hidden;
   aspect-ratio: 9 / 16;
   background: #fff;
+  cursor: pointer;
 }
 @media (max-width: 767px) {
   main.wi-portfolio-detail .wi-portfolio-detail__gallery-item {
-    flex: 0 0 calc(100% - 2rem);
-    width: calc(100% - 2rem);
-    min-width: calc(100% - 2rem);
+    flex: 0 0 calc(100% - 4.8rem);
+    width: calc(100% - 4.8rem);
+    min-width: calc(100% - 4.8rem);
     scroll-snap-align: center;
     scroll-snap-stop: always;
   }
@@ -526,6 +527,132 @@ main.wi-portfolio-detail .wi-portfolio-detail__gallery-item img {
 
 main.wi-portfolio-detail .wi-portfolio-detail__gallery-item:hover img {
   transform: scale(1.02);
+}
+
+/* ========== Lightbox popup (Weitere Impressionen) ========== */
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox[hidden] {
+  display: none;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18rem;
+  max-width: 100%;
+  max-height: 100%;
+  z-index: 1;
+  transform: translateY(-2rem);
+}
+
+/* Okvir slike – kao u referentnom kodu: širi (max 600px), aspect-ratio 9/16, max-height 85vh */
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-frame {
+  border: 5px solid #FFED00;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #000;
+  max-width: min(81.25vw, 541px);
+  max-height: 85vh;
+  aspect-ratio: 9 / 16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  vertical-align: middle;
+}
+
+/* Strelice – tačno u sredini krugova, lepši izgled (SVG) */
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-prev,
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-next {
+  flex-shrink: 0;
+  width: 73px;
+  height: 73px;
+  border-radius: 50%;
+  background: #FFED00;
+  color: #000;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-prev svg,
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-next svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-prev:hover,
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-next:hover {
+  transform: scale(1.08);
+  background: #ffe600;
+}
+
+/* Žuti krugovi – razmak od slike ~6× veći (gap 18rem) */
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-prev {
+  margin-right: 0;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-next {
+  margin-left: 0;
+}
+
+/* Brojač – veći žuti prostor sa svih strana */
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-counter {
+  position: absolute;
+  bottom: -5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FFED00;
+  color: #000;
+  padding: 1rem 2rem;
+  border-radius: 9999px;
+  font-family: "Unbounded", sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+/* WhatsApp u lightboxu – isti izgled kao na svim stranicama (koristi .wi-floating-wa) */
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-wa-wrap {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 10001;
+}
+
+main.wi-portfolio-detail .wi-portfolio-detail__lightbox-wa-wrap .wi-floating-wa {
+  position: static;
 }
 
 /* Žute tačke – prikaz samo na mobilu, ispod karusela */
