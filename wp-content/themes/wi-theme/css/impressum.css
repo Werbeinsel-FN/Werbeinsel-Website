@@ -85,19 +85,19 @@ main.wi-impressum .wi-impressum__breadcrumb-list li span[aria-current="page"] {
   color: #000;
 }
 
-/* ---------- Hero (bg #FFED00, veća visina) ---------- */
+/* ---------- Hero (bg #FFED00, visina smanjena 20%) ---------- */
 main.wi-impressum .wi-impressum__hero {
   background: #FFED00;
-  padding: 5.7rem 0;
+  padding: 4.56rem 0;
 }
 @media (min-width: 768px) {
   main.wi-impressum .wi-impressum__hero {
-    padding: 8.55rem 0;
+    padding: 6.84rem 0;
   }
 }
 @media (min-width: 1024px) {
   main.wi-impressum .wi-impressum__hero {
-    padding: 12.3rem 0;
+    padding: 9.84rem 0;
   }
 }
 
