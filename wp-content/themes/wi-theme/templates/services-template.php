@@ -60,29 +60,10 @@ $services_css_path = get_stylesheet_directory() . '/css/services.css';
 $services_css_url  = get_stylesheet_directory_uri() . '/css/services.css';
 if (file_exists($services_css_path)) { $services_css_url .= '?v=' . filemtime($services_css_path); }
 
-/** Helper: URL ka detail stranici */
-if (!function_exists('wi_service_detail_url')) {
-  function wi_service_detail_url($slug){
-    $slug = sanitize_title($slug);
-
-    // 1) postoji li WP stranica sa tim slugom?
-    $page = get_page_by_path($slug);
-    if ($page) {
-      return get_permalink($page);
-    }
-
-    // 2) (opciono) ručna mapa ako ima izuzetaka u nazivima
-    $map = [
-      // 'grossflachenwerbung' => 'grossflaechenwerbung',
-    ];
-    if (isset($map[$slug])) {
-      $mapped = get_page_by_path($map[$slug]);
-      if ($mapped) return get_permalink($mapped);
-    }
-
-    // 3) fallback: /{slug}/
-    return home_url('/service/' . $slug . '/');
-  }
+/** Link kartice: isti URL stranice + anchor (nema više detail stranica) */
+$services_base = get_permalink(get_queried_object());
+if (!is_string($services_base) || $services_base === '') {
+  $services_base = rtrim(home_url('/'), '/') . '/services/';
 }
 ?>
 <link rel="stylesheet" href="<?php echo esc_url($services_css_url); ?>">
@@ -95,7 +76,7 @@ if (!function_exists('wi_service_detail_url')) {
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['ooh']); ?></h2>
       <div class="svc-grid svc-grid--3">
         <?php foreach ($OOH as $s): ?>
-          <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+          <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( $services_base . '#' . $s['slug'] ); ?>">
             <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
             <div class="svc-card__overlay svc-card__overlay--dark">
               <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>
@@ -114,7 +95,7 @@ if (!function_exists('wi_service_detail_url')) {
       <div class="svc-grid svc-grid--2cols">
         <div class="svc-grid svc-grid--2">
           <?php foreach (array_slice($PIX, 0, 2) as $s): ?>
-            <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+            <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( $services_base . '#' . $s['slug'] ); ?>">
               <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
               <div class="svc-card__overlay svc-card__overlay--yellow">
                 <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
@@ -125,7 +106,7 @@ if (!function_exists('wi_service_detail_url')) {
         </div>
         <div class="svc-grid svc-grid--2">
           <?php foreach (array_slice($PIX, 2) as $s): ?>
-            <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+            <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( $services_base . '#' . $s['slug'] ); ?>">
               <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
               <div class="svc-card__overlay svc-card__overlay--yellow">
                 <p class="svc-card__cat svc-card__cat--dark"><?php echo esc_html($s['cat_name']); ?></p>
@@ -144,7 +125,7 @@ if (!function_exists('wi_service_detail_url')) {
       <h2 class="svc-hl svc-hl--black"><?php echo esc_html($H['kle']); ?></h2>
       <div class="svc-grid svc-grid--3-md">
         <?php foreach ($KLE as $s): ?>
-          <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( wi_service_detail_url($s['slug']) ); ?>">
+          <a id="<?php echo esc_attr($s['slug']); ?>" class="svc-card" href="<?php echo esc_url( $services_base . '#' . $s['slug'] ); ?>">
             <img class="svc-card__img" src="<?php echo esc_url($s['image_url']); ?>" alt="<?php echo esc_attr($s['title']); ?>" loading="lazy">
             <div class="svc-card__overlay svc-card__overlay--dark">
               <p class="svc-card__cat"><?php echo esc_html($s['cat_name']); ?></p>

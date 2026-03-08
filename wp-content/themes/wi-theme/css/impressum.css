@@ -1,120 +1,302 @@
-/* Fonts */
-.unbounded-bold {
-  font-family: "Unbounded", sans-serif;
-  font-weight: 800;
+/**
+ * Impressum page – design as sajt/ImpressumPage.tsx
+ * Svi selektori pod main.wi-impressum da tema ne nadjača.
+ */
+body.page-template-templates-impressum-template-php {
+  overflow-x: visible !important;
 }
-.poppins {
-  font-family: "Poppins", sans-serif;
-}
-.poppins-bold {
-  font-family: "Poppins", sans-serif;
-  font-weight: 700;
-}
-.font-semibold {
-  font-weight: 600;
-}
-
-/* Glavni container */
-#impressum-main {
-  padding-bottom: 8rem; /* pb-32 */
+main.wi-impressum {
+  min-height: 100vh;
+  padding-bottom: 0;
+  background: #fff;
+  box-sizing: border-box;
+  overflow-x: visible;
 }
 
-/* Sekcije */
-.content-container {
+main.wi-impressum *,
+main.wi-impressum *::before,
+main.wi-impressum *::after {
+  box-sizing: border-box;
+}
+
+/* Container: max 1780px kao u dizajnu */
+main.wi-impressum .wi-impressum__container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1780px;
   padding-left: 1rem;
   padding-right: 1rem;
 }
-
-/* Naslov h1 (NE DIRAMO) */
-#impressum-main h1 {
-  font-family: "Unbounded", sans-serif;
-  font-weight: 800;
-  color: #000;
-  margin-bottom: 2rem;
-  line-height: 1;
-  text-align: center;
-  font-size: clamp(40px, 10vw, 175px) !important;
-}
-@media (min-width: 640px) {
-  #impressum-main h1 {
-    font-size: 64px;
-  }
-}
-@media (max-width: 640px) {
-  #impressum-main h3 {
-    font-size: 20px !important;
-  }
-  #impressum-main p {
-    font-size: 20px !important;
-  }
-}
 @media (min-width: 768px) {
-  #impressum-main h1 {
-    font-size: 120px;
+  main.wi-impressum .wi-impressum__container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 @media (min-width: 1024px) {
-  #impressum-main h1 {
-    font-size: 175px;
+  main.wi-impressum .wi-impressum__container {
+    padding-left: 2rem;
+    padding-right: 2rem;
   }
 }
 
-/* ========================= */
-/* H3 naslovi – prema Figmi  */
-/* ========================= */
-#impressum-main h3 {
-  font-family: "Poppins", sans-serif !important;
-  font-weight: 700 !important; /* bold */
-  font-size: 34px !important; /* oko 26.25px */
-  line-height: 1.2 !important;
-  color: #000;
-  margin: 0 0 32px; /* tačno 21px bottom */
-  text-align: center;
+/* ---------- Breadcrumb (kao Breadcrumb.tsx: bg white, border-b-4 black) ---------- */
+main.wi-impressum .wi-impressum__breadcrumb {
+  background: #fff;
+  padding: 1rem 0;
+  border-bottom: 4px solid #000;
 }
-#impressum-main p {
+@media (min-width: 768px) {
+  main.wi-impressum .wi-impressum__breadcrumb {
+    padding: 1.5rem 0;
+  }
+}
+
+main.wi-impressum .wi-impressum__breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
   font-family: "Poppins", sans-serif;
-  font-weight: 400; /* semi-bold */
-  font-size: 34px; /* ~15.75px */
-  line-height: 1.5; /* oko 24px visine reda */
+  font-size: 14px;
+  font-weight: 500;
+}
+
+main.wi-impressum .wi-impressum__breadcrumb-list a {
   color: #000;
-  margin: 0 0 10.5px; /* ~10.5px kao u Figmi */
+  text-decoration: none;
+}
+main.wi-impressum .wi-impressum__breadcrumb-list a:hover {
+  color: #FFED00;
+}
+
+main.wi-impressum .wi-impressum__breadcrumb-list li:not(:last-child)::after {
+  content: "›";
+  margin-left: 0.5rem;
+  color: #000;
+  font-weight: 600;
+}
+
+main.wi-impressum .wi-impressum__breadcrumb-list li span[aria-current="page"] {
+  font-weight: 600;
+  color: #000;
+}
+
+/* ---------- Hero (bg #FFED00, veća visina) ---------- */
+main.wi-impressum .wi-impressum__hero {
+  background: #FFED00;
+  padding: 5.7rem 0;
+}
+@media (min-width: 768px) {
+  main.wi-impressum .wi-impressum__hero {
+    padding: 8.55rem 0;
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-impressum .wi-impressum__hero {
+    padding: 12.3rem 0;
+  }
+}
+
+main.wi-impressum .wi-impressum__hero-inner {
   text-align: center;
-}
-#impressum-main p.font-semibold {
-  font-weight: 600; /* semi-bold */
-}
-/* Utility spacing */
-.mt-16 {
-  margin-top: 4rem;
-}
-.mb-6 {
-  margin-bottom: 1.5rem;
-}
-
-.space-y-12 > * + * {
-  margin-top: 3rem;
-}
-.space-y-3 > * + * {
-  margin-top: 0.75rem;
-}
-
-/* Širina i centriranje */
-.max-w-6xl {
-  max-width: 72rem;
-}
-.mx-auto {
+  max-width: 840px;
   margin-left: auto;
   margin-right: auto;
 }
-.text-center {
+
+main.wi-impressum .wi-impressum__title {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 900;
+  font-size: clamp(60px, 10.1vw, 111px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #000;
+  margin: 0 0 1.5rem;
+}
+@media (max-width: 640px) {
+  main.wi-impressum .wi-impressum__title {
+    font-size: clamp(28px, 8vw, 44px);
+  }
+}
+
+/* ---------- Content (bg white, py-16 md:py-24 lg:py-32) ---------- */
+main.wi-impressum .wi-impressum__content {
+  background: #fff;
+  padding: 4rem 0;
+}
+@media (min-width: 768px) {
+  main.wi-impressum .wi-impressum__content {
+    padding: 6rem 0;
+  }
+}
+@media (min-width: 1024px) {
+  main.wi-impressum .wi-impressum__content {
+    padding: 8rem 0;
+  }
+}
+
+main.wi-impressum .wi-impressum__content-inner {
+  max-width: 840px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: visible;
+}
+
+/* Block = jedna sekcija (mb-16 u dizajnu) */
+main.wi-impressum .wi-impressum__block {
+  margin-bottom: 4rem;
+}
+main.wi-impressum .wi-impressum__block:last-child {
+  margin-bottom: 0;
+}
+main.wi-impressum .wi-impressum__block--disclaimer {
+  margin-bottom: 3rem;
+}
+/* Disclaimer – šira zona teksta, ~15% padding sa obe strane */
+@media (min-width: 768px) {
+  main.wi-impressum .wi-impressum__block--disclaimer {
+    width: 100vw !important;
+    max-width: none !important;
+    position: relative !important;
+    left: 50% !important;
+    right: auto !important;
+    margin-left: -50vw !important;
+    margin-right: 0 !important;
+    padding-left: 30% !important;
+    padding-right: 30% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__subblock {
+  margin-bottom: 3rem;
+}
+main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__subblock:last-child {
+  margin-bottom: 0;
+}
+
+/* H2 – naslovi sekcija (mb-6 u dizajnu), bez sve velikih slova */
+main.wi-impressum .wi-impressum__h2 {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 800;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #000;
+  text-align: center;
+  margin: 0 0 1.5rem;
+  text-transform: none !important;
+}
+
+/* Prvi naslov (Angaben § 5 DDG) – 20%+10% veći, zagrada u drugom redu */
+main.wi-impressum .wi-impressum__block:first-child .wi-impressum__h2 {
+  font-size: clamp(32px, 4vw, 42px);
+}
+/* Naslov Kontakt – 20% veći */
+main.wi-impressum .wi-impressum__block:nth-child(2) .wi-impressum__h2 {
+  font-size: clamp(29px, 3.6vw, 38px);
+}
+/* Naslov Umsatzsteuer-ID – 20% veći */
+main.wi-impressum .wi-impressum__block:nth-child(3) .wi-impressum__h2 {
+  font-size: clamp(29px, 3.6vw, 38px);
+}
+/* Naslov Verantwortlich für den Inhalt … § 18 MStV – 20% veći */
+main.wi-impressum .wi-impressum__block:nth-child(4) .wi-impressum__h2 {
+  font-size: clamp(29px, 3.6vw, 38px);
+}
+main.wi-impressum .wi-impressum__block:first-child .wi-impressum__h2-nowrap {
+  white-space: nowrap;
+}
+main.wi-impressum .wi-impressum__block:first-child .wi-impressum__h2-line2 {
+  display: block;
+  margin-top: 0.25em;
+  text-indent: 0.15em;
+}
+@media (max-width: 480px) {
+  main.wi-impressum .wi-impressum__block:first-child .wi-impressum__h2-nowrap {
+    white-space: normal;
+  }
+}
+
+main.wi-impressum .wi-impressum__h2--large {
+  font-size: clamp(39px, 5.6vw, 56px);
+  margin-bottom: 2rem;
+}
+main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__h2-nowrap {
+  white-space: nowrap;
+}
+main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__h2-line2 {
+  display: block;
+  margin-top: 0.25em;
+  text-indent: 0.15em;
+}
+@media (max-width: 480px) {
+  main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__h2-nowrap {
+    white-space: normal;
+  }
+}
+
+/* H3 – podnaslovi u Disclaimeru */
+main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__subblock .wi-impressum__h3 {
+  font-family: "Unbounded", sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 28px !important;
+  line-height: 1.2 !important;
+  color: #000 !important;
+  text-align: center !important;
+  margin: 0 0 1rem !important;
+  text-transform: none !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Body text (Poppins, +20%: clamp 19–22px, line-height 1.8) */
+main.wi-impressum .wi-impressum__text {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(19px, 1.8vw, 22px);
+  font-weight: 400;
+  line-height: 1.8;
+  color: #000;
   text-align: center;
 }
 
-/* Paragrafi */
-.poppins.text-lg {
-  font-size: 1.125rem; /* ~18px */
-  line-height: 1.75rem;
+main.wi-impressum .wi-impressum__text p {
+  margin: 0 0 0.25rem;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
 }
-.text-black {
-  color: #000;
+main.wi-impressum .wi-impressum__text p:last-child {
+  margin-bottom: 0;
+}
+
+main.wi-impressum .wi-impressum__text p.wi-impressum__p-first {
+  font-weight: 600;
+}
+
+/* Paragraphs u Disclaimeru (space-y-4 = 1rem između pasusa) */
+main.wi-impressum .wi-impressum__text--paragraphs p {
+  margin-bottom: 1rem;
+}
+main.wi-impressum .wi-impressum__text--paragraphs p:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  main.wi-impressum .wi-impressum__h2 {
+    font-size: 22px;
+  }
+  main.wi-impressum .wi-impressum__block--disclaimer .wi-impressum__subblock .wi-impressum__h3 {
+    font-size: 28px !important;
+  }
+  main.wi-impressum .wi-impressum__text {
+    font-size: 19px;
+  }
 }

@@ -34,17 +34,13 @@ if (!function_exists('wi_nav_url')) {
         if ($p) return get_permalink($p);
         return rtrim($home, '/') . '/#services';
       case 'plakatierung':
-        $p = get_page_by_path('plakatwerbung') ?: get_page_by_path('plakatierung');
-        return $p ? get_permalink($p) : rtrim($home, '/') . '/services/#plakatwerbung';
+        return rtrim($home, '/') . '/services/#plakatwerbung';
       case 'folierung':
-        $p = get_page_by_path('folierung') ?: get_page_by_path('folierung-beschriftung');
-        return $p ? get_permalink($p) : rtrim($home, '/') . '/services/#lass-kleben';
+        return rtrim($home, '/') . '/services/#lass-kleben';
       case 'digitale-werbemittel':
-        $p = get_page_by_path('digitale-werbemittel') ?: get_page_by_path('digital-signage');
-        return $p ? get_permalink($p) : rtrim($home, '/') . '/services/#pixel-code';
+        return rtrim($home, '/') . '/services/#pixel-code';
       case 'drucksachen':
-        $p = get_page_by_path('drucksachen') ?: get_page_by_path('print-design');
-        return $p ? get_permalink($p) : rtrim($home, '/') . '/services/#print-design';
+        return rtrim($home, '/') . '/services/#print-design';
       case 'arbeiten':
         return rtrim($home, '/') . '/#arbeiten';
       case 'prozess':
