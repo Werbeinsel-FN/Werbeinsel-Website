@@ -33,7 +33,7 @@ function wi_home_hero_section_cb($post) {
     </div>
     <div class="wi-hero-row">
         <label><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label>
-        <textarea name="wi_hero_title" id="wi_hero_title" rows="2" class="widefat" placeholder="Ihre Werbung. Unser Handwerk."><?php echo esc_textarea($title); ?></textarea>
+        <textarea name="wi_hero_title" id="wi_hero_title" rows="2" class="widefat" placeholder="Ihre Werbung.&#10;Unser&#10;Handwerk."><?php echo esc_textarea($title); ?></textarea>
         <p class="description"><?php esc_html_e('Mozes koristiti &lt;br&gt; za novi red.', 'wi'); ?></p>
     </div>
     <div class="wi-hero-row">

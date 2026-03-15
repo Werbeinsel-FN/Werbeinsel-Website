@@ -944,8 +944,8 @@ body {
   background: #FFED00;
   padding: 2.8rem 2rem;
   border-radius: 40px;
-  width: 100%;
-  max-width: 100% !important;
+  width: 80%;
+  max-width: 80% !important;
   margin: 0 auto;
 }
 @media (min-width: 768px) {

@@ -13,7 +13,7 @@ get_header(); ?>
 $hero_bg_id = get_post_meta(get_the_ID(), '_wi_hero_bg_image_id', true);
 if (!$hero_bg_id && has_post_thumbnail()) $hero_bg_id = get_post_thumbnail_id(get_the_ID());
 $hero_bg_url = $hero_bg_id ? wp_get_attachment_image_url($hero_bg_id, 'full') : '';
-$hero_title = get_post_meta(get_the_ID(), '_wi_hero_title', true) ?: "Ihre Werbung.<br>Unser Handwerk.";
+$hero_title = get_post_meta(get_the_ID(), '_wi_hero_title', true) ?: "Ihre Werbung.<br>Unser<br>Handwerk.";
 $hero_subtitle = get_post_meta(get_the_ID(), '_wi_hero_subtitle', true) ?: "Plakat. Folie. Digital.<br>Sichtbarkeit für Marken in der Region.";
 $hero_btn1_text = get_post_meta(get_the_ID(), '_wi_hero_btn1_text', true) ?: 'Projekt anfragen';
 $hero_btn1_link = get_post_meta(get_the_ID(), '_wi_hero_btn1_link', true);
@@ -28,7 +28,7 @@ $hero_fallback = 'https://images.unsplash.com/photo-1763168555657-00921f695ffd?c
 <main id="home-main" class="home-main">
 
 <header id="home-hero" class="home-hero home-hero--design">
-  <div class="home-hero__bg" style="background-image: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.4)), url('<?php echo esc_attr(esc_url($hero_bg_url ?: $hero_fallback)); ?>');"></div>
+  <div class="home-hero__bg" style="background-image: linear-gradient(to right, rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('<?php echo esc_attr(esc_url($hero_bg_url ?: $hero_fallback)); ?>');"></div>
   <div class="home-hero__container">
     <div class="home-hero__content">
       <div class="home-hero__box">
