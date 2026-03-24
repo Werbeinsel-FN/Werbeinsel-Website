@@ -1,5 +1,6 @@
 /**
  * Jobs: Akkordeon, Bewerbungs-Formular, reCAPTCHA v3 (action: contact), AJAX an admin-post.php
+ * reCAPTCHA: gleicher Site-Key wie Kontakt (wp_enqueue wi-recaptcha-v3), Warte-Logik + CMP-Events.
  */
 (function () {
   var cfg = window.WI_JOBS || {};
@@ -8,6 +9,66 @@
 
   function qsa(sel, root) {
     return Array.prototype.slice.call((root || document).querySelectorAll(sel));
+  }
+
+  function recaptchaScriptPresent() {
+    return !!document.querySelector(
+      'script[src*="google.com/recaptcha/api.js"], script[src*="recaptcha.net/recaptcha/api.js"]'
+    );
+  }
+
+  function injectRecaptchaScript() {
+    if (!siteKey || recaptchaScriptPresent()) return;
+    var s = document.createElement('script');
+    s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(siteKey);
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
+  }
+
+  ['UC_UI_ACCEPT_ALL', 'UC_UI_CHANGE', 'UC_UI_INITIALIZED'].forEach(function (ev) {
+    window.addEventListener(ev, injectRecaptchaScript);
+  });
+
+  function waitForGrecaptcha(maxWait) {
+    var deadline = Date.now() + (maxWait || 10000);
+    return new Promise(function (resolve, reject) {
+      function tick() {
+        if (window.grecaptcha && typeof window.grecaptcha.execute === 'function') {
+          resolve(window.grecaptcha);
+          return;
+        }
+        if (Date.now() >= deadline) {
+          reject(new Error('recaptcha_timeout'));
+          return;
+        }
+        setTimeout(tick, 80);
+      }
+      tick();
+    });
+  }
+
+  function executeRecaptchaToken(gc) {
+    return new Promise(function (resolve, reject) {
+      gc.ready(function () {
+        gc.execute(siteKey, { action: 'contact' }).then(resolve).catch(reject);
+      });
+    });
+  }
+
+  function getRecaptchaTokenForSubmit() {
+    if (!siteKey) {
+      return Promise.resolve('');
+    }
+    injectRecaptchaScript();
+    return waitForGrecaptcha(10000)
+      .catch(function () {
+        injectRecaptchaScript();
+        return waitForGrecaptcha(4000);
+      })
+      .then(function (gc) {
+        return executeRecaptchaToken(gc);
+      });
   }
 
   /* ----- Akkordeon ----- */
@@ -173,7 +234,7 @@
 
   function showToast(ok, title, sub) {
     if (!toast) {
-      if (ok) window.alert(title + '\n' + sub);
+      if (!ok) window.alert(title + '\n' + sub);
       return;
     }
     toast.classList.remove('wi-jobs-toast--hidden', 'wi-jobs-toast--err');
@@ -184,30 +245,7 @@
     toast.querySelector('.wi-jobs-toast__sub').textContent = sub;
     setTimeout(function () {
       toast.classList.add('wi-jobs-toast--hidden');
-    }, ok ? 5000 : 5000);
-  }
-
-  function loadRecaptcha() {
-    return new Promise(function (resolve) {
-      if (!siteKey) {
-        resolve(null);
-        return;
-      }
-      if (window.grecaptcha && window.grecaptcha.execute) {
-        resolve(window.grecaptcha);
-        return;
-      }
-      var s = document.createElement('script');
-      s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(siteKey);
-      s.async = true;
-      s.onload = function () {
-        resolve(window.grecaptcha);
-      };
-      s.onerror = function () {
-        resolve(null);
-      };
-      document.head.appendChild(s);
-    });
+    }, 5000);
   }
 
   function fieldError(inp, msg) {
@@ -225,6 +263,89 @@
     }
   }
 
+  function errVisible(sel) {
+    var node = document.querySelector(sel);
+    return node && !node.classList.contains('wi-jobs-field-error--hidden');
+  }
+
+  function scrollToFirstJobsError() {
+    var firstInp = form.querySelector('input.wi-invalid, textarea.wi-invalid');
+    if (firstInp) {
+      firstInp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(function () {
+        try {
+          firstInp.focus({ preventScroll: true });
+        } catch (_) {}
+      }, 350);
+      return;
+    }
+    if (errVisible('[data-err-position]')) {
+      var pos = document.querySelector('[data-wi-pills="position"]');
+      (pos || document.querySelector('[data-err-position]')).scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      return;
+    }
+    if (errVisible('[data-err-start]')) {
+      var st = document.querySelector('[data-wi-pills="start"]');
+      (st || document.querySelector('[data-err-start]')).scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      return;
+    }
+    if (errVisible('[data-err-privacy]')) {
+      var pr =
+        document.querySelector('.wi-jobs-privacy') || document.getElementById('wi_jobs_privacy');
+      (pr || document.querySelector('[data-err-privacy]')).scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      return;
+    }
+    var sec = document.getElementById('wi-jobs-form');
+    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function serverMessage(text) {
+    var t = (text || '').trim();
+    if (t === 'RECAPTCHA_MISSING' || t === 'RECAPTCHA_ERROR') {
+      return {
+        title: 'Sicherheitsprüfung',
+        sub: 'reCAPTCHA war nicht bereit. Bitte Cookies / Skripte für Google erlauben und erneut senden.',
+      };
+    }
+    if (t === 'RECAPTCHA_FAILED') {
+      return {
+        title: 'Sicherheitsprüfung',
+        sub: 'reCAPTCHA konnte nicht bestätigt werden. Bitte Seite neu laden und erneut versuchen.',
+      };
+    }
+    if (t === 'VALIDATION_ERROR') {
+      return {
+        title: 'Angaben prüfen',
+        sub: 'Bitte alle Pflichtfelder ausfüllen und das Formular erneut senden.',
+      };
+    }
+    if (t === 'PRIVACY') {
+      return {
+        title: 'Datenschutz',
+        sub: 'Bitte die Datenschutzerklärung akzeptieren.',
+      };
+    }
+    if (t === 'UPLOAD_ERROR' || t === 'BAD_TYPE' || t === 'TOO_LARGE') {
+      return {
+        title: 'Anhänge',
+        sub: 'Datei-Upload fehlgeschlagen (Typ oder Größe). Max. 10 MB, PDF/JPG/PNG/ZIP.',
+      };
+    }
+    if (t.indexOf('MAIL_ERROR') === 0) {
+      return { title: 'UPS!', sub: 'E-Mail konnte nicht gesendet werden. Bitte später erneut versuchen.' };
+    }
+    return { title: 'UPS!', sub: 'Fehler beim Senden. Bitte versuchen Sie es erneut.' };
+  }
+
   ['input', 'change'].forEach(function (ev) {
     form.addEventListener(
       ev,
@@ -233,6 +354,10 @@
         if (!t || !t.name) return;
         if (t.name === 'jobs_name' || t.name === 'jobs_email' || t.name === 'jobs_phone') {
           fieldError(t, '');
+        }
+        if (t.id === 'wi_jobs_privacy' && t.checked) {
+          var erPr = document.querySelector('[data-err-privacy]');
+          if (erPr) erPr.classList.add('wi-jobs-field-error--hidden');
         }
       },
       true
@@ -291,8 +416,7 @@
     }
 
     if (!ok) {
-      var first = form.querySelector('.wi-invalid');
-      if (first) first.focus({ preventScroll: true });
+      scrollToFirstJobsError();
       return;
     }
 
@@ -302,8 +426,8 @@
     }
     setBusy(true);
 
-    loadRecaptcha().then(function (gc) {
-      function send(token) {
+    getRecaptchaTokenForSubmit()
+      .then(function (token) {
         if (tokenEl) tokenEl.value = token || '';
         var fd = new FormData();
         fd.set('action', 'wi_contact_submit');
@@ -323,52 +447,60 @@
           fd.append('jobs_files[]', f, f.name);
         });
 
-        fetch(adminPostUrl, { method: 'POST', body: fd, credentials: 'same-origin' })
-          .then(function (r) {
+        return fetch(adminPostUrl, { method: 'POST', body: fd, credentials: 'same-origin' }).then(
+          function (r) {
             return r.text().then(function (t) {
               return { ok: r.ok, text: t };
             });
-          })
-          .then(function (res) {
-            setBusy(false);
-            var t = (res.text || '').trim();
-            if (res.ok && (t === 'OK' || t === '')) {
-              showToast(true, 'DANKE!', 'Ihre Bewerbung wurde gesendet. Wir melden uns in Kürze.');
-              form.reset();
-              storedFiles = [];
-              renderFileList();
-              qsa('.wi-jobs-pill--active').forEach(function (p) {
-                p.classList.remove('wi-jobs-pill--active');
-              });
-              if (posHid) posHid.value = '';
-              if (startHid) startHid.value = '';
-            } else {
-              showToast(false, 'UPS!', 'Fehler beim Senden. Bitte versuchen Sie es erneut.');
-            }
-          })
-          .catch(function () {
-            setBusy(false);
-            showToast(false, 'UPS!', 'Fehler beim Senden. Bitte versuchen Sie es erneut.');
-          });
-      }
-
-      if (siteKey && gc && gc.execute) {
-        gc.ready(function () {
-          gc.execute(siteKey, { action: 'contact' })
-            .then(function (tok) {
-              send(tok);
-            })
-            .catch(function () {
-              setBusy(false);
-              showToast(false, 'UPS!', 'reCAPTCHA konnte nicht geladen werden.');
-            });
-        });
-      } else if (siteKey) {
+          }
+        );
+      })
+      .then(function (res) {
         setBusy(false);
-        showToast(false, 'UPS!', 'reCAPTCHA konnte nicht geladen werden.');
-      } else {
-        send('');
-      }
-    });
+        var t = (res.text || '').trim();
+        if (res.ok && (t === 'OK' || t === '')) {
+          showToast(true, 'DANKE!', 'Ihre Bewerbung wurde gesendet. Wir melden uns in Kürze.');
+          form.reset();
+          storedFiles = [];
+          renderFileList();
+          qsa('.wi-jobs-pill--active').forEach(function (p) {
+            p.classList.remove('wi-jobs-pill--active');
+          });
+          if (posHid) posHid.value = '';
+          if (startHid) startHid.value = '';
+          qsa('input.wi-invalid, textarea.wi-invalid', form).forEach(function (el) {
+            el.classList.remove('wi-invalid');
+          });
+          return;
+        }
+        var m = serverMessage(t);
+        showToast(false, m.title, m.sub);
+        if (t === 'VALIDATION_ERROR' || t === 'PRIVACY') {
+          scrollToFirstJobsError();
+        }
+        if (
+          t === 'RECAPTCHA_MISSING' ||
+          t === 'RECAPTCHA_ERROR' ||
+          t === 'RECAPTCHA_FAILED'
+        ) {
+          var sec = document.getElementById('wi-jobs-form');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      })
+      .catch(function () {
+        setBusy(false);
+        showToast(
+          false,
+          'Sicherheitsprüfung',
+          'reCAPTCHA konnte nicht geladen werden. Bitte Google-Skripte erlauben und erneut versuchen.'
+        );
+        injectRecaptchaScript();
+        var sec = document.getElementById('wi-jobs-form');
+        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
   });
+
+  if (siteKey) {
+    injectRecaptchaScript();
+  }
 })();

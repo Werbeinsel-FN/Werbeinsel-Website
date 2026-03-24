@@ -487,6 +487,19 @@ function startHeightPinger(doc){
     doc.head.appendChild(s);
   }
 
+  function wiSleepIframe(ms) {
+    return new Promise(function (res) { setTimeout(res, ms); });
+  }
+
+  async function waitForIframeGrecaptcha(win, maxMs) {
+    const deadline = Date.now() + (maxMs || 10000);
+    while (Date.now() < deadline) {
+      if (win && win.grecaptcha && win.grecaptcha.execute) return win.grecaptcha;
+      await wiSleepIframe(80);
+    }
+    return null;
+  }
+
   async function submitWithRecaptcha(doc){
     if (!doc) doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
     if (!doc) return;
@@ -572,7 +585,7 @@ function startHeightPinger(doc){
       return;
     }
 
-    // ako nema site key ili grecaptcha – pošalji bez tokena (kao do sada)
+    // ako nema site key – pošalji bez tokena (server ne proverava reCAPTCHA bez secret)
     if (!SITE_KEY) { submitAjax(doc); return; }
 
     const w = iframe.contentWindow;
@@ -585,21 +598,23 @@ function startHeightPinger(doc){
       showError();
     }
 
-    if (w && w.grecaptcha && w.grecaptcha.execute) {
-      try {
-        await new Promise((resolve) => w.grecaptcha.ready(resolve));
-        const token = await w.grecaptcha.execute(SITE_KEY, {action: 'contact'});
-        if (tokenInput) tokenInput.value = token;
-        submitAjax(doc);
-      } catch (e) {
-        fail('reCAPTCHA execute error'); 
-      }
-    } else {
-      // ako kasni učitavanje, probaj kratko kasnije
-      setTimeout(() => {
-        if (w && w.grecaptcha && w.grecaptcha.execute) submitWithRecaptcha(doc);
-        else fail('reCAPTCHA nije učitana');
-      }, 600);
+    loadRecaptchaIntoIframe(doc);
+    let gc = await waitForIframeGrecaptcha(w, 10000);
+    if (!gc) {
+      loadRecaptchaIntoIframe(doc);
+      gc = await waitForIframeGrecaptcha(w, 4000);
+    }
+    if (!gc) {
+      fail('reCAPTCHA nije učitana');
+      return;
+    }
+    try {
+      await new Promise((resolve) => gc.ready(resolve));
+      const token = await gc.execute(SITE_KEY, {action: 'contact'});
+      if (tokenInput) tokenInput.value = token;
+      submitAjax(doc);
+    } catch (e) {
+      fail('reCAPTCHA execute error');
     }
   }
   /* ===== Kraj NOVO ===== */
@@ -624,11 +639,12 @@ function startHeightPinger(doc){
     setTimeout(()=>o.remove(),5000);
     try{ startHeightPinger(d); }catch(_){}
   }
-  function showError(){
+  function showError(customSub){
     const d=iframe.contentDocument||iframe.contentWindow?.document; if(!d)return; injectAssets(d);
     const o=ensureDanke(d); o.classList.add('wi-error');
     const t=o.querySelector('.wi-danke-title'); if(t) t.textContent='UPS!';
-    const s=o.querySelector('.wi-danke-sub'); if(s) s.textContent='Greška pri slanju. Pokušajte ponovo.';
+    const s=o.querySelector('.wi-danke-sub');
+    if(s) s.textContent = customSub || 'Fehler beim Senden. Bitte versuchen Sie es erneut.';
     bringIntoView(); fitFromDOM();
     setTimeout(()=>o.remove(),5000);
   }
@@ -665,7 +681,12 @@ function startHeightPinger(doc){
 
         fitFromDOM();
       } else {
-        showError();
+        const respTxt = (text || '').trim();
+        if (respTxt.indexOf('RECAPTCHA') === 0) {
+          showError('reCAPTCHA war nicht erfolgreich. Bitte Google-Skripte / Cookies erlauben oder Seite neu laden.');
+        } else {
+          showError();
+        }
       }
     } catch (err) {
       showError();

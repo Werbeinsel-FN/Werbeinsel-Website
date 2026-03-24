@@ -156,10 +156,22 @@ function wi_theme_enqueue_styles() {
             array('wi-style'),
             filemtime(get_template_directory() . '/css/jobs.css')
         );
+        $jobs_script_deps = array();
+        $rec_site_jobs    = get_option('wi_contact_recaptcha_site', '');
+        if ($rec_site_jobs !== '') {
+            wp_register_script(
+                'wi-recaptcha-v3',
+                'https://www.google.com/recaptcha/api.js?render=' . rawurlencode($rec_site_jobs),
+                array(),
+                null,
+                true
+            );
+            $jobs_script_deps[] = 'wi-recaptcha-v3';
+        }
         wp_enqueue_script(
             'wi-jobs-form',
             get_template_directory_uri() . '/js/jobs-form.js',
-            array(),
+            $jobs_script_deps,
             filemtime(get_template_directory() . '/js/jobs-form.js'),
             true
         );
