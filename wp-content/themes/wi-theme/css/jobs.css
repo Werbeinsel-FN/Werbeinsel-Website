@@ -989,6 +989,7 @@
   border: 0;
 }
 
+/* Toast je izvan .wi-jobs – ne koristiti var(--wi-yel) ovde (nije nasleđen). */
 .wi-jobs-toast {
   position: fixed;
   inset: 0;
@@ -999,7 +1000,7 @@
   justify-content: center;
   padding: 24px;
   text-align: center;
-  background: var(--wi-yel);
+  background-color: #ffed00;
   color: #000;
 }
 
@@ -1008,7 +1009,7 @@
 }
 
 .wi-jobs-toast--err {
-  background: #111;
+  background-color: #111;
   color: #fff;
 }
 
