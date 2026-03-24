@@ -33,6 +33,7 @@ $wi_wa_url = !empty($wi_info['whatsapp_url']) ? esc_url_raw($wi_info['whatsapp_u
       <a href="<?php echo esc_url(wi_nav_url('arbeiten')); ?>" class="wi-menu-overlay__link">Arbeiten</a>
       <a href="<?php echo esc_url(wi_nav_url('prozess')); ?>" class="wi-menu-overlay__link">Prozess</a>
       <a href="<?php echo esc_url(wi_nav_url('kontakt')); ?>" class="wi-menu-overlay__link">Kontakt</a>
+      <a href="<?php echo esc_url(wi_nav_url('jobs')); ?>" class="wi-menu-overlay__link">Jobs</a>
     </nav>
   </div>
   <?php if ($wi_wa_url) : ?>

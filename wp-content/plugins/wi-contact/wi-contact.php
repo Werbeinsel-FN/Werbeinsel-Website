@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WI Contact
  * Description: Custom kontakt forma + “pills” + kontakt info (adresa/email/telefon).
- * Version: 1.3.6
+ * Version: 1.3.7
  * Author: WI
  */
 
@@ -468,27 +468,207 @@ class WI_Contact {
     return ob_get_clean();
   }
 
+  /**
+   * reCAPTCHA v3 – ista provera kao za kontakt (isti secret / score).
+   */
+  private function recaptcha_gate() {
+    $rec_secret = get_option(self::OPT_RECAPTCHA_SECRET, '');
+    if (!$rec_secret) {
+      return true;
+    }
+    $token = sanitize_text_field(wp_unslash($_POST['wi_recaptcha_token'] ?? ''));
+    if ($token === '') {
+      status_header(200);
+      echo 'RECAPTCHA_MISSING';
+      return false;
+    }
+    $resp = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+      'body'    => ['secret' => $rec_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''],
+      'timeout' => 12,
+    ]);
+    if (is_wp_error($resp)) {
+      error_log('WI_CONTACT reCAPTCHA HTTP error: ' . $resp->get_error_message());
+      status_header(200);
+      echo 'RECAPTCHA_ERROR';
+      return false;
+    }
+    $body = wp_remote_retrieve_body($resp);
+    $json = json_decode($body, true);
+    if (empty($json['success']) || (isset($json['score']) && $json['score'] < 0.4)) {
+      error_log('WI_CONTACT reCAPTCHA response: ' . substr($body, 0, 500));
+      status_header(200);
+      echo 'RECAPTCHA_FAILED';
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Bewerbungsformular – isti primatelj e-pošte i reCAPTCHA kao Kontakt.
+   */
+  private function handle_jobs_submit() {
+    $name      = sanitize_text_field(wp_unslash($_POST['jobs_name'] ?? ''));
+    $email     = sanitize_email(wp_unslash($_POST['jobs_email'] ?? ''));
+    $phone     = sanitize_text_field(wp_unslash($_POST['jobs_phone'] ?? ''));
+    $position  = sanitize_text_field(wp_unslash($_POST['jobs_position'] ?? ''));
+    $start     = sanitize_text_field(wp_unslash($_POST['jobs_start'] ?? ''));
+    $portfolio = esc_url_raw(wp_unslash($_POST['jobs_portfolio'] ?? ''));
+    $message   = sanitize_textarea_field(wp_unslash($_POST['jobs_message'] ?? ''));
+    $privacy   = !empty($_POST['wi_privacy']);
+
+    if ($name === '' || $email === '' || $phone === '' || $position === '' || $start === '') {
+      status_header(200);
+      echo 'VALIDATION_ERROR';
+      return;
+    }
+    if (!is_email($email)) {
+      status_header(200);
+      echo 'VALIDATION_ERROR';
+      return;
+    }
+    if (!$privacy) {
+      status_header(200);
+      echo 'PRIVACY';
+      return;
+    }
+
+    $allowed_ext = ['pdf', 'jpg', 'jpeg', 'png', 'zip'];
+    $max_total   = 10 * 1024 * 1024;
+    $attachments = [];
+    $cleanup     = [];
+
+    if (!empty($_FILES['jobs_files']) && !empty($_FILES['jobs_files']['name'])) {
+      $f = $_FILES['jobs_files'];
+      if (!is_array($f['name'])) {
+        foreach (['name', 'type', 'tmp_name', 'error', 'size'] as $k) {
+          $f[$k] = [$f[$k]];
+        }
+      }
+      $n        = count($f['name']);
+      $total_sz = 0;
+      for ($i = 0; $i < $n; $i++) {
+        if ($f['error'][$i] === UPLOAD_ERR_NO_FILE) {
+          continue;
+        }
+        if ($f['error'][$i] !== UPLOAD_ERR_OK) {
+          foreach ($cleanup as $p) {
+            @unlink($p);
+          }
+          status_header(200);
+          echo 'UPLOAD_ERROR';
+          return;
+        }
+        $total_sz += (int) $f['size'][$i];
+      }
+      if ($total_sz > $max_total) {
+        status_header(200);
+        echo 'TOO_LARGE';
+        return;
+      }
+      require_once ABSPATH . 'wp-admin/includes/file.php';
+      for ($i = 0; $i < $n; $i++) {
+        if ($f['error'][$i] === UPLOAD_ERR_NO_FILE) {
+          continue;
+        }
+        $orig = $f['name'][$i];
+        $tmp  = $f['tmp_name'][$i];
+        $ext  = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowed_ext, true)) {
+          foreach ($cleanup as $p) {
+            @unlink($p);
+          }
+          status_header(200);
+          echo 'BAD_TYPE';
+          return;
+        }
+        $check = wp_check_filetype_and_ext($tmp, $orig);
+        if (empty($check['ext']) || !in_array(strtolower($check['ext']), $allowed_ext, true)) {
+          foreach ($cleanup as $p) {
+            @unlink($p);
+          }
+          status_header(200);
+          echo 'BAD_TYPE';
+          return;
+        }
+        if (!is_uploaded_file($tmp)) {
+          foreach ($cleanup as $p) {
+            @unlink($p);
+          }
+          status_header(200);
+          echo 'UPLOAD_ERROR';
+          return;
+        }
+        $dest = wp_tempnam('wi-job-');
+        if (!$dest || !@copy($tmp, $dest)) {
+          foreach ($cleanup as $p) {
+            @unlink($p);
+          }
+          if ($dest) {
+            @unlink($dest);
+          }
+          status_header(200);
+          echo 'UPLOAD_ERROR';
+          return;
+        }
+        $attachments[] = $dest;
+        $cleanup[]     = $dest;
+      }
+    }
+
+    $info     = get_option(self::OPT_INFO, self::defaults_info());
+    $email_to = sanitize_email($info['email'] ?? '') ?: get_option('admin_email');
+    $subject  = sprintf('Neue Bewerbung (%s)', parse_url(home_url(), PHP_URL_HOST));
+
+    $lines   = [];
+    $lines[] = '<p><strong>Name:</strong> ' . esc_html($name) . '</p>';
+    $lines[] = '<p><strong>E-Mail:</strong> ' . esc_html($email) . '</p>';
+    $lines[] = '<p><strong>Telefon:</strong> ' . esc_html($phone) . '</p>';
+    $lines[] = '<p><strong>Gewünschte Position:</strong> ' . esc_html($position) . '</p>';
+    $lines[] = '<p><strong>Verfügbar ab:</strong> ' . esc_html($start) . '</p>';
+    if ($portfolio !== '') {
+      $lines[] = '<p><strong>Portfolio / Links:</strong> ' . esc_html($portfolio) . '</p>';
+    }
+    if ($message !== '') {
+      $lines[] = '<p><strong>Nachricht:</strong> ' . nl2br(esc_html($message)) . '</p>';
+    }
+    $lines[] = '<p><strong>Datenschutz:</strong> akzeptiert</p>';
+    if (!empty($attachments)) {
+      $lines[] = '<p><strong>Anhänge:</strong> ' . count($attachments) . ' Datei(en)</p>';
+    }
+
+    $body    = '<html><body>' . implode('', $lines) . '</body></html>';
+    $headers = ['Content-Type: text/html; charset=UTF-8'];
+    $headers[] = 'Reply-To: ' . $email;
+
+    add_action('wp_mail_failed', function ($e) {
+      error_log('WI_MAIL_FAIL: ' . print_r($e, true));
+    });
+    $sent = wp_mail($email_to, $subject, $body, $headers, $attachments);
+    foreach ($cleanup as $p) {
+      @unlink($p);
+    }
+
+    status_header(200);
+    echo $sent ? 'OK' : 'MAIL_ERROR';
+  }
+
   /* ---------- Slanje mejla ---------- */
   public function handle_submit() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') wp_die();
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      wp_die();
+    }
 
     try {
-      // reCAPTCHA v3 (opciono)
-      $rec_secret = get_option(self::OPT_RECAPTCHA_SECRET, '');
-      if ($rec_secret) {
-        $token = sanitize_text_field($_POST['wi_recaptcha_token'] ?? '');
-        if (empty($token)) { status_header(200); echo 'RECAPTCHA_MISSING'; return; }
-        $resp = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
-          'body'    => ['secret' => $rec_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''],
-          'timeout' => 12,
-        ]);
-        if (is_wp_error($resp)) { error_log('WI_CONTACT reCAPTCHA HTTP error: '.$resp->get_error_message()); status_header(200); echo 'RECAPTCHA_ERROR'; return; }
-        $body = wp_remote_retrieve_body($resp);
-        $json = json_decode($body, true);
-        if (empty($json['success']) || (isset($json['score']) && $json['score'] < 0.4)) {
-          error_log('WI_CONTACT reCAPTCHA response: ' . substr($body,0,500));
-          status_header(200); echo 'RECAPTCHA_FAILED'; return;
+      if (isset($_POST['wi_submission_type']) && sanitize_text_field(wp_unslash($_POST['wi_submission_type'])) === 'jobs') {
+        if (!$this->recaptcha_gate()) {
+          return;
         }
+        $this->handle_jobs_submit();
+        return;
+      }
+
+      if (!$this->recaptcha_gate()) {
+        return;
       }
 
       // Polja

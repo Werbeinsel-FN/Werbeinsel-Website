@@ -43,6 +43,7 @@ $footer_logo = get_option('wi_theme_logo_dark', '');
           <a href="<?php echo esc_url(wi_nav_url('impressum')); ?>">Impressum</a>
           <a href="<?php echo esc_url(wi_nav_url('datenschutz')); ?>">Datenschutz</a>
           <a href="<?php echo esc_url(wi_nav_url('agb')); ?>">AGB</a>
+          <a href="<?php echo esc_url(wi_nav_url('jobs')); ?>">Jobs</a>
         </nav>
       </div>
 

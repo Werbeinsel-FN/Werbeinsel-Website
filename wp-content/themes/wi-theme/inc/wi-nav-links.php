@@ -19,6 +19,7 @@ if (!function_exists('wi_nav_url')) {
       'arbeiten' => null,
       'prozess' => null,
       'kontakt' => null,
+      'jobs' => null,
       'impressum' => null,
       'datenschutz' => null,
       'agb' => null,
@@ -48,6 +49,9 @@ if (!function_exists('wi_nav_url')) {
       case 'kontakt':
         $p = get_page_by_path('kontakt') ?: get_page_by_path('contact');
         return $p ? get_permalink($p) : rtrim($home, '/') . '/kontakt/';
+      case 'jobs':
+        $p = get_page_by_path('jobs') ?: get_page_by_path('karriere');
+        return $p ? get_permalink($p) : rtrim($home, '/') . '/jobs/';
       case 'impressum':
         $p = get_page_by_path('impressum');
         return $p ? get_permalink($p) : rtrim($home, '/') . '/impressum/';

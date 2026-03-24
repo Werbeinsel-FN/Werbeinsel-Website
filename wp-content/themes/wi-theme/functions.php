@@ -53,6 +53,31 @@ add_action('init', function () {
   update_option('wi_portfolio_detail_pages_version', '1');
 }, 20);
 
+/** Jobs-Seite mit Template anlegen (slug „jobs“), falls noch nicht vorhanden. */
+function wi_create_jobs_page() {
+  if (get_page_by_path('jobs')) {
+    return;
+  }
+  $page_id = wp_insert_post([
+    'post_title'   => 'Jobs',
+    'post_name'    => 'jobs',
+    'post_status'  => 'publish',
+    'post_type'    => 'page',
+    'post_author'  => 1,
+  ]);
+  if ($page_id && !is_wp_error($page_id)) {
+    update_post_meta($page_id, '_wp_page_template', 'templates/jobs-template.php');
+  }
+}
+add_action('after_switch_theme', 'wi_create_jobs_page');
+add_action('init', function () {
+  if (get_option('wi_jobs_page_version') === '1') {
+    return;
+  }
+  wi_create_jobs_page();
+  update_option('wi_jobs_page_version', '1');
+}, 21);
+
 ///////////////////////////////////////////////////////////////////////
 //	Register CSS
 ///////////////////////////////////////////////////////////////////////
@@ -122,6 +147,21 @@ function wi_theme_enqueue_styles() {
             get_template_directory_uri() . '/css/impressum.css',
             array('wi-style'),
             filemtime(get_template_directory() . '/css/impressum.css')
+        );
+    }
+    if (is_page() && get_page_template_slug() === 'templates/jobs-template.php') {
+        wp_enqueue_style(
+            'wi-jobs-style',
+            get_template_directory_uri() . '/css/jobs.css',
+            array('wi-style'),
+            filemtime(get_template_directory() . '/css/jobs.css')
+        );
+        wp_enqueue_script(
+            'wi-jobs-form',
+            get_template_directory_uri() . '/js/jobs-form.js',
+            array(),
+            filemtime(get_template_directory() . '/js/jobs-form.js'),
+            true
         );
     }
     // load foundation icons
@@ -500,6 +540,7 @@ add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 require_once get_template_directory() . '/inc/hero-metabox.php';
 // === HOME SECTIONS (About, Services, Portfolio, Clients, Testimonials, CTA) ===
 require_once get_template_directory() . '/inc/home-sections-metabox.php';
+require_once get_template_directory() . '/inc/jobs-metabox.php';
 // === NAV LINKS HELPER ===
 require_once get_template_directory() . '/inc/wi-nav-links.php';
 // Uveri se da je thumbnail podržan (za sliku)
