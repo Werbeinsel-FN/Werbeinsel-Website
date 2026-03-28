@@ -489,7 +489,8 @@
 .wi-jobs-input:focus,
 .wi-jobs-textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 4px #000;
+  border-width: 8px;
+  box-shadow: none;
 }
 
 .wi-jobs-input.wi-invalid,
@@ -837,10 +838,17 @@
   font-weight: 500 !important;
 }
 
+/* Fokus (klik / tastatura): jasno deblji okvir */
 .wi-jobs-form input.wi-jobs-input:focus,
-.wi-jobs-form textarea.wi-jobs-textarea:focus,
-.wi-jobs-form input.wi-jobs-input:not(:placeholder-shown),
-.wi-jobs-form textarea.wi-jobs-textarea:not(:placeholder-shown) {
+.wi-jobs-form textarea.wi-jobs-textarea:focus {
+  border: 8px solid #000 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Popunjeno, bez fokusa: blago naglašen okvir */
+.wi-jobs-form input.wi-jobs-input:not(:placeholder-shown):not(:focus),
+.wi-jobs-form textarea.wi-jobs-textarea:not(:placeholder-shown):not(:focus) {
   border: 3px solid #000 !important;
   box-shadow: none !important;
   outline: none !important;
@@ -850,6 +858,11 @@
 .wi-jobs-form textarea.wi-jobs-textarea.wi-invalid {
   border: 2.5px solid #000 !important;
   box-shadow: none !important;
+}
+
+.wi-jobs-form input.wi-jobs-input.wi-invalid:focus,
+.wi-jobs-form textarea.wi-jobs-textarea.wi-invalid:focus {
+  border: 8px solid #000 !important;
 }
 
 .wi-jobs-form textarea.wi-jobs-textarea {
@@ -863,17 +876,24 @@
   .wi-jobs-form input.wi-jobs-input[type="tel"],
   .wi-jobs-form input.wi-jobs-input[type="url"],
   .wi-jobs-form textarea.wi-jobs-textarea {
-    border-width: 2.5px !important;
     text-align: start !important;
+  }
+
+  .wi-jobs-form input.wi-jobs-input[type="text"]:not(:focus),
+  .wi-jobs-form input.wi-jobs-input[type="email"]:not(:focus),
+  .wi-jobs-form input.wi-jobs-input[type="tel"]:not(:focus),
+  .wi-jobs-form input.wi-jobs-input[type="url"]:not(:focus),
+  .wi-jobs-form textarea.wi-jobs-textarea:not(:focus) {
+    border-width: 2.5px !important;
   }
 }
 
 @media only screen and (max-width: 1150px) {
-  .wi-jobs-form input.wi-jobs-input[type="text"],
-  .wi-jobs-form input.wi-jobs-input[type="email"],
-  .wi-jobs-form input.wi-jobs-input[type="tel"],
-  .wi-jobs-form input.wi-jobs-input[type="url"],
-  .wi-jobs-form textarea.wi-jobs-textarea {
+  .wi-jobs-form input.wi-jobs-input[type="text"]:not(:focus),
+  .wi-jobs-form input.wi-jobs-input[type="email"]:not(:focus),
+  .wi-jobs-form input.wi-jobs-input[type="tel"]:not(:focus),
+  .wi-jobs-form input.wi-jobs-input[type="url"]:not(:focus),
+  .wi-jobs-form textarea.wi-jobs-textarea:not(:focus) {
     border-width: 2.5px !important;
   }
 }
