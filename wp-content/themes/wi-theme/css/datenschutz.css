@@ -1,6 +1,4 @@
-/* TYPOGRAPHY */
-@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700;800&display=swap");
+/* TYPOGRAPHY — fonts loaded once via functions.php (wi-theme-fonts) */
 
 .datenschutz-main {
   padding: 60px 32px;

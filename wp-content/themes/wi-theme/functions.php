@@ -17,6 +17,195 @@ function wi_theme_setup() {
 }
 add_action('after_setup_theme', 'wi_theme_setup');
 
+add_filter('wp_resource_hints', function ($urls, $relation_type) {
+    if ($relation_type !== 'preconnect') {
+        return $urls;
+    }
+    $urls[] = 'https://fonts.googleapis.com';
+    $urls[] = array(
+        'href'        => 'https://fonts.gstatic.com',
+        'crossorigin' => 'anonymous',
+    );
+    return $urls;
+}, 10, 2);
+
+/**
+ * Manje HTTP zahteva i „šuma” u HTML-u (emoji CDN, nepotrebni head linkovi).
+ */
+function wi_theme_performance_head_cleanup() {
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    remove_filter('the_content_feed', 'wp_staticize_emoji');
+    remove_filter('comment_text_rss', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+
+    remove_action('wp_head', 'rsd_link');
+    remove_action('wp_head', 'wlwmanifest_link');
+    remove_action('wp_head', 'wp_generator');
+    remove_action('wp_head', 'wp_shortlink_wp_head');
+    remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10);
+    remove_action('wp_head', 'rest_output_link_wp_head');
+    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    remove_action('template_redirect', 'rest_output_link_header', 11);
+}
+add_action('init', 'wi_theme_performance_head_cleanup');
+
+/**
+ * Sitemap u robots.txt (radi samo ako u root-u nema statičkog robots.txt).
+ */
+function wi_theme_robots_txt_sitemap($output, $public) {
+    if ((string) $public === '0') {
+        return $output;
+    }
+    $line = 'Sitemap: ' . home_url('/wp-sitemap.xml');
+    if (strpos($output, 'Sitemap:') === false) {
+        $output .= "\n" . $line . "\n";
+    }
+    return $output;
+}
+add_filter('robots_txt', 'wi_theme_robots_txt_sitemap', 10, 2);
+
+/** Jedan zahtev za glavne fontove (bez duplog učitavanja u CSS/header). */
+function wi_theme_enqueue_primary_fonts() {
+    wp_enqueue_style(
+        'wi-theme-fonts',
+        'https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&family=Poppins:wght@400;500;700;800&display=swap',
+        array(),
+        null
+    );
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_primary_fonts', 2);
+
+function wi_theme_needs_contact_assets() {
+    return is_page_template('templates/contact-template.php') || is_page('kontakt-new');
+}
+
+/**
+ * Osnovni SEO bez plugina: meta description, Open Graph, Twitter card.
+ * (Ako koristiš Yoast/Rank Math, često već dodaju ove tagove — oni imaju prioritet u sadržaju stranice.)
+ */
+function wi_theme_seo_meta_tags() {
+    if (is_admin()) {
+        return;
+    }
+    if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION')) {
+        return;
+    }
+    $raw = '';
+    if (is_singular()) {
+        global $post;
+        if ($post instanceof WP_Post) {
+            $raw = (string) get_post_meta($post->ID, '_yoast_wpseo_metadesc', true);
+            if ($raw === '' && has_excerpt($post)) {
+                $raw = get_the_excerpt($post);
+            }
+            if ($raw === '' && get_post_meta($post->ID, '_rank_math_description', true)) {
+                $raw = (string) get_post_meta($post->ID, '_rank_math_description', true);
+            }
+        }
+    }
+    if ($raw === '') {
+        $raw = get_bloginfo('description', 'display');
+    }
+    $desc = wp_strip_all_tags((string) $raw);
+    $desc = preg_replace('/\s+/u', ' ', $desc);
+    $desc = trim($desc);
+    if ($desc !== '') {
+        if (function_exists('mb_strlen') && mb_strlen($desc) > 160) {
+            $desc = mb_substr($desc, 0, 157) . '…';
+        } elseif (strlen($desc) > 160) {
+            $desc = substr($desc, 0, 157) . '…';
+        }
+        echo '<meta name="description" content="' . esc_attr($desc) . '">' . "\n";
+    }
+
+    $canonical = '';
+    if (is_singular()) {
+        $canonical = get_permalink();
+    } elseif (is_front_page()) {
+        $canonical = home_url('/');
+    }
+    if (!$canonical) {
+        return;
+    }
+
+    echo '<link rel="canonical" href="' . esc_url($canonical) . '">' . "\n";
+
+    $title = wp_get_document_title();
+    $og_type = is_front_page() ? 'website' : 'article';
+
+    echo '<meta property="og:type" content="' . esc_attr($og_type) . '">' . "\n";
+    echo '<meta property="og:title" content="' . esc_attr($title) . '">' . "\n";
+    if ($desc !== '') {
+        echo '<meta property="og:description" content="' . esc_attr($desc) . '">' . "\n";
+    }
+    echo '<meta property="og:url" content="' . esc_url($canonical) . '">' . "\n";
+    echo '<meta property="og:site_name" content="' . esc_attr(get_bloginfo('name', 'display')) . '">' . "\n";
+
+    $img = '';
+    if (is_singular() && has_post_thumbnail()) {
+        $img = get_the_post_thumbnail_url(null, 'large');
+    } elseif (get_theme_mod('custom_logo')) {
+        $img = wp_get_attachment_image_url((int) get_theme_mod('custom_logo'), 'full');
+    }
+    if ($img) {
+        echo '<meta property="og:image" content="' . esc_url($img) . '">' . "\n";
+    }
+    echo '<meta name="twitter:card" content="' . esc_attr($img ? 'summary_large_image' : 'summary') . '">' . "\n";
+}
+add_action('wp_head', 'wi_theme_seo_meta_tags', 4);
+
+/**
+ * Strukturirani podaci: WebSite + Organization (bez dodatnog plugina).
+ */
+function wi_theme_json_ld_graph() {
+    if (is_admin()) {
+        return;
+    }
+    if (defined('WPSEO_VERSION') || defined('RANK_MATH_VERSION')) {
+        return;
+    }
+    $url  = home_url('/');
+    $name = get_bloginfo('name', 'display');
+    $logo = '';
+    if (get_theme_mod('custom_logo')) {
+        $logo = wp_get_attachment_image_url((int) get_theme_mod('custom_logo'), 'full');
+    }
+    if (!$logo) {
+        $logo = (string) (get_option('wi_theme_logo_dark') ?: get_option('wi_theme_logo_light'));
+    }
+    $org = array(
+        '@type' => 'Organization',
+        '@id'   => $url . '#organization',
+        'name'  => $name,
+        'url'   => $url,
+    );
+    if ($logo !== '') {
+        $org['logo'] = array(
+            '@type' => 'ImageObject',
+            'url'   => $logo,
+        );
+    }
+    $graph = array(
+        '@context' => 'https://schema.org',
+        '@graph'   => array(
+            array(
+                '@type'     => 'WebSite',
+                '@id'       => $url . '#website',
+                'url'       => $url,
+                'name'      => $name,
+                'publisher' => array('@id' => $url . '#organization'),
+                'inLanguage' => 'de',
+            ),
+            $org,
+        ),
+    );
+    echo '<script type="application/ld+json">' . wp_json_encode($graph, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "</script>\n";
+}
+add_action('wp_head', 'wi_theme_json_ld_graph', 5);
+
 /** Erstellt die 6 Portfolio-Detail-Seiten (Unsere Arbeiten), falls sie noch nicht existieren. */
 function wi_create_portfolio_detail_pages() {
   $pages = [
@@ -120,19 +309,21 @@ function wi_theme_enqueue_styles() {
         array(),
         filemtime(get_template_directory() . '/css/floating-whatsapp.css')
     );
-    wp_enqueue_style(
-    'wi-contact-style',
-    get_template_directory_uri() . '/css/contact.css',
-    array('wi-style'), // zavisi od glavnog stila
-    filemtime(get_template_directory() . '/css/contact.css')
-);
-  wp_enqueue_script(
-        'wi-contact-js',
-        get_template_directory_uri() . '/js/contact.js',
-        array('jquery'),
-        filemtime(get_template_directory() . '/js/contact.js'),
-        true
-    );
+    if (wi_theme_needs_contact_assets()) {
+        wp_enqueue_style(
+            'wi-contact-style',
+            get_template_directory_uri() . '/css/contact.css',
+            array('wi-style'),
+            filemtime(get_template_directory() . '/css/contact.css')
+        );
+        wp_enqueue_script(
+            'wi-contact-js',
+            get_template_directory_uri() . '/js/contact.js',
+            array(),
+            filemtime(get_template_directory() . '/js/contact.js'),
+            true
+        );
+    }
     if (is_page() && get_page_template_slug() === 'templates/portfolio-detail-template.php') {
         wp_enqueue_style(
             'wi-portfolio-detail-style',
@@ -176,13 +367,6 @@ function wi_theme_enqueue_styles() {
             true
         );
     }
-    // load foundation icons
-    wp_enqueue_style(
-        'foundation-icons',
-        'https://cdn.jsdelivr.net/npm/foundation-icons/foundation-icons.css',
-        array(), // no dependencies
-        null     // no fixed version no
-    );    
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_styles');
 
@@ -213,38 +397,6 @@ add_action('widgets_init', 'wi_theme_widgets_init');
 ///////////////////////////////////////////////////////////////////////
 
 function wi_theme_enqueue_js() {
-    if (is_page('kontakt-new')) {
-        wp_enqueue_script(
-            'wi-theme-js',
-            get_template_directory_uri() . '/js/contact.js',
-            array(),
-            '1.0',
-            true
-        );
-    }
-    if (is_page('datenschutz')) {
-        wp_enqueue_script(
-            'wi-theme-js',
-            get_template_directory_uri() . '/js/datenschutz.js',
-            array(),
-            '1.0',
-            true
-        );
-    }
-    wp_enqueue_script(
-        'holi-theme-admin-js', 
-        get_template_directory_uri() . '/js/mainmenu.js', 
-        array('jquery'), 
-        null, 
-        true
-    );
-}
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
-add_action('wp_enqueue_scripts', function () {
-    // CSS (već imaš)
-    wp_enqueue_style('wi-style', get_stylesheet_uri());
-
-    // JS – obavezno učitaj jQuery pa naš fajl
     wp_enqueue_script(
         'wi-mainmenu',
         get_template_directory_uri() . '/js/mainmenu.js',
@@ -252,7 +404,8 @@ add_action('wp_enqueue_scripts', function () {
         filemtime(get_template_directory() . '/js/mainmenu.js'),
         true
     );
-});
+}
+add_action('wp_enqueue_scripts', 'wi_theme_enqueue_js');
 ///////////////////////////////////////////////////////////////////////
 //	Theme Options
 ///////////////////////////////////////////////////////////////////////
@@ -365,13 +518,6 @@ function wi_theme_settings_section_callback() {
     echo __('Hier kann man allgemeine Einstellungen für das Theme anpassen.', 'wi-theme');
 }
 
-function wi_theme_option_example_render() {
-    $value = get_option('wi_theme_option_example', '');
-    ?>
-    <input type="text" name="wi_theme_option_example" value="<?php echo esc_attr($value); ?>" placeholder="z. B. Deine Website-Farbe">
-    <?php
-}
-
 function wi_theme_logo_light_render() {
     $logo_url = get_option('wi_theme_logo_light', '');
     ?>
@@ -449,8 +595,6 @@ function wi_theme_add_inline_styles() {
             --menu-font: '{$menu_font}';
             --main-font: '{$main_font}';
 			--heading-font: '{$heading_font}';
-            --e-global-typography-text-font-family: '{$main_font}'; /* Elementor Schriftart setzen */
-			--e-global-typography-heading-font-family: '{$heading_font}';
 			--text-font-size: {$text_font_size}px;
 			--color-main-text: #fff;
         }
@@ -492,16 +636,6 @@ function wi_theme_enqueue_google_fonts() {
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_google_fonts');
 
-function wi_theme_enqueue_roboto_font() {
-    wp_enqueue_style(
-        'roboto-font',
-        'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap',
-        [],
-        null
-    );
-}
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_roboto_font');
-
 /**
  * helper-function for color brightness adjustment
  *
@@ -537,17 +671,6 @@ function wi_theme_admin_scripts($hook) {
 }
 add_action('admin_enqueue_scripts', 'wi_theme_admin_scripts');
 
-///////////////////////////////////////////////////////////////////////
-//	Register Leaflet (free contact map)
-///////////////////////////////////////////////////////////////////////
-
-// function bsg_enqueue_leaflet_assets() {
-//     if (is_page_template('location-search.php')) {
-//         wp_enqueue_style('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
-//         wp_enqueue_script('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], null, true);
-//     }
-// }
-// add_action('wp_enqueue_scripts', 'bsg_enqueue_leaflet_assets');
 // === HERO SECTION (inc/hero-metabox.php) ===
 require_once get_template_directory() . '/inc/hero-metabox.php';
 // === HOME SECTIONS (About, Services, Portfolio, Clients, Testimonials, CTA) ===
@@ -555,10 +678,6 @@ require_once get_template_directory() . '/inc/home-sections-metabox.php';
 require_once get_template_directory() . '/inc/jobs-metabox.php';
 // === NAV LINKS HELPER ===
 require_once get_template_directory() . '/inc/wi-nav-links.php';
-// Uveri se da je thumbnail podržan (za sliku)
-add_action('after_setup_theme', function(){
-    add_theme_support('post-thumbnails');
-});
 // === HOME: "Grüß Gott!" sekcija (naslov + tekst) ===
 
 
