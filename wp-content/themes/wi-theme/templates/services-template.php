@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Services (Werbeinsel)
- * Description: Stranica servisa – čitanje sadržaja iz "Services Content" plugina.
+ * Description: Services-Seite – Inhalte aus "Services Content" plugina.
  */
 get_header();
 
@@ -60,7 +60,7 @@ $services_css_path = get_stylesheet_directory() . '/css/services.css';
 $services_css_url  = get_stylesheet_directory_uri() . '/css/services.css';
 if (file_exists($services_css_path)) { $services_css_url .= '?v=' . filemtime($services_css_path); }
 
-/** Link kartice: isti URL stranice + anchor (nema više detail stranica) */
+/** Kartenlink: gleiche Seiten-URL + Anker (keine Detailseiten mehrnica) */
 $services_base = get_permalink(get_queried_object());
 if (!is_string($services_base) || $services_base === '') {
   $services_base = rtrim(home_url('/'), '/') . '/services/';

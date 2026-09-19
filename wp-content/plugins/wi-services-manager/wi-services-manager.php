@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Werbeinsel Services Manager
- * Description: Uređivanje sadržaja "Services" stranice (grid). (Varijanta bez "Service Details" modula.)
+ * Description: Verwaltet die Inhalte der Services-Seite (Raster). Variante ohne Detailseiten-Modul.
  * Version: 2.1.1
  * Author: Werbeinsel
  */
@@ -76,7 +76,7 @@ class WI_Services_Manager {
         (function(){
           function openMedia(cb){
             if (!window.wp || !wp.media) return;
-            const frame = wp.media({ title:'Odaberi datoteku', button:{ text:'Koristi' }, multiple:false });
+            const frame = wp.media({ title:'Datei auswählen', button:{ text:'Übernehmen' }, multiple:false });
             frame.on('select', function(){
               const att = frame.state().get('selection').first().toJSON();
               cb(att);
@@ -134,7 +134,7 @@ class WI_Services_Manager {
         <?php settings_fields('wi_services_group'); ?>
 
         <div class="card">
-          <h2><?php _e('Glavni naslovi','wi'); ?></h2>
+          <h2><?php _e('Hauptüberschriften','wi'); ?></h2>
           <div class="wi-grid">
             <div><label>AUF DIE STRAßE</label>
               <input type="text" name="<?php echo self::OPT_KEY_LIST; ?>[headings][ooh]" class="regular-text" value="<?php echo esc_attr($heads['ooh'] ?? ''); ?>">
@@ -158,19 +158,19 @@ class WI_Services_Manager {
                 $img  = $item['image'] ? wp_get_attachment_image_url((int)$item['image'], 'medium') : '';
               ?>
                 <div class="wi-item">
-                  <div style="font-weight:700;margin-bottom:8px">Kartica <?php echo ($i+1); ?></div>
+                  <div style="font-weight:700;margin-bottom:8px">Karte <?php echo ($i+1); ?></div>
                   <div class="wi-col">
                     <div>
-                      <label>Naziv</label>
+                      <label>Bezeichnung</label>
                       <input type="text"
                         name="<?php echo self::OPT_KEY_LIST; ?>[groups][<?php echo esc_attr($key); ?>][<?php echo $i; ?>][title]"
                         value="<?php echo esc_attr($item['title']); ?>" class="regular-text">
                       <div class="muted">Permalink: <code>/services/<?php echo esc_html( sanitize_title($item['title'] ?: 'example') ); ?>/</code></div>
                     </div>
                     <div>
-                      <label>Kategorija (WP post kategorije)</label>
+                      <label>Kategorie (WordPress-Kategorien)</label>
                       <select name="<?php echo self::OPT_KEY_LIST; ?>[groups][<?php echo esc_attr($key); ?>][<?php echo $i; ?>][cat]">
-                        <option value="0">— bez kategorije —</option>
+                        <option value="0">— keine Kategorie —</option>
                         <?php foreach ($cats as $c): ?>
                           <option value="<?php echo (int)$c->term_id; ?>" <?php selected((int)$item['cat'], (int)$c->term_id); ?>>
                             <?php echo esc_html($c->name); ?>
@@ -184,8 +184,8 @@ class WI_Services_Manager {
                         name="<?php echo self::OPT_KEY_LIST; ?>[groups][<?php echo esc_attr($key); ?>][<?php echo $i; ?>][image]"
                         value="<?php echo esc_attr($item['image']); ?>">
                       <div>
-                        <button type="button" class="button wi-upload">Odaberi sliku</button>
-                        <button type="button" class="button wi-remove">Ukloni</button>
+                        <button type="button" class="button wi-upload">Bild auswählen</button>
+                        <button type="button" class="button wi-remove">Entfernen</button>
                       </div>
                     </div>
                   </div>
@@ -243,11 +243,11 @@ class WI_Services_Manager {
         }
       }
     }
-    // Nema više OPT_KEY_DETAILS ni detalja
+    // Keine Detailseiten mehr
     return [$found, []];
   }
 
-  public function activate(){ /* nema rewrite pravila, samo flush da bude čisto */ flush_rewrite_rules(false); }
+  public function activate(){ /* keine eigenen Rewrite-Regeln, nur aufräumen */ flush_rewrite_rules(false); }
   public function deactivate(){ flush_rewrite_rules(false); }
 }
 

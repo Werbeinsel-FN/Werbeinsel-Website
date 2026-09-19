@@ -87,7 +87,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
 </div>
 
 <style id="wi-contact-info-inline">
-  /* Sekcija (crna pozadina); donji padding 32px */
+  /* Bereich (schwarzer Hintergrund); unteres Padding 32px */
   #wi-contact-info-wrap section,
   #wi-contact-info-wrap .wi-contact-info{
     background:#000 !important;
@@ -197,7 +197,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
   }
   #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp .wi-ci__icon,
   #wi-contact-info-wrap .wi-ci__icon-wrap--whatsapp .wi-ci__icon *{ fill: #fff !important; stroke: #fff !important; color: #fff !important; }
-  /* Dugme "Chat starten" +20% */
+  /* Button "Chat starten" +20% */
   #wi-contact-info-wrap .wi-ci__whatsapp-btn{
     display: inline-block !important;
     background: #25D366 !important;
@@ -213,7 +213,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
   }
   #wi-contact-info-wrap .wi-ci__whatsapp-btn:hover{ opacity: 0.9 !important; }
 
-  /* Naslov stavke (TELEFON, E-MAIL, ADRESSE) +20% */
+  /* Überschrift des Eintrags (TELEFON, E-MAIL, ADRESSE) +20% */
   #wi-contact-info-wrap .wi-ci__title,
   #wi-contact-info-wrap .info-title,
   #wi-contact-info-wrap .cf-title,
@@ -228,7 +228,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     color: #FFED00 !important;
   }
 
-  /* Tekst ispod (beli, Poppins) +20% */
+  /* Text darunter (weiß, Poppins) +20% */
   #wi-contact-info-wrap .wi-ci__text,
   #wi-contact-info-wrap .info-text,
   #wi-contact-info-wrap .cf-text,
@@ -242,7 +242,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     color: #fff !important;
   }
 
-  /* Linkovi */
+  /* Links */
   #wi-contact-info-wrap .info-link,
   #wi-contact-info-wrap .cf-link,
   #wi-contact-info-wrap a{
@@ -255,7 +255,7 @@ if (class_exists('WI_Contact') && method_exists('WI_Contact', 'get_pills_decoded
     color:#ffed00 !important;
   }
 
-  /* Ukloni žuti razmak ka footeru i eventualne padove iz main-a */
+  /* Gelben Abstand zum Footer und Paddings aus main entfernen */
   main.pb-10{ padding-bottom:0 !important; }
   #wi-contact-info-wrap{ margin-bottom:0 !important; }
   #wi-contact-info-wrap + *{ margin-top:0 !important; }

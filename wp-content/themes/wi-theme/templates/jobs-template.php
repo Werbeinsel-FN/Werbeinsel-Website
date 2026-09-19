@@ -96,6 +96,7 @@ while (have_posts()) {
       <form class="wi-jobs-form" id="wi-jobs-form-el" method="post" enctype="multipart/form-data" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" novalidate>
         <input type="hidden" name="action" value="wi_contact_submit">
         <input type="hidden" name="wi_submission_type" value="jobs">
+        <?php if (class_exists('WI_Contact')) { WI_Contact::spam_fields(); } ?>
         <input type="hidden" name="wi_recaptcha_token" id="wi_jobs_recaptcha_token" value="">
         <input type="hidden" name="jobs_position" id="wi_jobs_position" value="">
         <input type="hidden" name="jobs_start" id="wi_jobs_start" value="">

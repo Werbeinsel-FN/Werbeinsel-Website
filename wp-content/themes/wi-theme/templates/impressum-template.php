@@ -34,8 +34,6 @@ if (function_exists('wi_impressum_default_data')) {
 
 $home_url = home_url('/');
 ?>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <main id="impressum-main" class="wi-impressum">
   <!-- Breadcrumb -->

@@ -21,6 +21,10 @@ add_filter('wp_resource_hints', function ($urls, $relation_type) {
     if ($relation_type !== 'preconnect') {
         return $urls;
     }
+    // Bei lokal gehosteten Schriften keine Verbindung zu Google aufbauen (DSGVO).
+    if (wi_theme_uses_local_fonts()) {
+        return $urls;
+    }
     $urls[] = 'https://fonts.googleapis.com';
     $urls[] = array(
         'href'        => 'https://fonts.gstatic.com',
@@ -67,14 +71,45 @@ function wi_theme_robots_txt_sitemap($output, $public) {
 }
 add_filter('robots_txt', 'wi_theme_robots_txt_sitemap', 10, 2);
 
-/** Jedan zahtev za glavne fontove (bez duplog učitavanja u CSS/header). */
+/**
+ * Pfad zur lokalen Schrift-Definition.
+ * Liegt /fonts/fonts.css im Theme, werden die Schriften vom eigenen Server
+ * ausgeliefert und es geht keine Anfrage mehr an Google (DSGVO).
+ */
+function wi_theme_local_fonts_file() {
+    return get_template_directory() . '/fonts/fonts.css';
+}
+
+function wi_theme_uses_local_fonts() {
+    return file_exists(wi_theme_local_fonts_file());
+}
+
+/** Eine Anfrage für die Hauptschriften (kein doppeltes Laden in CSS/Header). */
 function wi_theme_enqueue_primary_fonts() {
+    if (wi_theme_uses_local_fonts()) {
+        wp_enqueue_style(
+            'wi-theme-fonts',
+            get_template_directory_uri() . '/fonts/fonts.css',
+            array(),
+            (string) filemtime(wi_theme_local_fonts_file())
+        );
+        return;
+    }
+
     wp_enqueue_style(
         'wi-theme-fonts',
         'https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800&family=Poppins:wght@400;500;700;800&display=swap',
         array(),
         null
     );
+}
+
+/**
+ * Versionsstempel für Theme-Assets – ohne Warning, wenn die Datei fehlt.
+ */
+function wi_theme_asset_ver($relative_path) {
+    $file = get_template_directory() . $relative_path;
+    return file_exists($file) ? (string) filemtime($file) : null;
 }
 add_action('wp_enqueue_scripts', 'wi_theme_enqueue_primary_fonts', 2);
 
@@ -285,7 +320,7 @@ function wi_theme_enqueue_styles() {
         'wi-header-style', 
         get_template_directory_uri() . '/css/header.css', 
         array(), 
-        filemtime(get_template_directory() . '/css/header.css')
+        wi_theme_asset_ver('/css/header.css')
     );    
 
     // register footer stylesheet
@@ -293,7 +328,7 @@ function wi_theme_enqueue_styles() {
         'wi-footer-style', 
         get_template_directory_uri() . '/css/footer.css', 
         array(), 
-        filemtime(get_template_directory() . '/css/footer.css')
+        wi_theme_asset_ver('/css/footer.css')
     );
 
     // register mainmenu stylesheet
@@ -301,26 +336,26 @@ function wi_theme_enqueue_styles() {
         'wi-mainmenu-style',
         get_template_directory_uri() . '/css/mainmenu.css',
         array(),
-        filemtime(get_template_directory() . '/css/mainmenu.css')
+        wi_theme_asset_ver('/css/mainmenu.css')
     );
     wp_enqueue_style(
         'wi-floating-whatsapp-style',
         get_template_directory_uri() . '/css/floating-whatsapp.css',
         array(),
-        filemtime(get_template_directory() . '/css/floating-whatsapp.css')
+        wi_theme_asset_ver('/css/floating-whatsapp.css')
     );
     if (wi_theme_needs_contact_assets()) {
         wp_enqueue_style(
             'wi-contact-style',
             get_template_directory_uri() . '/css/contact.css',
             array('wi-style'),
-            filemtime(get_template_directory() . '/css/contact.css')
+            wi_theme_asset_ver('/css/contact.css')
         );
         wp_enqueue_script(
             'wi-contact-js',
             get_template_directory_uri() . '/js/contact.js',
             array(),
-            filemtime(get_template_directory() . '/js/contact.js'),
+            wi_theme_asset_ver('/js/contact.js'),
             true
         );
     }
@@ -329,7 +364,7 @@ function wi_theme_enqueue_styles() {
             'wi-portfolio-detail-style',
             get_template_directory_uri() . '/css/portfolio-detail.css',
             array('wi-style', 'wi-floating-whatsapp-style'),
-            filemtime(get_template_directory() . '/css/portfolio-detail.css')
+            wi_theme_asset_ver('/css/portfolio-detail.css')
         );
     }
     if (is_page() && get_page_template_slug() === 'templates/impressum-template.php') {
@@ -337,7 +372,7 @@ function wi_theme_enqueue_styles() {
             'wi-impressum-style',
             get_template_directory_uri() . '/css/impressum.css',
             array('wi-style'),
-            filemtime(get_template_directory() . '/css/impressum.css')
+            wi_theme_asset_ver('/css/impressum.css')
         );
     }
     if (is_page() && get_page_template_slug() === 'templates/jobs-template.php') {
@@ -345,7 +380,7 @@ function wi_theme_enqueue_styles() {
             'wi-jobs-style',
             get_template_directory_uri() . '/css/jobs.css',
             array('wi-style'),
-            filemtime(get_template_directory() . '/css/jobs.css')
+            wi_theme_asset_ver('/css/jobs.css')
         );
         $jobs_script_deps = array();
         $rec_site_jobs    = get_option('wi_contact_recaptcha_site', '');
@@ -363,7 +398,7 @@ function wi_theme_enqueue_styles() {
             'wi-jobs-form',
             get_template_directory_uri() . '/js/jobs-form.js',
             $jobs_script_deps,
-            filemtime(get_template_directory() . '/js/jobs-form.js'),
+            wi_theme_asset_ver('/js/jobs-form.js'),
             true
         );
     }
@@ -401,7 +436,7 @@ function wi_theme_enqueue_js() {
         'wi-mainmenu',
         get_template_directory_uri() . '/js/mainmenu.js',
         array('jquery'),
-        filemtime(get_template_directory() . '/js/mainmenu.js'),
+        wi_theme_asset_ver('/js/mainmenu.js'),
         true
     );
 }
@@ -459,11 +494,26 @@ add_action('admin_notices', 'wi_theme_options_page_save_feedback');
 
 function wi_theme_settings_init() {
     // register options
-    register_setting('wi_theme_options_group', 'wi_theme_logo_light');
-    register_setting('wi_theme_options_group', 'wi_theme_logo_dark');
-    register_setting('wi_theme_options_group', 'wi_theme_background_color');
-    register_setting('wi_theme_options_group', 'wi_theme_main_font_color');
-	register_setting('wi_theme_options_group', 'wi_theme_menu_font');
+    register_setting('wi_theme_options_group', 'wi_theme_logo_light', array(
+        'sanitize_callback' => 'esc_url_raw',
+        'default'           => '',
+    ));
+    register_setting('wi_theme_options_group', 'wi_theme_logo_dark', array(
+        'sanitize_callback' => 'esc_url_raw',
+        'default'           => '',
+    ));
+    register_setting('wi_theme_options_group', 'wi_theme_background_color', array(
+        'sanitize_callback' => 'wi_theme_sanitize_hex_color',
+        'default'           => '#ffffff',
+    ));
+    register_setting('wi_theme_options_group', 'wi_theme_main_font_color', array(
+        'sanitize_callback' => 'wi_theme_sanitize_hex_color',
+        'default'           => '#333333',
+    ));
+    register_setting('wi_theme_options_group', 'wi_theme_menu_font', array(
+        'sanitize_callback' => 'wi_theme_sanitize_font_name',
+        'default'           => 'Arial',
+    ));
 
     add_settings_section(
         'wi_theme_settings_section',
@@ -513,6 +563,23 @@ function wi_theme_settings_init() {
     );
 }
 add_action('admin_init', 'wi_theme_settings_init');
+
+/** Erlaubte Schriftarten für die Theme-Optionen. */
+function wi_theme_allowed_fonts() {
+    return array('Arial', 'Verdana', 'Times New Roman', 'Georgia', 'Courier New', 'Roboto', 'Open Sans');
+}
+
+/** Nur Schriftnamen aus der Allowlist zulassen. */
+function wi_theme_sanitize_font_name($value) {
+    $value = sanitize_text_field((string) $value);
+    return in_array($value, wi_theme_allowed_fonts(), true) ? $value : 'Arial';
+}
+
+/** Nur gültige Hex-Farben zulassen. */
+function wi_theme_sanitize_hex_color($value) {
+    $color = sanitize_hex_color((string) $value);
+    return $color ? $color : '';
+}
 
 function wi_theme_settings_section_callback() {
     echo __('Hier kann man allgemeine Einstellungen für das Theme anpassen.', 'wi-theme');
@@ -571,8 +638,8 @@ function wi_theme_main_font_color_render() {
 }
 
 function wi_theme_menu_font_render() {
-    $selected_font = get_option('wi_theme_menu_font', 'Arial'); // default: Arial
-    $fonts = array('Arial', 'Verdana', 'Times New Roman', 'Georgia', 'Courier New', 'Roboto', 'Open Sans'); // list of availiable font families
+    $selected_font = wi_theme_sanitize_font_name(get_option('wi_theme_menu_font', 'Arial'));
+    $fonts = wi_theme_allowed_fonts();
     ?>
     <select name="wi_theme_menu_font">
         <?php foreach ($fonts as $font): ?>
@@ -585,67 +652,62 @@ function wi_theme_menu_font_render() {
 }
 
 function wi_theme_add_inline_styles() {
-    $menu_font = get_option('wi_theme_menu_font', 'Arial');
-    $main_font = get_option('wi_theme_main_font', 'Arial');
-	$heading_font = get_option('wi_theme_heading_font', 'Arial');
-	$text_font_size = get_option('wi_theme_text_font_size', '25');
- 
-    echo "<style>
-        :root {
-            --menu-font: '{$menu_font}';
-            --main-font: '{$main_font}';
-			--heading-font: '{$heading_font}';
-			--text-font-size: {$text_font_size}px;
-			--color-main-text: #fff;
-        }
-                              
-		body {
-            font-size: var(--text-font-size);
-        }
-    </style>";
+    // Alle Werte gegen eine Allowlist bzw. einen Zahlenbereich prüfen,
+    // damit keine Option ungefiltert in den <style>-Block gelangt.
+    $menu_font    = wi_theme_sanitize_font_name(get_option('wi_theme_menu_font', 'Arial'));
+    $main_font    = wi_theme_sanitize_font_name(get_option('wi_theme_main_font', 'Arial'));
+    $heading_font = wi_theme_sanitize_font_name(get_option('wi_theme_heading_font', 'Arial'));
+
+    $text_font_size = (int) get_option('wi_theme_text_font_size', 25);
+    if ($text_font_size < 10 || $text_font_size > 60) {
+        $text_font_size = 25;
+    }
+
+    printf(
+        "<style>:root{--menu-font:'%s';--main-font:'%s';--heading-font:'%s';--text-font-size:%dpx;--color-main-text:#fff;}body{font-size:var(--text-font-size);}</style>\n",
+        esc_html($menu_font),
+        esc_html($main_font),
+        esc_html($heading_font),
+        $text_font_size
+    );
 }
 add_action('wp_head', 'wi_theme_add_inline_styles');
 
 /* chosen color to font color */
 function wi_theme_custom_css() {
-    $main_font_color = esc_attr(get_option('wi_theme_main_font_color', '#333333'));
-    ?>
-    <style>
-        body {
-            color: <?php echo $main_font_color; ?>;
-        }
-        a {
-            color: <?php echo $main_font_color; ?>;
-        }
-        a:hover {
-            color: <?php echo adjust_color_brightness($main_font_color, -30); ?>;
-        }
-    </style>
-    <?php
+    $main_font_color = wi_theme_sanitize_hex_color(get_option('wi_theme_main_font_color', '#333333'));
+    if ($main_font_color === '') {
+        $main_font_color = '#333333';
+    }
+    $hover_color = wi_adjust_color_brightness($main_font_color, -30);
+
+    printf(
+        "<style>body{color:%1\$s;}a{color:%1\$s;}a:hover{color:%2\$s;}</style>\n",
+        $main_font_color,
+        $hover_color
+    );
 }
 add_action('wp_head', 'wi_theme_custom_css');
 
-function wi_theme_enqueue_google_fonts() {
-    $menu_font = get_option('wi_theme_menu_font', 'Arial');
-    $main_font = get_option('wi_theme_main_font', 'Arial');
-    $heading_font = get_option('wi_theme_heading_font', 'Arial');
-    
-    if ($heading_font && $heading_font !== 'Arial') {
-        wp_enqueue_style('wi-theme-heading-font', 'https://fonts.googleapis.com/css2?family=' . urlencode($heading_font) . ':wght@400;700&display=swap', false);
-    }
-}
-add_action('wp_enqueue_scripts', 'wi_theme_enqueue_google_fonts');
 
 /**
- * helper-function for color brightness adjustment
+ * Hilfsfunktion zum Aufhellen/Abdunkeln einer Farbe.
  *
  * @param string $hex hex color (#RRGGBB).
  * @param int $steps step amount (-255 bis 255).
  * @return string adjusted color (#RRGGBB).
  */
-function adjust_color_brightness($hex, $steps) {
-    $steps = max(-255, min(255, $steps));
-    $hex = str_replace('#', '', $hex);
+function wi_adjust_color_brightness($hex, $steps) {
+    $steps = max(-255, min(255, (int) $steps));
+    $hex   = ltrim((string) $hex, '#');
+
+    // Kurzschreibweise (#abc) auf sechs Stellen bringen
+    if (strlen($hex) === 3) {
+        $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+    }
+    if (!preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {
+        $hex = '333333';
+    }
 
     $r = hexdec(substr($hex, 0, 2));
     $g = hexdec(substr($hex, 2, 2));
@@ -693,122 +755,13 @@ add_action('save_post_page', function($post_id){
     if ($text  !== '') update_post_meta($post_id, '_wi_intro_text',  $text ); else delete_post_meta($post_id, '_wi_intro_text');
 });
 
-/* === SERVICES sekcija (pre OUR CLIENTS) =============================== */
-
-
-function wi_home_services_cb($post){
-    $tpl = get_page_template_slug($post->ID);
-    if (strpos((string)$tpl, 'home') === false) {
-        echo '<p style="color:#666;">'.esc_html__('Ovaj metabox je vidljiv samo na Home template-u.', 'wi').'</p>';
-        return;
-    }
-
-    wp_nonce_field('wi_home_services_save', 'wi_home_services_nonce');
-
-    $section_title = get_post_meta($post->ID, '_wi_services_title', true);
-
-    // 3 slot-a (možeš povećati broj po želji)
-    $items = [];
-    for ($i=1; $i<=3; $i++){
-        $items[$i] = [
-            'img_id' => get_post_meta($post->ID, "_wi_services_{$i}_img_id", true),
-            'title'  => get_post_meta($post->ID, "_wi_services_{$i}_title",  true),
-        ];
-    }
-
-    ?>
-    <style>
-      .wi-field { margin: 10px 0 16px; }
-      .wi-row { border:1px solid #ddd; padding:12px; border-radius:8px; margin:12px 0; background:#fafafa; }
-      .wi-thumb { width: 120px; height: 80px; object-fit: cover; border-radius:6px; display:block; background:#eee; }
-      .wi-flex { display:flex; gap:12px; align-items:flex-start; }
-      .wi-actions{ display:flex; gap:8px; margin-top:6px; }
-      .wi-small{ color:#666; font-size:12px; }
-      .wi-input{ width:100%; }
-    </style>
-
-    <div class="wi-field">
-        <label><strong><?php esc_html_e('Naslov sekcije', 'wi'); ?></strong></label>
-        <input type="text" class="widefat" name="wi_services_title" value="<?php echo esc_attr($section_title ?: 'Was wir machen'); ?>">
-        <p class="wi-small"><?php esc_html_e('Veliki naslov iznad kartica (npr. "Services").', 'wi'); ?></p>
-    </div>
-
-    <?php for ($i=1; $i<=3; $i++):
-        $img_id = intval($items[$i]['img_id']);
-        $img_url = $img_id ? wp_get_attachment_image_url($img_id, 'large') : '';
-        $title   = $items[$i]['title'];
-    ?>
-      <div class="wi-row">
-        <h4 style="margin:0 0 8px;">Kartica <?php echo $i; ?></h4>
-        <div class="wi-flex">
-          <div>
-            <img id="wi_services_<?php echo $i; ?>_preview" class="wi-thumb" src="<?php echo esc_url($img_url ?: ''); ?>" alt="">
-            <div class="wi-actions">
-              <input type="hidden" id="wi_services_<?php echo $i; ?>_img_id" name="wi_services_<?php echo $i; ?>_img_id" value="<?php echo esc_attr($img_id); ?>">
-              <button type="button" class="button wi-pick" data-slot="<?php echo $i; ?>"><?php esc_html_e('Izaberi sliku', 'wi'); ?></button>
-              <button type="button" class="button wi-clear" data-slot="<?php echo $i; ?>"><?php esc_html_e('Ukloni', 'wi'); ?></button>
-            </div>
-          </div>
-          <div class="wi-input">
-            <label><strong><?php esc_html_e('Naslov kartice', 'wi'); ?></strong></label>
-            <input type="text" class="widefat" name="wi_services_<?php echo $i; ?>_title" value="<?php echo esc_attr($title ?: 'Service'); ?>">
-            <p class="wi-small"><?php esc_html_e('Kratak naslov koji se prikazuje preko slike (npr. "Vehicle Wrapping").', 'wi'); ?></p>
-          </div>
-        </div>
-      </div>
-    <?php endfor; ?>
-
-    <script>
-    (function($){
-      $(function(){
-        var frame;
-        $('.wi-pick').on('click', function(e){
-          e.preventDefault();
-          var slot = $(this).data('slot');
-
-          if (frame) frame.close();
-          frame = wp.media({ title: 'Izaberi sliku', button:{ text: 'Koristi sliku' }, library:{ type:'image' }, multiple:false });
-          frame.on('select', function(){
-            var att = frame.state().get('selection').first().toJSON();
-            $('#wi_services_'+slot+'_img_id').val(att.id);
-            $('#wi_services_'+slot+'_preview').attr('src', att.sizes && att.sizes.medium ? att.sizes.medium.url : att.url);
-          });
-          frame.open();
-        });
-
-        $('.wi-clear').on('click', function(){
-          var slot = $(this).data('slot');
-          $('#wi_services_'+slot+'_img_id').val('');
-          $('#wi_services_'+slot+'_preview').attr('src','');
-        });
-      });
-    })(jQuery);
-    </script>
-    <?php
-}
-
-add_action('save_post_page', function($post_id){
-    if (!isset($_POST['wi_home_services_nonce']) || !wp_verify_nonce($_POST['wi_home_services_nonce'], 'wi_home_services_save')) return;
-    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
-    if (!current_user_can('edit_page', $post_id)) return;
-
-    update_post_meta($post_id, '_wi_services_title', sanitize_text_field($_POST['wi_services_title'] ?? ''));
-
-    for ($i=1; $i<=3; $i++){
-        $img_id = isset($_POST["wi_services_{$i}_img_id"]) ? intval($_POST["wi_services_{$i}_img_id"]) : 0;
-        $title  = isset($_POST["wi_services_{$i}_title"])   ? wp_kses_post($_POST["wi_services_{$i}_title"])   : '';
-        if ($img_id) update_post_meta($post_id, "_wi_services_{$i}_img_id", $img_id); else delete_post_meta($post_id, "_wi_services_{$i}_img_id");
-        if ($title !== '') update_post_meta($post_id, "_wi_services_{$i}_title", $title); else delete_post_meta($post_id, "_wi_services_{$i}_title");
-    }
-});
-
-/* Obavezno: učitaj WP media skriptu na admin-u da bi radilo biranje slike */
+/* Notwendig: WP-Media-Skript im Backend laden, damit die Bildauswahl funktioniert */
 add_action('admin_enqueue_scripts', function($hook){
     if ($hook === 'post.php' || $hook === 'post-new.php') {
         wp_enqueue_media();
     }
 });
-// Helper: da li je stranica na Home template-u?
+// Hilfsfunktion: Nutzt die Seite das Home-Template?
 function wi_is_home_template($post_id){
     $tpl = (string) get_page_template_slug($post_id);
     if (!$tpl) return false;
@@ -816,7 +769,7 @@ function wi_is_home_template($post_id){
         || strpos($tpl, 'home') !== false;
 }
 
-// Registruj HOME metaboxove samo na Home template-u
+// HOME-Metaboxen nur auf dem Home-Template registrieren
 function wi_register_home_metaboxes($post){
     if (!$post instanceof WP_Post) return;
     if (!wi_is_home_template($post->ID)) return;
@@ -824,25 +777,25 @@ function wi_register_home_metaboxes($post){
     // Header video (MP4)
     add_meta_box(
         'wi_home_hero_section',
-        __('Hero sekcija (vrhu stranice)', 'wi'),
+        __('Hero-Bereich (Seitenanfang)', 'wi'),
         'wi_home_hero_section_cb',
         'page',
         'normal',
         'high'
     );
 
-    // About (dizajn iz sajt)
-    add_meta_box('wi_home_about', __('About Sekcija', 'wi'), 'wi_home_about_cb', 'page', 'normal', 'high');
-    // Services (4 kartice)
-    add_meta_box('wi_home_services_design', __('Services Sekcija (4 Karten)', 'wi'), 'wi_home_services_design_cb', 'page', 'normal', 'high');
-    // Portfolio (6 projekata)
-    add_meta_box('wi_home_portfolio', __('Portfolio Sekcija', 'wi'), 'wi_home_portfolio_cb', 'page', 'normal', 'high');
+    // About
+    add_meta_box('wi_home_about', __('About-Bereich', 'wi'), 'wi_home_about_cb', 'page', 'normal', 'high');
+    // Services (4 Karten)
+    add_meta_box('wi_home_services_design', __('Services-Bereich (4 Karten)', 'wi'), 'wi_home_services_design_cb', 'page', 'normal', 'high');
+    // Portfolio (6 Projekte)
+    add_meta_box('wi_home_portfolio', __('Portfolio-Bereich', 'wi'), 'wi_home_portfolio_cb', 'page', 'normal', 'high');
     // Clients (marquee)
-    add_meta_box('wi_home_clients', __('Clients Sekcija', 'wi'), 'wi_home_clients_cb', 'page', 'normal', 'high');
+    add_meta_box('wi_home_clients', __('Kunden-Bereich', 'wi'), 'wi_home_clients_cb', 'page', 'normal', 'high');
     // Testimonials (slider)
-    add_meta_box('wi_home_testimonials', __('Testimonials Sekcija', 'wi'), 'wi_home_testimonials_cb', 'page', 'normal', 'high');
-    // CTA (finalni poziv)
-    add_meta_box('wi_home_cta_design', __('CTA Sekcija (vor Footer)', 'wi'), 'wi_home_cta_design_cb', 'page', 'normal', 'high');
+    add_meta_box('wi_home_testimonials', __('Testimonials-Bereich', 'wi'), 'wi_home_testimonials_cb', 'page', 'normal', 'high');
+    // CTA
+    add_meta_box('wi_home_cta_design', __('CTA-Bereich (vor Footer)', 'wi'), 'wi_home_cta_design_cb', 'page', 'normal', 'high');
 }
 add_action('add_meta_boxes_page', 'wi_register_home_metaboxes');
 
@@ -901,12 +854,12 @@ function wi_render_cta_box($post) {
 
     $val = get_post_meta($post->ID, '_wi_cta_title', true);
     ?>
-    <p><label for="wi_cta_title"><strong><?php _e('Naslov (dozvoljen <br>)', 'wi'); ?></strong></label></p>
+    <p><label for="wi_cta_title"><strong><?php _e('Überschrift (<br> erlaubt)', 'wi'); ?></strong></label></p>
     <textarea id="wi_cta_title" name="wi_cta_title" rows="3" style="width:100%;max-width:800px;"><?php
         echo esc_textarea($val);
     ?></textarea>
     <p style="opacity:.75;margin-top:.25rem">
-        <?php _e('Možeš koristiti <br> za novi red.', 'wi'); ?>
+        <?php _e('Mit <br> lässt sich ein Zeilenumbruch einfügen.', 'wi'); ?>
     </p>
     <?php
 }
@@ -918,7 +871,7 @@ add_action('save_post', function ($post_id) {
     if (!current_user_can('edit_post', $post_id)) return;
 
     $raw = isset($_POST['wi_cta_title']) ? $_POST['wi_cta_title'] : '';
-    // dozvoli samo <br> u naslovu
+    // In der Überschrift nur <br> zulassen
     $allowed = array('br' => array());
     $clean = wp_kses($raw, $allowed);
     update_post_meta($post_id, '_wi_cta_title', $clean);
@@ -928,9 +881,9 @@ function wi_home_intro_box_cb($post){
     $title = get_post_meta($post->ID, '_wi_intro_title', true);
     $text  = get_post_meta($post->ID, '_wi_intro_text', true);
     ?>
-    <p><label for="wi_intro_title"><strong><?php esc_html_e('Naslov', 'wi'); ?></strong></label></p>
+    <p><label for="wi_intro_title"><strong><?php esc_html_e('Überschrift', 'wi'); ?></strong></label></p>
     <input id="wi_intro_title" name="wi_intro_title" type="text" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="Grüß Gott!">
-    <p style="margin-top:12px;"><strong><?php esc_html_e('Tekst', 'wi'); ?></strong></p>
+    <p style="margin-top:12px;"><strong><?php esc_html_e('Text', 'wi'); ?></strong></p>
     <?php
     wp_editor($text,'wi_intro_text',[
         'textarea_name'=>'wi_intro_text',
@@ -1075,279 +1028,6 @@ add_action('save_post_page', function ($post_id) {
     update_post_meta($post_id, '_wi_impressum_data', $data);
 }, 20);
 
-// Pomoćnik: napravi Gutenberg blok markup za jednu sekciju (h3 + više p)
-function wi_build_impressum_section_block($title, $paras) {
-    $html  = '<!-- wp:group {"className":"text-center impressum-section"} --><div class="wp-block-group text-center impressum-section">';
-    $html .= '<!-- wp:heading {"level":3,"className":"text-3xl poppins-bold text-black mb-6"} -->';
-    $html .= '<h3 class="text-3xl poppins-bold text-black mb-6">' . esc_html($title) . '</h3>';
-    $html .= '<!-- /wp:heading -->';
-    $html .= '<!-- wp:group {"className":"poppins text-lg text-black space-y-3"} --><div class="wp-block-group poppins text-lg text-black space-y-3">';
-    foreach ($paras as $idx => $p) {
-        $p = trim($p);
-        if ($p === '') continue;
-        $strong = $idx === 0 ? '<strong>' . esc_html($p) . '</strong>' : esc_html($p);
-        $html .= '<!-- wp:paragraph --><p>' . $strong . '</p><!-- /wp:paragraph -->';
-    }
-    $html .= '</div><!-- /wp:group -->';
-    $html .= '</div><!-- /wp:group -->';
-    return $html;
-}
-
-// Jednokratna migracija metabox -> post_content (samo za stranu koja koristi Impressum template)
-add_action('admin_init', function () {
-    if (!is_admin()) return;
-
-    // Nadji stranicu sa šablonom "impressum.php" ili slug-om "impressum"
-    $page = get_page_by_path('impressum', OBJECT, 'page');
-    if (!$page) {
-        $q = new WP_Query([
-            'post_type'      => 'page',
-            'posts_per_page' => 1,
-            'meta_query'     => [[
-                'key'     => '_wp_page_template',
-                'value'   => 'impressum',
-                'compare' => 'LIKE',
-            ]],
-            'fields'         => 'all',
-        ]);
-        if ($q->have_posts()) $page = $q->posts[0];
-        wp_reset_postdata();
-    }
-    if (!$page) return;
-
-    // Ako već ima sadržaj u editoru, ne radi ništa (pretpostavljamo da je migrirano).
-    if (!empty($page->post_content)) return;
-
-    // Učitaj metabox podatke ili defaulte
-    $defs = [
-        'tmg' => [
-            'title' => 'ANGABEN GEMÄSS § 5 TMG',
-            'paras' => ['WERBEINSEL','Flughafen 76/3','88046 Friedrichshafen','Deutschland'],
-        ],
-        'kontakt' => [
-            'title' => 'KONTAKT',
-            'paras' => ['Telefon: +49 7541 700 57 44','E-Mail: hallo@werbeinsel.de'],
-        ],
-        'ustid' => [
-            'title' => 'UMSATZSTEUER-ID',
-            'paras' => ['Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:','DE322482204'],
-        ],
-    ];
-    $meta = get_post_meta($page->ID, '_wi_impressum_data', true);
-    if (!is_array($meta)) $meta = [];
-    $data = wp_parse_args($meta, $defs);
-
-    // Sastavi blok sadržaj
-    $content  = '';
-    $content .= wi_build_impressum_section_block($data['tmg']['title'],     (array)$data['tmg']['paras']);
-    $content .= wi_build_impressum_section_block($data['kontakt']['title'], (array)$data['kontakt']['paras']);
-    $content .= wi_build_impressum_section_block($data['ustid']['title'],   (array)$data['ustid']['paras']);
-
-    // Upis u post_content
-    wp_update_post([
-        'ID'           => $page->ID,
-        'post_content' => $content,
-    ]);
-});
-/* ===== Datenschutz: migracija metabox -> post_content (jednokratno) ===== */
-
-// Helperi za generisanje blok markupa
-function wi_ds_block_section_list($title, $lines) {
-    $html  = '<!-- wp:group {"className":"datenschutz-section text-center"} -->';
-    $html .= '<div class="wp-block-group datenschutz-section text-center">';
-    $html .= '<!-- wp:heading {"level":3,"className":"section-title"} -->';
-    $html .= '<h3 class="section-title">'.esc_html($title).'</h3>';
-    $html .= '<!-- /wp:heading -->';
-    $html .= '<!-- wp:group {"className":"section-content"} --><div class="wp-block-group section-content">';
-    foreach ((array)$lines as $p) {
-        $p = trim($p);
-        if ($p==='') continue;
-        $html .= '<!-- wp:paragraph --><p>'.esc_html($p).'</p><!-- /wp:paragraph -->';
-    }
-    $html .= '</div><!-- /wp:group -->';
-    $html .= '</div><!-- /wp:group -->';
-    return $html;
-}
-
-function wi_ds_block_section_text($title, $text) {
-    $html  = '<!-- wp:group {"className":"datenschutz-section"} -->';
-    $html .= '<div class="wp-block-group datenschutz-section">';
-    $html .= '<!-- wp:heading {"level":3,"className":"section-title"} -->';
-    $html .= '<h3 class="section-title">'.esc_html($title).'</h3>';
-    $html .= '<!-- /wp:heading -->';
-    $html .= '<!-- wp:paragraph {"className":"section-text"} -->';
-    $html .= '<p class="section-text">'.wp_kses_post($text).'</p>';
-    $html .= '<!-- /wp:paragraph -->';
-    $html .= '</div><!-- /wp:group -->';
-    return $html;
-}
-
-function wi_ds_block_cookie_box($title, $text) {
-    $html  = '<!-- wp:group {"className":"cookie-box"} -->';
-    $html .= '<div class="wp-block-group cookie-box">';
-    $html .= '<!-- wp:heading {"level":4,"className":"cookie-title"} -->';
-    $html .= '<h4 class="cookie-title">'.esc_html($title).'</h4>';
-    $html .= '<!-- /wp:heading -->';
-    $html .= '<!-- wp:paragraph {"className":"cookie-text"} -->';
-    $html .= '<p class="cookie-text">'.wp_kses_post($text).'</p>';
-    $html .= '<!-- /wp:paragraph -->';
-    // Dugme ostaje fiksno po zahtevu
-    $html .= '<!-- wp:html --><button class="cookie-button">EINSTELLUNGEN BEARBEITEN</button><!-- /wp:html -->';
-    $html .= '</div><!-- /wp:group -->';
-    return $html;
-}
-
-// Vrati podrazumevane vrednosti (isti kao kod tebe)
-function wi_datenschutz_defaults() {
-    return [
-        'verantwortlicher' => [
-            'title' => 'VERANTWORTLICHER',
-            'paras' => ['AGENCY GmbH','Musterstraße 123','12345 Berlin','Deutschland','E-Mail: datenschutz@agency.com'],
-        ],
-        'erhebung' => [
-            'title' => 'ERHEBUNG UND VERARBEITUNG PERSONENBEZOGENER DATEN',
-            'text'  => 'Wir erheben und verarbeiten personenbezogene Daten nur, soweit dies zur Erfüllung unserer vertraglichen Pflichten oder zur Wahrung berechtigter Interessen erforderlich ist.',
-        ],
-        'rechte' => [
-            'title' => 'IHRE RECHTE',
-            'text'  => 'Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch und Datenübertragbarkeit.',
-        ],
-        'cookie' => [
-            'title' => 'COOKIE-EINSTELLUNGEN',
-            'text'  => 'Verwalten Sie Ihre Cookie-Präferenzen und Datenschutzeinstellungen.',
-        ],
-    ];
-}
-
-// Prepoznaj Datenschutz stranicu (template ili slug)
-function wi_is_datenschutz_template($post_id){
-    $tpl = (string) get_page_template_slug($post_id);
-    if ($tpl && ( $tpl === 'datenschutz.php' || strpos($tpl, 'datenschutz') !== false )) return true;
-    $p = get_post($post_id);
-    return ($p && $p->post_name === 'datenschutz');
-}
-
-// Jednokratna migracija u editor
-add_action('admin_init', function () {
-    if (!is_admin()) return;
-
-    // Nađi stranicu: prvo slug, pa po template-u
-    $page = get_page_by_path('datenschutz', OBJECT, 'page');
-    if (!$page) {
-        $q = new WP_Query([
-            'post_type'      => 'page',
-            'posts_per_page' => 1,
-            'meta_query'     => [[
-                'key'     => '_wp_page_template',
-                'value'   => 'datenschutz',
-                'compare' => 'LIKE',
-            ]],
-        ]);
-        if ($q->have_posts()) $page = $q->posts[0];
-        wp_reset_postdata();
-    }
-    if (!$page) return;
-
-    // Ako već postoji sadržaj u editoru, ne diramo (pretpostavka: već migrirano)
-    if (!empty($page->post_content)) return;
-
-    // Učitaj metabox podatke ili defaulte
-    $defs = wi_datenschutz_defaults();
-    $meta = get_post_meta($page->ID, '_wi_datenschutz_data', true);
-    if (!is_array($meta)) $meta = [];
-    $data = wp_parse_args($meta, $defs);
-
-    // Sastavi Gutenberg sadržaj
-    $content  = '';
-    $content .= wi_ds_block_section_list($data['verantwortlicher']['title'], (array)$data['verantwortlicher']['paras']);
-    $content .= wi_ds_block_section_text($data['erhebung']['title'], $data['erhebung']['text']);
-    $content .= wi_ds_block_section_text($data['rechte']['title'],   $data['rechte']['text']);
-    $content .= wi_ds_block_cookie_box($data['cookie']['title'],     $data['cookie']['text']);
-
-    // Upis u post_content
-    wp_update_post([
-        'ID'           => $page->ID,
-        'post_content' => $content,
-    ]);
-});
-/* ===== AGBs: migracija u Gutenberg blokove (jednokratno) ===== */
-
-// Default sadržaj (možeš prilagoditi)
-function wi_agbs_defaults() {
-  return [
-    [
-      'title' => '§ 1 GELTUNGSBEREICH',
-      'text'  => 'Diese Allgemeinen Geschäftsbedingungen gelten für alle Verträge zwischen der AGENCY GmbH und ihren Kunden. Abweichende Bedingungen des Kunden werden nur dann Vertragsbestandteil, wenn wir diesen ausdrücklich schriftlich zustimmen.'
-    ],
-    [
-      'title' => '§ 2 VERTRAGSSCHLUSS',
-      'text'  => 'Unsere Angebote sind freibleibend und unverbindlich. Der Vertrag kommt durch unsere schriftliche Auftragsbestätigung oder durch Beginn der Ausführung zustande.'
-    ],
-    [
-      'title' => '§ 3 PREISE UND ZAHLUNGSBEDINGUNGEN',
-      'text'  => 'Alle Preise verstehen sich netto zuzüglich der gesetzlichen Umsatzsteuer. Rechnungen sind innerhalb von 14 Tagen nach Rechnungsdatum zur Zahlung fällig.'
-    ],
-  ];
-}
-
-// Helper: jedna sekcija = H3 + p (sa tvojim klasama)
-function wi_agbs_section_block($title, $text) {
-  $html  = '<!-- wp:group --><div class="wp-block-group">';
-  $html .= '<!-- wp:heading {"level":3,"className":"text-2xl unbounded-bold text-black mb-4"} -->';
-  $html .= '<h3 class="text-2xl unbounded-bold text-black mb-4">'.esc_html($title).'</h3>';
-  $html .= '<!-- /wp:heading -->';
-  $html .= '<!-- wp:paragraph {"className":"poppins text-black leading-relaxed"} -->';
-  $html .= '<p class="poppins text-black leading-relaxed">'.wp_kses_post($text).'</p>';
-  $html .= '<!-- /wp:paragraph -->';
-  $html .= '</div><!-- /wp:group -->';
-  return $html;
-}
-
-// Prepoznaj AGBs stranicu
-function wi_is_agbs_template($post_id){
-  $tpl = (string) get_page_template_slug($post_id);
-  if ($tpl && ( $tpl === 'agbs.php' || strpos($tpl, 'agbs') !== false )) return true;
-  $p = get_post($post_id);
-  return ($p && in_array($p->post_name, ['agbs','agb','agb-s','a-g-b','bedingungen'], true));
-}
-
-// Migracija (radi samo ako je editor prazan)
-add_action('admin_init', function () {
-  if (!is_admin()) return;
-
-  // Prvo probaj slug
-  $page = get_page_by_path('agbs', OBJECT, 'page');
-  if (!$page) $page = get_page_by_path('agb', OBJECT, 'page');
-
-  // Ako nije nađeno po slugu, probaj po template-u
-  if (!$page) {
-    $q = new WP_Query([
-      'post_type'      => 'page',
-      'posts_per_page' => 1,
-      'meta_query'     => [[
-        'key'     => '_wp_page_template',
-        'value'   => 'agbs',
-        'compare' => 'LIKE',
-      ]],
-    ]);
-    if ($q->have_posts()) $page = $q->posts[0];
-    wp_reset_postdata();
-  }
-  if (!$page) return;
-
-  if (!empty($page->post_content)) return; // već ima sadržaj, ne diramo
-
-  $defs = wi_agbs_defaults();
-  $content = '';
-  foreach ($defs as $sec) {
-    $content .= wi_agbs_section_block($sec['title'], $sec['text']);
-  }
-
-  wp_update_post([
-    'ID'           => $page->ID,
-    'post_content' => $content,
-  ]);
-});
 
 
 /* jQuery UI sortable (admin) */

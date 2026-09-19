@@ -15,11 +15,11 @@ function wi_home_about_cb($post) {
     $para1 = get_post_meta($post->ID, '_wi_about_para1', true);
     $para2 = get_post_meta($post->ID, '_wi_about_para2', true);
     ?>
-    <p><label><strong>Naslov</strong></label><br>
+    <p><label><strong>Überschrift</strong></label><br>
     <textarea name="wi_about_title" rows="2" class="widefat" placeholder="Ihre Agentur für klassische Werbung"><?php echo esc_textarea($title); ?></textarea></p>
-    <p><label><strong>Paragraf 1</strong></label><br>
+    <p><label><strong>Absatz 1</strong></label><br>
     <textarea name="wi_about_para1" rows="2" class="widefat" placeholder="WERBEINSEL steht für klare Kommunikation..."><?php echo esc_textarea($para1); ?></textarea></p>
-    <p><label><strong>Paragraf 2</strong></label><br>
+    <p><label><strong>Absatz 2</strong></label><br>
     <textarea name="wi_about_para2" rows="3" class="widefat" placeholder="Wir entwickeln, produzieren..."><?php echo esc_textarea($para2); ?></textarea></p>
     <?php
 }
@@ -122,7 +122,7 @@ function wi_home_clients_cb($post) {
     ?>
     <p><label><strong>Titel</strong></label><br><input type="text" name="wi_clients_title" class="widefat" value="<?php echo esc_attr($title); ?>" placeholder="OUR CLIENTS"></p>
     <p><label><strong>Untertitel</strong></label><br><textarea name="wi_clients_subtitle" rows="2" class="widefat" placeholder="Von Kultur bis Industrie..."><?php echo esc_textarea($subtitle); ?></textarea></p>
-    <p class="description">Die Logos in den drei Reihen werden im Menü <strong>Clients Marquee</strong> verwaltet (Bilder wählen, Reihenfolge festlegen). Slike werden automatisch in Schwarz-Weiß dargestellt; auf schwarzer Pille wird das Logo invertiert (weiß), auf weißer Pille dunkel.</p>
+    <p class="description">Die Logos in den drei Reihen werden im Menü <strong>Clients Marquee</strong> verwaltet (Bilder wählen, Reihenfolge festlegen). Die Logos werden automatisch in Schwarz-Weiß dargestellt; auf schwarzer Pille wird das Logo invertiert (weiß), auf weißer Pille dunkel.</p>
     <?php
 }
 

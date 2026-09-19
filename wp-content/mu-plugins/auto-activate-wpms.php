@@ -1,16 +1,32 @@
 <?php
 /**
- * Auto-aktivacija WP Mail SMTP (jednokratno).
+ * Aktiviert WP Mail SMTP Pro nach einem Deployment einmalig.
+ *
+ * Hinweis: Läuft nur im Backend und merkt sich per Option, dass die
+ * Aktivierung erledigt ist – vorher wurde der Code bei jedem Request
+ * ausgeführt, und zwar mit einem falschen Plugin-Pfad.
  */
-if (!defined('ABSPATH')) exit;
 
-add_action('plugins_loaded', function () {
-  include_once ABSPATH . 'wp-admin/includes/plugin.php';
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-  $plugin_slug = 'wp-mail-smtp/wp_mail_smtp.php';
+add_action('admin_init', function () {
+    if (get_option('wi_wpms_autoactivated') === '1') {
+        return;
+    }
 
-  // Ako nije aktivan, aktiviraj i odmah se samoubij (obriši sebe posle).
-  if (!is_plugin_active($plugin_slug)) {
-    activate_plugin($plugin_slug, '', false, false);
-  }
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+    $plugin = 'wp-mail-smtp-pro/wp_mail_smtp.php';
+
+    if (file_exists(WP_PLUGIN_DIR . '/' . $plugin) && !is_plugin_active($plugin)) {
+        $result = activate_plugin($plugin, '', false, true);
+        if (is_wp_error($result)) {
+            error_log('WI: WP Mail SMTP konnte nicht aktiviert werden: ' . $result->get_error_message());
+            return;
+        }
+    }
+
+    update_option('wi_wpms_autoactivated', '1', false);
 });

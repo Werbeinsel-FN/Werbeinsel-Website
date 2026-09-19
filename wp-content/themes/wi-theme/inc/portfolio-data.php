@@ -1,7 +1,7 @@
 <?php
 /**
  * Portfolio project data – 6 projekata kao u dizajnu (Desktop/sajt)
- * Koristi se u portfolio-detail-template.php
+ * Wird in portfolio-detail-template.php verwendet
  */
 if (!function_exists('wi_get_portfolio_projects')) {
   function wi_get_portfolio_projects() {

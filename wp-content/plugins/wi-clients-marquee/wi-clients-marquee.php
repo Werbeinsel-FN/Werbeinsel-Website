@@ -90,7 +90,7 @@ class WI_Clients_Marquee {
     <div class="wrap">
       <h1>Clients Marquee</h1>
       <p class="description">
-        Dodaj logoe koji će se prikazivati u 3 reda. Redovi se pune sekvencijalno (prvo ceo prvi red, pa drugi, pa treći).
+        Logos hinzufügen, die in drei Reihen angezeigt werden. Die Reihen werden nacheinander gefüllt (erst die erste Reihe komplett, dann die zweite, dann die dritte).
         Boje pilula se automatski smenjuju (crna/bela), a logo se prilagođava kontrastu.
       </p>
 
@@ -116,18 +116,18 @@ class WI_Clients_Marquee {
                 <div class="wi-cm-controls">
                   <img class="wi-cm-thumb" src="<?php echo esc_url($src); ?>" alt="">
                   <input type="hidden" class="wi-cm-image-id" name="<?php echo self::OPT_KEY; ?>[<?php echo $i; ?>][image_id]" value="<?php echo $id; ?>">
-                  <button type="button" class="button wi-cm-pick">Odaberi</button>
-                  <button type="button" class="button wi-cm-clear">Ukloni</button>
+                  <button type="button" class="button wi-cm-pick">Auswählen</button>
+                  <button type="button" class="button wi-cm-clear">Entfernen</button>
                 </div>
               </td>
               <td>
-                <input type="text" class="regular-text wi-cm-alt" name="<?php echo self::OPT_KEY; ?>[<?php echo $i; ?>][alt]" value="<?php echo $alt; ?>" placeholder="ALT (npr. Naziv klijenta)">
+                <input type="text" class="regular-text wi-cm-alt" name="<?php echo self::OPT_KEY; ?>[<?php echo $i; ?>][alt]" value="<?php echo $alt; ?>" placeholder="ALT-Text (z. B. Kundenname)">
               </td>
               <td>
                 <div class="wi-cm-row-actions">
-                  <button type="button" class="button button-secondary wi-cm-up">Gore</button>
-                  <button type="button" class="button button-secondary wi-cm-down">Dole</button>
-                  <button type="button" class="button button-link-delete wi-cm-remove">Obriši</button>
+                  <button type="button" class="button button-secondary wi-cm-up">Nach oben</button>
+                  <button type="button" class="button button-secondary wi-cm-down">Nach unten</button>
+                  <button type="button" class="button button-link-delete wi-cm-remove">Löschen</button>
                 </div>
               </td>
             </tr>
@@ -136,7 +136,7 @@ class WI_Clients_Marquee {
         </table>
 
         <p>
-          <button type="button" class="button button-primary" id="wi-cm-add">+ Dodaj logo</button>
+          <button type="button" class="button button-primary" id="wi-cm-add">+ Logo hinzufügen</button>
         </p>
 
         <?php submit_button(); ?>
@@ -150,18 +150,18 @@ class WI_Clients_Marquee {
               <div class="wi-cm-controls">
                 <img class="wi-cm-thumb" src="" alt="">
                 <input type="hidden" class="wi-cm-image-id" name="<?php echo self::OPT_KEY; ?>[IDX][image_id]" value="0">
-                <button type="button" class="button wi-cm-pick">Odaberi</button>
-                <button type="button" class="button wi-cm-clear">Ukloni</button>
+                <button type="button" class="button wi-cm-pick">Auswählen</button>
+                <button type="button" class="button wi-cm-clear">Entfernen</button>
               </div>
             </td>
             <td>
-              <input type="text" class="regular-text wi-cm-alt" name="<?php echo self::OPT_KEY; ?>[IDX][alt]" value="" placeholder="ALT (npr. Naziv klijenta)">
+              <input type="text" class="regular-text wi-cm-alt" name="<?php echo self::OPT_KEY; ?>[IDX][alt]" value="" placeholder="ALT-Text (z. B. Kundenname)">
             </td>
             <td>
               <div class="wi-cm-row-actions">
-                <button type="button" class="button button-secondary wi-cm-up">Gore</button>
-                <button type="button" class="button button-secondary wi-cm-down">Dole</button>
-                <button type="button" class="button button-link-delete wi-cm-remove">Obriši</button>
+                <button type="button" class="button button-secondary wi-cm-up">Nach oben</button>
+                <button type="button" class="button button-secondary wi-cm-down">Nach unten</button>
+                <button type="button" class="button button-link-delete wi-cm-remove">Löschen</button>
               </div>
             </td>
           </tr>
@@ -447,7 +447,7 @@ add_action('admin_footer', function(){
       });
     }
     function pickMedia($row){
-      const frame = wp.media({title:'Odaberi logo', button:{text:'Use'}, multiple:false});
+      const frame = wp.media({title:'Logo auswählen', button:{text:'Use'}, multiple:false});
       frame.on('select', function(){
         const att = frame.state().get('selection').first().toJSON();
         const url = (att.sizes && (att.sizes.medium || att.sizes.full).url) || att.url;

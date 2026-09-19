@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WI Contact
- * Description: Custom kontakt forma + “pills” + kontakt info (adresa/email/telefon).
+ * Description: Eigenes Kontaktformular inkl. Auswahl-Buttons und Kontaktdaten (Adresse/E-Mail/Telefon).
  * Version: 1.3.7
  * Author: WI
  */
@@ -76,6 +76,58 @@ class WI_Contact {
     ];
   }
 
+  /* ---------- Spamschutz ---------- */
+
+  /**
+   * Versteckte Felder für den Spamschutz.
+   * Wird von der Kontakt- und der Bewerbungsform ausgegeben.
+   */
+  public static function spam_fields() {
+    echo '<div aria-hidden="true" style="position:absolute!important;left:-9999px!important;top:auto;width:1px;height:1px;overflow:hidden;">';
+    echo '<label>' . esc_html__('Dieses Feld bitte leer lassen', 'wi') . ' ';
+    echo '<input type="text" name="wi_hp_website" value="" tabindex="-1" autocomplete="off"></label>';
+    echo '</div>';
+    echo '<input type="hidden" name="wi_form_ts" value="' . esc_attr(time()) . '">';
+  }
+
+  /** IP des Absenders (nur für das Rate-Limit, wird nicht gespeichert). */
+  private static function client_ip() {
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
+    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
+  }
+
+  /**
+   * Grundschutz, der unabhängig von reCAPTCHA immer greift:
+   * 1. Honeypot-Feld darf nicht ausgefüllt sein
+   * 2. Formular darf nicht in unter 3 Sekunden abgeschickt worden sein
+   * 3. Höchstens 5 Einsendungen je IP in 10 Minuten
+   */
+  private function spam_gate() {
+    if (!empty($_POST['wi_hp_website'])) {
+      status_header(200);
+      echo 'SPAM';
+      return false;
+    }
+
+    $ts = isset($_POST['wi_form_ts']) ? (int) $_POST['wi_form_ts'] : 0;
+    if ($ts > 0 && (time() - $ts) < 3) {
+      status_header(200);
+      echo 'SPAM';
+      return false;
+    }
+
+    $key   = 'wi_contact_rl_' . md5(self::client_ip());
+    $count = (int) get_transient($key);
+    if ($count >= 5) {
+      status_header(200);
+      echo 'TOO_MANY';
+      return false;
+    }
+    set_transient($key, $count + 1, 10 * MINUTE_IN_SECONDS);
+
+    return true;
+  }
+
   /* ---------- Helpers ---------- */
 
   private static function normalize_fields($arr) {
@@ -111,7 +163,7 @@ class WI_Contact {
     return $p;
   }
 
-  /** FRONTEND helper: pills sa dekodiranim HTML entitetima i naslovima kao na slici */
+  /** Frontend-Helfer: Auswahl-Buttons mit dekodierten HTML-Entities. */
   public static function get_pills_decoded() {
     $p = self::normalize_pills( get_option(self::OPT_PILLS, self::defaults_pills()) );
     $titles = [
@@ -171,7 +223,7 @@ class WI_Contact {
       }
       update_option(self::OPT_PILLS, $from_post);
 
-      // Ažuriramo samo adresu/email/telefon (mapa je uklonjena iz UI-ja)
+      // Es werden nur Adresse/E-Mail/Telefon aktualisiert (Karte ist aus der UI entfernt)
       $prev = get_option(self::OPT_INFO, self::defaults_info());
       $ni = is_array($prev) ? $prev : self::defaults_info();
       $ni['address_lines'] = array_values(array_filter(array_map('sanitize_text_field', preg_split('/\r?\n/', $_POST['info']['address_lines'] ?? ""))));
@@ -180,14 +232,14 @@ class WI_Contact {
       $ni['whatsapp_url']  = esc_url_raw($_POST['info']['whatsapp_url'] ?? '');
       update_option(self::OPT_INFO, $ni);
 
-      // reCAPTCHA (opciono)
+      // reCAPTCHA (optional)
       $rec_site = sanitize_text_field($_POST['recaptcha_site_key'] ?? '');
       $rec_sec  = sanitize_text_field($_POST['recaptcha_secret_key'] ?? '');
       update_option(self::OPT_RECAPTCHA_SITE, $rec_site);
       update_option(self::OPT_RECAPTCHA_SECRET, $rec_sec);
 
       $fields = $safe_fields;
-      $pills  = $new_pills;
+      $pills  = $from_post;
       $info   = $ni;
     }
 
@@ -197,10 +249,10 @@ class WI_Contact {
       <form method="post">
         <?php wp_nonce_field('wi_contact_save','wi_contact_nonce'); ?>
 
-        <h2 style="margin-top:20px;">A) Kontakt polja (forma)</h2>
-        <p>Dodaj/izbriši/izmeni polja forme.</p>
+        <h2 style="margin-top:20px;">A) Formularfelder</h2>
+        <p>Felder des Kontaktformulars hinzufügen, ändern oder entfernen.</p>
         <table class="widefat striped">
-          <thead><tr><th>Ime polja (name)</th><th>Label</th><th>Tip</th><th>Required</th><th></th></tr></thead>
+          <thead><tr><th>Feldname (name)</th><th>Beschriftung</th><th>Typ</th><th>Pflichtfeld</th><th></th></tr></thead>
           <tbody id="wi-fields-rows">
             <?php foreach ($fields as $i=>$f):
               $val_name  = (string)($f['name'] ?? '');
@@ -219,32 +271,32 @@ class WI_Contact {
                   </select>
                 </td>
                 <td><input type="checkbox" name="fields[<?php echo $i;?>][required]" <?php checked($val_req); ?>></td>
-                <td><a href="#" class="wi-remove-row">Remove</a></td>
+                <td><a href="#" class="wi-remove-row">Entfernen</a></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
-        <p><a href="#" id="wi-add-field">+ Add field</a></p>
+        <p><a href="#" id="wi-add-field">+ Feld hinzufügen</a></p>
 
-        <h2 style="margin-top:20px;">B) Pills (usluge / budžet / vremenski okvir)</h2>
-        <p>Naslov sekcije (prelom reda = <code>\n</code>). Stavke: jedan po liniji.</p>
+        <h2 style="margin-top:20px;">B) Auswahl-Buttons (Services / Budget / Zeitrahmen)</h2>
+        <p>Überschrift des Bereichs (Zeilenumbruch = <code>\n</code>). Einträge: einer pro Zeile.</p>
         <table class="widefat striped">
-          <thead><tr><th style="width:220px">Grupa</th><th>Naslov (na stranici)</th><th>Stavke</th></tr></thead>
+          <thead><tr><th style="width:220px">Gruppe</th><th>Überschrift (auf der Seite)</th><th>Einträge</th></tr></thead>
           <tbody>
             <?php foreach ($pills as $k=>$g): ?>
               <tr>
                 <th style="vertical-align: top;"><?php echo esc_html($k); ?></th>
-                <td style="vertical-align: top;"><input type="text" name="pills[<?php echo esc_attr($k); ?>][title]" value="<?php echo esc_attr($g['title'] ?? ''); ?>" class="large-text" placeholder="npr. Geplantes Budget"></td>
+                <td style="vertical-align: top;"><input type="text" name="pills[<?php echo esc_attr($k); ?>][title]" value="<?php echo esc_attr($g['title'] ?? ''); ?>" class="large-text" placeholder="z. B. Geplantes Budget"></td>
                 <td><textarea name="pills[<?php echo esc_attr($k); ?>][items]" rows="6" style="width:100%"><?php echo esc_textarea(implode("\n",$g['items'] ?? [])); ?></textarea></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
         </table>
 
-        <h2 style="margin-top:20px;">C) Kontakt info</h2>
+        <h2 style="margin-top:20px;">C) Kontaktdaten</h2>
         <table class="widefat striped">
           <tr>
-            <th style="width:220px">Email koji prima</th>
+            <th style="width:220px">Empfänger-E-Mail</th>
             <td><input name="info[email]" class="regular-text" value="<?php echo esc_attr($info['email'] ?? ''); ?>"></td>
           </tr>
           <tr>
@@ -253,16 +305,16 @@ class WI_Contact {
           </tr>
           <tr>
             <th>WhatsApp URL</th>
-            <td><input name="info[whatsapp_url]" class="large-text" placeholder="https://wa.me/49..." value="<?php echo esc_attr($info['whatsapp_url'] ?? ''); ?>"><br><small>npr. https://wa.me/49123456789?text=Hallo%20Werbeinsel</small></td>
+            <td><input name="info[whatsapp_url]" class="large-text" placeholder="https://wa.me/49..." value="<?php echo esc_attr($info['whatsapp_url'] ?? ''); ?>"><br><small>z. B. https://wa.me/49123456789?text=Hallo%20Werbeinsel</small></td>
           </tr>
           <tr>
-            <th>Adresa (linije)</th>
+            <th>Adresse (eine Zeile pro Angabe)</th>
             <td><textarea name="info[address_lines]" rows="6" style="width:100%"><?php echo esc_textarea(implode("\n",$info['address_lines'] ?? [])); ?></textarea></td>
           </tr>
         </table>
 
-        <h2 style="margin-top:20px;">D) reCAPTCHA v3 (opcionalno)</h2>
-        <p>Unesi Google reCAPTCHA v3 site i secret ključeve. Ako ostane prazno, forma neće koristiti reCAPTCHA.</p>
+        <h2 style="margin-top:20px;">D) reCAPTCHA v3 (optional)</h2>
+        <p>Site- und Secret-Key von Google reCAPTCHA v3 eintragen. Bleiben die Felder leer, wird reCAPTCHA nicht verwendet. Honeypot-, Zeit- und IP-Schutz sind unabhängig davon immer aktiv.</p>
         <table class="widefat striped">
           <tr>
             <th style="width:220px">Site key</th>
@@ -274,7 +326,7 @@ class WI_Contact {
           </tr>
         </table>
 
-        <?php submit_button('Sačuvaj sve'); ?>
+        <?php submit_button('Alle Änderungen speichern'); ?>
       </form>
     </div>
     <style>
@@ -295,7 +347,7 @@ class WI_Contact {
               '<td><input name="fields['+idx+'][label]" class="regular-text"></td>'+
               '<td><select name="fields['+idx+'][type]"><option value="text">text</option><option value="email">email</option><option value="tel">tel</option></select></td>'+
               '<td><input type="checkbox" name="fields['+idx+'][required]"></td>'+
-              '<td><a href="#" class="wi-remove-row">Remove</a></td>';
+              '<td><a href="#" class="wi-remove-row">Entfernen</a></td>';
             tbody.appendChild(tr);
           });
         }
@@ -403,28 +455,58 @@ class WI_Contact {
     <form class="wi-contact-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
       <?php $rec_site = get_option(self::OPT_RECAPTCHA_SITE, ''); if ($rec_site): ?>
       <input type="hidden" name="wi_recaptcha_token" id="wi_recaptcha_token" value="">
-      <script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr($rec_site); ?>"></script>
       <script>
-      document.addEventListener('DOMContentLoaded', function(){
-        if (typeof grecaptcha !== 'undefined') {
-          grecaptcha.ready(function(){
-            var form = document.querySelector('.wi-contact-form');
-            if (!form) return;
-            form.addEventListener('submit', function(evt){
-              evt.preventDefault();
-              grecaptcha.execute('<?php echo esc_js($rec_site); ?>', {action: 'contact'}).then(function(token){
+      (function(){
+        var siteKey = <?php echo wp_json_encode($rec_site); ?>;
+        var injected = false;
+
+        // reCAPTCHA erst nach erteilter Einwilligung nachladen (CMP-Events),
+        // damit ohne Zustimmung keine Verbindung zu Google entsteht.
+        function injectRecaptcha(){
+          if (injected) return;
+          injected = true;
+          if (document.querySelector('script[src*="google.com/recaptcha/api.js"]')) return;
+          var s = document.createElement('script');
+          s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(siteKey);
+          s.async = true;
+          s.defer = true;
+          document.head.appendChild(s);
+        }
+
+        ['UC_UI_ACCEPT_ALL', 'UC_UI_CHANGE', 'UC_UI_INITIALIZED'].forEach(function(ev){
+          window.addEventListener(ev, injectRecaptcha);
+        });
+
+        document.addEventListener('DOMContentLoaded', function(){
+          var form = document.querySelector('.wi-contact-form');
+          if (!form) return;
+
+          form.addEventListener('submit', function(evt){
+            if (form.getAttribute('data-wi-token-done') === '1') return;
+            // Ohne Einwilligung ist grecaptcha nicht geladen: normal absenden,
+            // der serverseitige Spamschutz greift trotzdem.
+            if (typeof grecaptcha === 'undefined') return;
+
+            evt.preventDefault();
+            grecaptcha.ready(function(){
+              grecaptcha.execute(siteKey, { action: 'contact' }).then(function(token){
                 var inp = document.getElementById('wi_recaptcha_token');
                 if (inp) inp.value = token;
+                form.setAttribute('data-wi-token-done', '1');
+                form.submit();
+              }).catch(function(){
+                form.setAttribute('data-wi-token-done', '1');
                 form.submit();
               });
             });
           });
-        }
-      });
+        });
+      })();
       </script>
       <?php endif; ?>
 
       <input type="hidden" name="action" value="wi_contact_submit">
+      <?php self::spam_fields(); ?>
 
       <div class="wi-grid">
         <?php foreach ($fields as $f):
@@ -432,7 +514,7 @@ class WI_Contact {
           if (!$name) continue;
           $type  = in_array(($f['type'] ?? 'text'), ['text','email','tel'], true) ? $f['type'] : 'text';
           $label = (string)($f['label'] ?? '');
-          $label_plain = trim(preg_replace('/\s*\*+$/', '', $label)); // očisti eventualnu * iz labela
+          $label_plain = trim(preg_replace('/\s*\*+$/', '', $label)); // mögliches * aus der Beschriftung entfernen
           $req   = !empty($f['required']);
           $id    = 'wi_' . $name;
           $ph    = rtrim($label_plain, '* ');
@@ -478,9 +560,11 @@ class WI_Contact {
     }
     $token = sanitize_text_field(wp_unslash($_POST['wi_recaptcha_token'] ?? ''));
     if ($token === '') {
-      status_header(200);
-      echo 'RECAPTCHA_MISSING';
-      return false;
+      // Kein Token bedeutet in der Regel: Besucher hat der Einbindung von
+      // reCAPTCHA nicht zugestimmt. Der Honeypot- und Zeitschutz greift
+      // weiterhin, deshalb wird die Einsendung zugelassen.
+      error_log('WI_CONTACT: Einsendung ohne reCAPTCHA-Token (vermutlich keine Einwilligung).');
+      return true;
     }
     $resp = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
       'body'    => ['secret' => $rec_secret, 'response' => $token, 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''],
@@ -652,13 +736,17 @@ class WI_Contact {
     echo $sent ? 'OK' : 'MAIL_ERROR';
   }
 
-  /* ---------- Slanje mejla ---------- */
+  /* ---------- Mailversand ---------- */
   public function handle_submit() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
       wp_die();
     }
 
     try {
+      if (!$this->spam_gate()) {
+        return;
+      }
+
       if (isset($_POST['wi_submission_type']) && sanitize_text_field(wp_unslash($_POST['wi_submission_type'])) === 'jobs') {
         if (!$this->recaptcha_gate()) {
           return;
@@ -671,7 +759,7 @@ class WI_Contact {
         return;
       }
 
-      // Polja
+      // Formularfelder
       $fields = self::normalize_fields(get_option(self::OPT_FIELDS, self::defaults_fields()));
       $data   = [];
       foreach ($fields as $f) {
@@ -681,7 +769,7 @@ class WI_Contact {
         $data[$key] = is_string($val) ? trim($val) : '';
       }
 
-      // Primaoc
+      // Empfänger
       $info     = get_option(self::OPT_INFO, self::defaults_info());
       $email_to = sanitize_email($info['email'] ?? '') ?: get_option('admin_email');
 
@@ -719,7 +807,7 @@ class WI_Contact {
         error_log('WI_CONTACT FATAL: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
       }
       status_header(200);
-      echo 'SERVER_ERROR: ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine();
+      echo 'SERVER_ERROR';
     }
 
     wp_die();
